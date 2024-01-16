@@ -1,14 +1,12 @@
 ﻿using Catalog.API.Middlewares;
 using Catalog.Application;
 using Catalog.Application.Behaviors;
-using Catalog.Application.Brands.Queries;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace Catalog.API.Extensions
 {

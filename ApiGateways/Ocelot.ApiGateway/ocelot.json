@@ -1,0 +1,33 @@
+{
+  "Routes": [
+    //Catalog API
+    //{
+    //  "DownstreamPathTemplate": "/api/v1/Catalog",
+    //  "DownstreamScheme": "http",
+    //  "DownstreamHostAndPorts": [
+    //    {
+    //      "Host": "localhost",
+    //      "Port": "9000"
+    //    }
+    //  ],
+    //  "UpstreamPathTemplate": "/Catalog",
+    //  "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+    //  "FileCacheOptions": { "TtlSeconds": 30 }
+    //},
+    {
+      "DownstreamPathTemplate": "/api/Brand/GetAllBrands",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5125"
+        }
+      ],
+      "UpstreamPathTemplate": "/Brand/GetAllBrands",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5003"
+  }
+}
