@@ -2,24 +2,31 @@
 using Catalog.Application.Brands.Commands;
 using Catalog.Application.Extensions;
 using Catalog.Application.Responses;
+using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
     public class UpdateBrandHandler : IRequestHandler<UpdateBrandCommand, BaseResponse<BrandResponse>>
     {
-        private readonly IBrandRepository _brandRepository;
+        private readonly IRepository<Brand> _brandRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<UpdateBrandHandler> _logger;
 
-        public UpdateBrandHandler(IBrandRepository brandRepository, IMapper mapper)
+        public UpdateBrandHandler(IRepository<Brand> brandRepository, IMapper mapper, ILogger<UpdateBrandHandler> logger)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<BaseResponse<BrandResponse>> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"UpdateBrandHandler: {JsonSerializer.Serialize(request.Payload)}");
+
             var existingBrand = await _brandRepository.GetByIdAsync(Guid.Parse(request.Payload.Id));
             if (existingBrand == null)
             {

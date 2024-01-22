@@ -15,20 +15,14 @@ namespace Catalog.Application
             CreateMap<UpdateBrandRequest, Brand>()
                 .ForMember(prop => prop.UpdatedOn, opt => opt.MapFrom(o => DateTime.UtcNow));
 
-            //CreateMap<Category, CategoryDto>();
-            //CreateMap<CategoryDto, Category>()
-            //    .ForMember(prop => prop.Id, opt => opt.MapFrom(o => ((o.Id == null || o.Id == Guid.Empty) ? Guid.NewGuid() : o.Id)))
-            //    .ForMember(prop => prop.ParentId, opt => opt.MapFrom(o => ((o.ParentId == null || o.ParentId == Guid.Empty) ? (Guid?)null : o.ParentId)))
-            //    .ForMember(prop => prop.IsDeleted, opt => opt.MapFrom(o => false))
-            //    .ForMember(prop => prop.CreatedOn, opt => opt.MapFrom(o => DateTime.UtcNow))
-            //    .AfterMap((src, dest) => dest.LatestUpdatedOn = dest.CreatedOn);
-
-            //CreateMap<Product, ProductDto>();
-            //CreateMap<ProductDto, Product>()
-            //    .ForMember(prop => prop.Id, opt => opt.MapFrom(o => ((o.Id == null || o.Id == Guid.Empty) ? Guid.NewGuid() : o.Id)))
-            //    .ForMember(prop => prop.IsDeleted, opt => opt.MapFrom(o => false))
-            //    .ForMember(prop => prop.CreatedOn, opt => opt.MapFrom(o => DateTime.UtcNow))
-            //    .AfterMap((src, dest) => dest.LatestUpdatedOn = dest.CreatedOn);
+            CreateMap<Category, CategoryResponse>()
+                .ForMember(prop => prop.DisplayName, opt => opt.MapFrom(o => o.Name));
+            CreateMap<CreateCategoryRequest, Category>()
+                .ForMember(prop => prop.ParentId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
+                .ForMember(prop => prop.CreatedOn, opt => opt.MapFrom(o => DateTime.UtcNow));
+            CreateMap<UpdateCategoryRequest, Category>()
+                .ForMember(prop => prop.ParentId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
+                .ForMember(prop => prop.UpdatedOn, opt => opt.MapFrom(o => DateTime.UtcNow));
         }
     }
 }

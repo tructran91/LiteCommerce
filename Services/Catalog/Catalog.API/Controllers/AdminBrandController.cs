@@ -8,13 +8,13 @@ using System.Net;
 
 namespace Catalog.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/brand")]
     [ApiController]
-    public class BrandController : ControllerBase
+    public class AdminBrandController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public BrandController(IMediator mediator)
+        public AdminBrandController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -50,6 +50,7 @@ namespace Catalog.API.Controllers
         [HttpPut]
         [Route("UpdateBrand")]
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
         {
             var command = new UpdateBrandCommand(request);

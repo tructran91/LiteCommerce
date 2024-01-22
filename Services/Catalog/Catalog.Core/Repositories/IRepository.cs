@@ -4,7 +4,7 @@ namespace Catalog.Core.Repositories
 {
     public interface IRepository<T>
     {
-        Task<List<T>> GetAllAsync();
+        Task<List<T>> GetAllAsync(bool disableTracking = true);
 
         Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate);
 

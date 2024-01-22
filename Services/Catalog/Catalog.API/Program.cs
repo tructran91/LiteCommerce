@@ -1,11 +1,14 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
+using Common.Logging;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddLayerForApp();
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureCorsAllowAny();
+builder.Host.UseSerilog(Logging.ConfigureLogger);
 
 builder.Services.AddControllers();
 

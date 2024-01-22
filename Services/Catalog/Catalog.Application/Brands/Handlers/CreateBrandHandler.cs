@@ -5,22 +5,28 @@ using Catalog.Application.Responses;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
     public class CreateBrandHandler : IRequestHandler<CreateBrandCommand, BaseResponse<BrandResponse>>
     {
-        private readonly IBrandRepository _brandRepository;
+        private readonly IRepository<Brand> _brandRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<CreateBrandHandler> _logger;
 
-        public CreateBrandHandler(IBrandRepository brandRepository, IMapper mapper)
+        public CreateBrandHandler(IRepository<Brand> brandRepository, IMapper mapper, ILogger<CreateBrandHandler> logger)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<BaseResponse<BrandResponse>> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"CreateBrandHandler: {JsonSerializer.Serialize(request.Payload)}");
+
             var isExistingBrand = await _brandRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
             if (isExistingBrand)
             {

@@ -41,8 +41,6 @@ namespace Catalog.API.Extensions
             builder.Services.AddTransient<ExceptionHandlingMiddleware>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 
             // Add Web Third party
             builder.Services.AddAutoMapper(typeof(MappingProfile));

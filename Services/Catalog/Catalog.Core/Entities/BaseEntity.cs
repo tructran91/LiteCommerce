@@ -2,7 +2,7 @@
 
 namespace Catalog.Core.Entities
 {
-    public class BaseEntity
+    public class BaseEntity : IBaseEntity
     {
         [Required]
         public Guid Id { get; set; }

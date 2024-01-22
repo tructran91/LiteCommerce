@@ -1,11 +1,12 @@
-﻿using Catalog.Core.Repositories;
+﻿using Catalog.Core.Entities;
+using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Catalog.Infrastructure.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class, IBaseEntity
     {
         protected readonly CatalogContext _dbContext;
         private DbSet<T> _dbSet;
@@ -16,9 +17,12 @@ namespace Catalog.Infrastructure.Repositories
             _dbSet = _dbContext.Set<T>();
         }
 
-        public async Task<List<T>> GetAllAsync()
+        public async Task<List<T>> GetAllAsync(bool disableTracking = true)
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            IQueryable<T> query = _dbSet;
+            if (disableTracking) query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
         public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate)
@@ -78,7 +82,7 @@ namespace Catalog.Infrastructure.Repositories
 
         public async Task<T> GetByIdAsync(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
         }
 
         public async Task<T> AddAsync(T entity)
