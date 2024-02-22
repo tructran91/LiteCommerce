@@ -1,10 +1,8 @@
 ﻿using Catalog.Application.Brands.Queries;
 using Catalog.Application.Categories.Commands;
 using Catalog.Application.Requests;
-using Catalog.Application.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace Catalog.API.Controllers
 {
@@ -20,7 +18,6 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetAllCategories")]
-        [ProducesResponseType(typeof(BaseResponse<List<CategoryResponse>>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllCategories()
         {
             var query = new GetAllCategoriesQuery();
@@ -29,8 +26,6 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetCategoryById/{id}")]
-        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetCategoryById(string id)
         {
             var query = new GetCategoryQuery(Guid.Parse(id));
@@ -39,7 +34,6 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost("CreateCategory")]
-        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand(request);
@@ -47,9 +41,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut]
-        [Route("UpdateCategory")]
-        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), (int)HttpStatusCode.OK)]
+        [HttpPut("UpdateCategory")]
         public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand(request);

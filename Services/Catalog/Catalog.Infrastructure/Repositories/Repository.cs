@@ -60,6 +60,11 @@ namespace Catalog.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
+        public IQueryable<T> Query()
+        {
+            return _dbSet;
+        }
+
         public async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
         {
             IQueryable<T> query = _dbSet;

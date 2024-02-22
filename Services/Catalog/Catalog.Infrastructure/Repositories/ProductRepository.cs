@@ -1,6 +1,7 @@
 ﻿using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Repositories
 {
@@ -8,6 +9,20 @@ namespace Catalog.Infrastructure.Repositories
     {
         public ProductRepository(CatalogContext dbContext) : base(dbContext)
         {
+        }
+
+        public async Task<Product> GetProductAsync(Guid id)
+        {
+            var product = _dbContext.Products
+                .Include(t => t.ThumbnailImage)
+                .Include(t => t.Medias).ThenInclude(t => t.Media)
+                .Include(t => t.ProductLinks).ThenInclude(p => p.LinkedProduct).ThenInclude(m => m.ThumbnailImage)
+                .Include(x => x.OptionValues).ThenInclude(o => o.Option)
+                .Include(x => x.AttributeValues).ThenInclude(a => a.Attribute).ThenInclude(g => g.Group)
+                .Include(x => x.Categories)
+                .FirstOrDefault(x => x.Id == id);
+
+            return product;
         }
 
         //public async Task<List<Product>> GetProductsAsync(ProductCriteriaDto criteria)

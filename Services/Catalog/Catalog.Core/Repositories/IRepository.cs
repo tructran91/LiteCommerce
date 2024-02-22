@@ -19,6 +19,8 @@ namespace Catalog.Core.Repositories
                                         List<Expression<Func<T, object>>> includes = null,
                                         bool disableTracking = true);
 
+        IQueryable<T> Query();
+
         Task<int> CountAsync(Expression<Func<T, bool>> predicate = null);
 
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate = null);

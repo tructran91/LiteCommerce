@@ -6,12 +6,10 @@ namespace Catalog.Core.Entities
     {
         public string? Caption { get; set; }
 
-        public int FileSize { get; set; }
+        public long FileSize { get; set; }
 
         public string? FileName { get; set; }
 
         public MediaType MediaType { get; set; }
-
-        public IList<ProductMedia> Products { get; set; } = new List<ProductMedia>();
     }
 }

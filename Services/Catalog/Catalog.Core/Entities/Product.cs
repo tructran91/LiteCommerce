@@ -6,6 +6,8 @@
 
         public string Slug { get; set; }
 
+        public string? ShortDescription { get; set; }
+
         public string? Description { get; set; }
 
         public string? MetaTitle { get; set; }
@@ -16,8 +18,6 @@
 
         public bool IsPublished { get; set; }
 
-        public string? ShortDescription { get; set; }
-
         public decimal Price { get; set; } = 0;
 
         public decimal? OldPrice { get; set; }
@@ -27,6 +27,8 @@
         public DateTime? SpecialPriceStart { get; set; }
 
         public DateTime? SpecialPriceEnd { get; set; }
+
+        public bool IsFeatured { get; set; }
 
         public bool IsCallForPricing { get; set; }
 
@@ -52,10 +54,40 @@
 
         public IList<ProductAttributeValue> AttributeValues { get; set; } = new List<ProductAttributeValue>();
 
-        //public IList<ProductOptionValue> OptionValues { get; set; } = new List<ProductOptionValue>();
+        public IList<ProductOptionValue> OptionValues { get; set; } = new List<ProductOptionValue>();
 
         public IList<ProductCategory> Categories { get; set; } = new List<ProductCategory>();
 
-        //public IList<ProductPriceHistory> PriceHistories { get; set; } = new List<ProductPriceHistory>();
+        public IList<ProductPriceHistory> PriceHistories { get; set; } = new List<ProductPriceHistory>();
+
+        public void AddCategory(ProductCategory category)
+        {
+            category.Product = this;
+            Categories.Add(category);
+        }
+
+        public void AddMedia(ProductMedia media)
+        {
+            media.Product = this;
+            Medias.Add(media);
+        }
+
+        public void AddAttributeValue(ProductAttributeValue attributeValue)
+        {
+            attributeValue.Product = this;
+            AttributeValues.Add(attributeValue);
+        }
+
+        public void AddOptionValue(ProductOptionValue optionValue)
+        {
+            optionValue.Product = this;
+            OptionValues.Add(optionValue);
+        }
+
+        public void AddProductLinks(ProductLink productLink)
+        {
+            productLink.Product = this;
+            ProductLinks.Add(productLink);
+        }
     }
 }

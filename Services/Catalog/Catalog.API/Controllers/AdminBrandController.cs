@@ -1,10 +1,8 @@
 ﻿using Catalog.Application.Brands.Commands;
 using Catalog.Application.Brands.Queries;
 using Catalog.Application.Requests;
-using Catalog.Application.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace Catalog.API.Controllers
 {
@@ -20,7 +18,6 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetAllBrands")]
-        [ProducesResponseType(typeof(BaseResponse<List<BrandResponse>>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllBrands()
         {
             var query = new GetAllBrandsQuery();
@@ -29,8 +26,6 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetBrandById/{id}")]
-        [ProducesResponseType(typeof(BaseResponse<BrandResponse>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetBrandById(string id)
         {
             var query = new GetBrandQuery(Guid.Parse(id));
@@ -39,7 +34,6 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost("CreateBrand")]
-        [ProducesResponseType(typeof(BaseResponse<BrandResponse>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> CreateBrand([FromBody] CreateBrandRequest request)
         {
             var command = new CreateBrandCommand(request);
@@ -47,10 +41,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut]
-        [Route("UpdateBrand")]
-        [ProducesResponseType(typeof(BaseResponse<BrandResponse>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [HttpPut("UpdateBrand")]
         public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
         {
             var command = new UpdateBrandCommand(request);

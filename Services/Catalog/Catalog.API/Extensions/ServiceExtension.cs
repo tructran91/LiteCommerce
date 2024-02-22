@@ -1,6 +1,7 @@
 ﻿using Catalog.API.Middlewares;
 using Catalog.Application;
 using Catalog.Application.Behaviors;
+using Catalog.Application.Services;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
@@ -35,14 +36,19 @@ namespace Catalog.API.Extensions
 
         public static void AddLayerForApp(this WebApplicationBuilder builder)
         {
-            // Add Infrastructure Layer
+            // Add Services
+            builder.Services.AddScoped<IMediaService, MediaService>();
+            builder.Services.AddScoped<IStorageService, LocalStorageService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+
+            // Add Infrastructure Layers
             builder.Services.AddDbContext<CatalogContext>(c =>
                 c.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection")));
             builder.Services.AddTransient<ExceptionHandlingMiddleware>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
-            // Add Web Third party
+            // Add Web Third parties
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddMediatR(typeof(AssemblyReference).Assembly);
 

@@ -122,8 +122,8 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FileSize")
-                        .HasColumnType("int");
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -164,6 +164,9 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFeatured")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsPublished")
@@ -231,12 +234,21 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -294,11 +306,23 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFeaturedProduct")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -315,6 +339,12 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LinkType")
                         .HasColumnType("int");
 
@@ -323,6 +353,9 @@ namespace Catalog.Infrastructure.Data.Migrations
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -339,14 +372,23 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("MediaId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -355,6 +397,111 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductMedias");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductOptions");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOptionValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("OptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortIndex")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OptionId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductOptionValues");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductPriceHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("OldPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("SpecialPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("SpecialPriceEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SpecialPriceStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductPriceHistories");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
@@ -454,15 +601,15 @@ namespace Catalog.Infrastructure.Data.Migrations
             modelBuilder.Entity("Catalog.Core.Entities.ProductMedia", b =>
                 {
                     b.HasOne("Catalog.Core.Entities.Media", "Media")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("MediaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Catalog.Core.Entities.Product", "Product")
                         .WithMany("Medias")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Media");
@@ -470,14 +617,39 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOptionValue", b =>
+                {
+                    b.HasOne("Catalog.Core.Entities.ProductOption", "Option")
+                        .WithMany()
+                        .HasForeignKey("OptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Core.Entities.Product", "Product")
+                        .WithMany("OptionValues")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Option");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductPriceHistory", b =>
+                {
+                    b.HasOne("Catalog.Core.Entities.Product", "Product")
+                        .WithMany("PriceHistories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
                     b.Navigation("Children");
-                });
-
-            modelBuilder.Entity("Catalog.Core.Entities.Media", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Product", b =>
@@ -489,6 +661,10 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("LinkedProductLinks");
 
                     b.Navigation("Medias");
+
+                    b.Navigation("OptionValues");
+
+                    b.Navigation("PriceHistories");
 
                     b.Navigation("ProductLinks");
                 });
