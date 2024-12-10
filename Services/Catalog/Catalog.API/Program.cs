@@ -5,7 +5,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddLayerForApp();
+builder.RegisterApplicationLayers();
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureCorsAllowAny();
 builder.Host.UseSerilog(Logging.ConfigureLogger);

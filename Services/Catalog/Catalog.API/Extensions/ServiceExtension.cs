@@ -8,6 +8,7 @@ using Catalog.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Catalog.API.Extensions
 {
@@ -34,27 +35,35 @@ namespace Catalog.API.Extensions
             });
         }
 
-        public static void AddLayerForApp(this WebApplicationBuilder builder)
+        public static void RegisterApplicationLayers(this WebApplicationBuilder builder)
         {
-            // Add Services
-            builder.Services.AddScoped<IMediaService, MediaService>();
-            builder.Services.AddScoped<IStorageService, LocalStorageService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddApplicationServices();
+            builder.Services.AddInfrastructureServices(builder.Configuration);
+            builder.Services.AddThirdPartyServices(typeof(AssemblyReference).Assembly);
+        }
 
-            // Add Infrastructure Layers
-            builder.Services.AddDbContext<CatalogContext>(c =>
-                c.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection")));
-            builder.Services.AddTransient<ExceptionHandlingMiddleware>();
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+        public static void AddApplicationServices(this IServiceCollection services)
+        {
+            services.AddScoped<IMediaService, MediaService>();
+            services.AddScoped<IStorageService, LocalStorageService>();
+            services.AddScoped<IProductService, ProductService>();
+        }
 
-            // Add Web Third parties
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
-            builder.Services.AddMediatR(typeof(AssemblyReference).Assembly);
+        public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<CatalogContext>(c =>
+                c.UseSqlServer(configuration.GetConnectionString("CatalogConnection")));
+            services.AddTransient<ExceptionHandlingMiddleware>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        }
 
-            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-            builder.Services.AddValidatorsFromAssembly(typeof(AssemblyReference).Assembly);
+        public static void AddThirdPartyServices(this IServiceCollection services, Assembly assembly)
+        {
+            services.AddAutoMapper(assembly);
+            services.AddMediatR(assembly);
+            services.AddValidatorsFromAssembly(assembly);
         }
     }
 }
