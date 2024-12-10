@@ -16,13 +16,13 @@ namespace Catalog.Application.Products.Handlers
 {
     public class CreateProductHandler : IRequestHandler<CreateProductCommand, BaseResponse<ProductResponse>>
     {
-        private readonly IRepository<Product> _productRepository;
+        private readonly IBaseRepository<Product> _productRepository;
         private readonly IMediaService _mediaService;
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
         private readonly ILogger<CreateProductHandler> _logger;
 
-        public CreateProductHandler(IRepository<Product> productRepository,
+        public CreateProductHandler(IBaseRepository<Product> productRepository,
             IMediaService mediaService,
             IProductService productService,
             IMapper mapper,
@@ -55,7 +55,7 @@ namespace Catalog.Application.Products.Handlers
                         DisplayType = option.DisplayType,
                         Value = JsonSerializer.Serialize(option.Values),
                         SortIndex = optionIndex,
-                        CreatedOn = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow
                     };
                     product.AddOptionValue(productOption);
 
@@ -77,7 +77,7 @@ namespace Catalog.Application.Products.Handlers
                     var productCategory = new ProductCategory
                     {
                         CategoryId = Guid.Parse(categoryId),
-                        CreatedOn = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow
                     };
                     product.AddCategory(productCategory);
                 }
@@ -120,7 +120,7 @@ namespace Catalog.Application.Products.Handlers
                         MediaType = MediaType.Image,
                         Caption = request.ThumbnailImage.FileName,
                         FileSize = request.ThumbnailImage.Length,
-                        CreatedOn = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow
                     };
                 }
             }
@@ -137,9 +137,9 @@ namespace Catalog.Application.Products.Handlers
                         MediaType = MediaType.Image,
                         Caption = file.FileName,
                         FileSize = file.Length,
-                        CreatedOn = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow
                     },
-                    CreatedOn = DateTime.UtcNow
+                    CreatedDate = DateTime.UtcNow
                 };
                 product.AddMedia(productMedia);
             }
@@ -156,9 +156,9 @@ namespace Catalog.Application.Products.Handlers
                         MediaType = MediaType.File,
                         Caption = file.FileName,
                         FileSize = file.Length,
-                        CreatedOn = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow
                     },
-                    CreatedOn = DateTime.UtcNow
+                    CreatedDate = DateTime.UtcNow
                 };
                 product.AddMedia(productMedia);
             }

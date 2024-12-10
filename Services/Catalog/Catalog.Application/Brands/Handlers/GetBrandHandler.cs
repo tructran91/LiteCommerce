@@ -9,10 +9,10 @@ namespace Catalog.Application.Brands.Handlers
 {
     public class GetBrandHandler : IRequestHandler<GetBrandQuery, BaseResponse<BrandResponse>>
     {
-        private readonly IRepository<Brand> _brandRepository;
+        private readonly IBaseRepository<Brand> _brandRepository;
         private readonly IMapper _mapper;
 
-        public GetBrandHandler(IRepository<Brand> brandRepository, IMapper mapper)
+        public GetBrandHandler(IBaseRepository<Brand> brandRepository, IMapper mapper)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;

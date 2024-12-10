@@ -13,11 +13,11 @@ namespace Catalog.Application.Categories.Handlers
 {
     public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, BaseResponse<CategoryResponse>>
     {
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly IBaseRepository<Category> _categoryRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateCategoryHandler> _logger;
 
-        public UpdateCategoryHandler(IRepository<Category> categoryRepository, IMapper mapper, ILogger<UpdateCategoryHandler> logger)
+        public UpdateCategoryHandler(IBaseRepository<Category> categoryRepository, IMapper mapper, ILogger<UpdateCategoryHandler> logger)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;

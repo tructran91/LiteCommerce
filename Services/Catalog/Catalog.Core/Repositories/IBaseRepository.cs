@@ -2,7 +2,7 @@
 
 namespace Catalog.Core.Repositories
 {
-    public interface IRepository<T>
+    public interface IBaseRepository<T>
     {
         Task<List<T>> GetAllAsync(bool disableTracking = true);
 

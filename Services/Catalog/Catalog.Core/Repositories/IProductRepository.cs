@@ -2,7 +2,7 @@
 
 namespace Catalog.Core.Repositories
 {
-    public interface IProductRepository : IRepository<Product>
+    public interface IProductRepository : IBaseRepository<Product>
     {
         Task<Product> GetProductAsync(Guid id);
     }

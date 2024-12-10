@@ -16,7 +16,7 @@ namespace Catalog.Application.Services
                 SpecialPrice = product.SpecialPrice,
                 SpecialPriceStart = product.SpecialPriceStart,
                 SpecialPriceEnd = product.SpecialPriceEnd,
-                CreatedOn = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow
             };
         }
 
@@ -29,7 +29,7 @@ namespace Catalog.Application.Services
                     LinkType = ProductLinkType.Related,
                     Product = productTarget,
                     LinkedProductId = Guid.Parse(relatedProduct.Id),
-                    CreatedOn = DateTime.UtcNow
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 productTarget.AddProductLinks(productLink);
@@ -42,7 +42,7 @@ namespace Catalog.Application.Services
                     LinkType = ProductLinkType.CrossSell,
                     Product = productTarget,
                     LinkedProductId = Guid.Parse(crossSellProduct.Id),
-                    CreatedOn = DateTime.UtcNow
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 productTarget.AddProductLinks(productLink);

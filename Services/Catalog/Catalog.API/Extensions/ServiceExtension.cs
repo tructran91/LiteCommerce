@@ -54,7 +54,7 @@ namespace Catalog.API.Extensions
             services.AddDbContext<CatalogContext>(c =>
                 c.UseSqlServer(configuration.GetConnectionString("CatalogConnection")));
             services.AddTransient<ExceptionHandlingMiddleware>();
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         }
@@ -62,7 +62,7 @@ namespace Catalog.API.Extensions
         public static void AddThirdPartyServices(this IServiceCollection services, Assembly assembly)
         {
             services.AddAutoMapper(assembly);
-            services.AddMediatR(assembly);
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
             services.AddValidatorsFromAssembly(assembly);
         }
     }

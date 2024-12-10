@@ -9,10 +9,10 @@ namespace Catalog.Application.Categories.Handlers
 {
     public class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, BaseResponse<List<CategoryResponse>>>
     {
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly IBaseRepository<Category> _categoryRepository;
         private readonly IMapper _mapper;
 
-        public GetAllCategoriesHandler(IRepository<Category> brandRepository, IMapper mapper)
+        public GetAllCategoriesHandler(IBaseRepository<Category> brandRepository, IMapper mapper)
         {
             _categoryRepository = brandRepository;
             _mapper = mapper;

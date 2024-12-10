@@ -6,12 +6,12 @@ using System.Linq.Expressions;
 
 namespace Catalog.Infrastructure.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class, IBaseEntity
+    public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
         protected readonly CatalogContext _dbContext;
         private DbSet<T> _dbSet;
 
-        public Repository(CatalogContext dbContext)
+        public BaseRepository(CatalogContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<T>();

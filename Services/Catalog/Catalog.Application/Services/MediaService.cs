@@ -6,10 +6,10 @@ namespace Catalog.Application.Services
 {
     public class MediaService : IMediaService
     {
-        private readonly IRepository<Media> _mediaRepository;
+        private readonly IBaseRepository<Media> _mediaRepository;
         private readonly IStorageService _storageService;
 
-        public MediaService(IRepository<Media> mediaRepository, IStorageService storageService)
+        public MediaService(IBaseRepository<Media> mediaRepository, IStorageService storageService)
         {
             _mediaRepository = mediaRepository;
             _storageService = storageService;

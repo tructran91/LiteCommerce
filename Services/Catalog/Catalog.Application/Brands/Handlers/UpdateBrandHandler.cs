@@ -12,11 +12,11 @@ namespace Catalog.Application.Brands.Handlers
 {
     public class UpdateBrandHandler : IRequestHandler<UpdateBrandCommand, BaseResponse<BrandResponse>>
     {
-        private readonly IRepository<Brand> _brandRepository;
+        private readonly IBaseRepository<Brand> _brandRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateBrandHandler> _logger;
 
-        public UpdateBrandHandler(IRepository<Brand> brandRepository, IMapper mapper, ILogger<UpdateBrandHandler> logger)
+        public UpdateBrandHandler(IBaseRepository<Brand> brandRepository, IMapper mapper, ILogger<UpdateBrandHandler> logger)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;

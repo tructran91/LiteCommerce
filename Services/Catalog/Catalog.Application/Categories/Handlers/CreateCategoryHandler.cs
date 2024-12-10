@@ -12,11 +12,11 @@ namespace Catalog.Application.Categories.Handlers
 {
     public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, BaseResponse<CategoryResponse>>
     {
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly IBaseRepository<Category> _categoryRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<CreateCategoryHandler> _logger;
 
-        public CreateCategoryHandler(IRepository<Category> categoryRepository, IMapper mapper, ILogger<CreateCategoryHandler> logger)
+        public CreateCategoryHandler(IBaseRepository<Category> categoryRepository, IMapper mapper, ILogger<CreateCategoryHandler> logger)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
