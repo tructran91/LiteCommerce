@@ -6,6 +6,6 @@
 
         public string Name { get; set; }
 
-        public IList<ProductAttribute> Attributes { get; set; } = new List<ProductAttribute>();
+        public List<ProductAttribute> Attributes { get; set; } = new();
     }
 }

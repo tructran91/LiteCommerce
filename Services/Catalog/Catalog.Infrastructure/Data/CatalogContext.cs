@@ -37,18 +37,9 @@ namespace Catalog.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogContext).Assembly);
 
-            modelBuilder.Entity<ProductLink>()
-                .HasOne(x => x.Product)
-                .WithMany(p => p.ProductLinks)
-                .HasForeignKey(x => x.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ProductLink>()
-                .HasOne(x => x.LinkedProduct)
-                .WithMany(p => p.LinkedProductLinks)
-                .HasForeignKey(x => x.LinkedProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

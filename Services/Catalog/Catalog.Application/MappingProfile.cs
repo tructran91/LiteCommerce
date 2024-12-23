@@ -19,10 +19,10 @@ namespace Catalog.Application
             CreateMap<Category, CategoryResponse>()
                 .ForMember(prop => prop.DisplayName, opt => opt.MapFrom(o => o.Name));
             CreateMap<CreateCategoryRequest, Category>()
-                .ForMember(prop => prop.ParentId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
+                .ForMember(prop => prop.ParentCategoryId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
                 .ForMember(prop => prop.CreatedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
             CreateMap<UpdateCategoryRequest, Category>()
-                .ForMember(prop => prop.ParentId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
+                .ForMember(prop => prop.ParentCategoryId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
                 .ForMember(prop => prop.LastModifiedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
 
             CreateMap<Product, ProductResponse>();

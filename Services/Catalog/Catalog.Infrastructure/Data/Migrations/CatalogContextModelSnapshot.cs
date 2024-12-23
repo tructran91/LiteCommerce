@@ -61,6 +61,9 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnOrder(0);
 
+                    b.Property<string>("CanonicalUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -95,8 +98,23 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ParentId")
+                    b.Property<string>("OgDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OgImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OgTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OgUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentCategoryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SchemaJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -104,7 +122,7 @@ namespace Catalog.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Categories");
                 });
@@ -152,6 +170,9 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<Guid>("BrandId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CanonicalUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -192,11 +213,26 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OgDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OgImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OgTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OgUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal?>("OldPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SchemaJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShortDescription")
                         .HasColumnType("nvarchar(max)");
@@ -383,9 +419,6 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -517,11 +550,11 @@ namespace Catalog.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
-                    b.HasOne("Catalog.Core.Entities.Category", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId");
+                    b.HasOne("Catalog.Core.Entities.Category", "ParentCategory")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ParentCategoryId");
 
-                    b.Navigation("Parent");
+                    b.Navigation("ParentCategory");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Product", b =>
@@ -660,7 +693,7 @@ namespace Catalog.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
-                    b.Navigation("Children");
+                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Product", b =>

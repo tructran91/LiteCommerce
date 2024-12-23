@@ -8,6 +8,7 @@ using Catalog.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Reflection;
 
 namespace Catalog.API.Extensions
@@ -64,6 +65,22 @@ namespace Catalog.API.Extensions
             services.AddAutoMapper(assembly);
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
             services.AddValidatorsFromAssembly(assembly);
+        }
+
+        public static async Task ApplySeedAsync(this IServiceProvider serviceProvider)
+        {
+            using var scope = serviceProvider.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var context = services.GetRequiredService<CatalogContext>();
+                await CatalogDataSeed.SeedAsync(context);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during migration and seeding: {ex.Message}");
+            }
         }
     }
 }

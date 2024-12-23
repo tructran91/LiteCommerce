@@ -10,12 +10,6 @@
 
         public string? Description { get; set; }
 
-        public string? MetaTitle { get; set; }
-
-        public string? MetaKeywords { get; set; }
-
-        public string? MetaDescription { get; set; }
-
         public bool IsPublished { get; set; }
 
         public decimal Price { get; set; } = 0;
@@ -40,25 +34,43 @@
 
         public int DisplayOrder { get; set; }
 
+        public string? MetaTitle { get; set; }
+
+        public string? MetaKeywords { get; set; }
+
+        public string? MetaDescription { get; set; }
+
+        public string? CanonicalUrl { get; set; }
+
+        public string? OgTitle { get; set; }
+
+        public string? OgDescription { get; set; }
+
+        public string? OgImage { get; set; }
+
+        public string? OgUrl { get; set; }
+
+        public string? SchemaJson { get; set; }
+
         public Guid BrandId { get; set; }
 
         public Brand Brand { get; set; }
 
         public Media? ThumbnailImage { get; set; }
 
-        public IList<ProductMedia> Medias { get; set; } = new List<ProductMedia>();
+        public List<ProductMedia> Medias { get; set; } = new();
 
-        public IList<ProductLink> ProductLinks { get; set; } = new List<ProductLink>();
+        public List<ProductLink> ProductLinks { get; set; } = new();
 
-        public IList<ProductLink> LinkedProductLinks { get; set; } = new List<ProductLink>();
+        public List<ProductLink> LinkedProductLinks { get; set; } = new();
 
-        public IList<ProductAttributeValue> AttributeValues { get; set; } = new List<ProductAttributeValue>();
+        public List<ProductAttributeValue> AttributeValues { get; set; } = new();
 
-        public IList<ProductOptionValue> OptionValues { get; set; } = new List<ProductOptionValue>();
+        public List<ProductOptionValue> OptionValues { get; set; } = new();
 
-        public IList<ProductCategory> Categories { get; set; } = new List<ProductCategory>();
+        public List<ProductCategory> Categories { get; set; } = new();
 
-        public IList<ProductPriceHistory> PriceHistories { get; set; } = new List<ProductPriceHistory>();
+        public List<ProductPriceHistory> PriceHistories { get; set; } = new();
 
         public void AddCategory(ProductCategory category)
         {

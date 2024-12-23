@@ -4,10 +4,10 @@
     {
         Super = 1,
 
-        Related = 2,
+        Related,
 
-        CrossSell = 3,
+        CrossSell,
 
-        UpSell = 4
+        UpSell
     }
 }

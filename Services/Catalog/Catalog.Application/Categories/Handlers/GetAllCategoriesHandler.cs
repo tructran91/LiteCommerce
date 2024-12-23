@@ -27,11 +27,11 @@ namespace Catalog.Application.Categories.Handlers
             {
                 var categoryResponse = _mapper.Map<CategoryResponse>(category);
 
-                var parentCategory = category.Parent;
+                var parentCategory = category.ParentCategory;
                 while (parentCategory != null)
                 {
                     categoryResponse.DisplayName = $"{parentCategory.Name} >> {categoryResponse.DisplayName}";
-                    parentCategory = parentCategory.Parent;
+                    parentCategory = parentCategory.ParentCategory;
                 }
 
                 categoriesMapping.Add(categoryResponse);
