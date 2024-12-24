@@ -1,0 +1,44 @@
+﻿@using LiteCommerce.Admin.Models
+
+@if (BreadcrumbItems.Count > 0)
+{
+    <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    @if (!string.IsNullOrEmpty(Title))
+                    {
+                        <h4 class="fw-semibold mb-8">@Title</h4>
+                    }
+                    <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            @foreach (var item in BreadcrumbItems)
+                            {
+                                <li class="breadcrumb-item @(item.IsActive ? "active" : "")"
+                                    aria-current="@(item.IsActive ? "page" : null)">
+                                    @if (!item.IsActive && !string.IsNullOrEmpty(item.Url))
+                                    {
+                                        <a href="@item.Url">@item.Label</a>
+                                    }
+                                    else
+                                    {
+                                        @item.Label
+                                    }
+                                </li>
+                            }
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public List<BreadcrumbItemModel> BreadcrumbItems { get; set; } = new();
+}

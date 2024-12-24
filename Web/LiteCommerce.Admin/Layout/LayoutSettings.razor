@@ -1,0 +1,142 @@
+﻿<button class="btn btn-primary p-3 rounded-circle d-flex align-items-center justify-content-center customizer-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+    <i class="icon ti ti-settings fs-7"></i>
+</button>
+
+<div class="offcanvas customizer offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+        <h4 class="offcanvas-title fw-semibold" id="offcanvasExampleLabel">
+            Settings
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body h-n80" data-simplebar>
+        <h6 class="fw-semibold fs-4 mb-2">Theme</h6>
+        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+            <input type="radio" class="btn-check light-layout" name="theme-layout" id="light-layout" autocomplete="off" value="light" checked="@(CurrentSettings.Theme == "light")" @onclick='() => SetThemeMode("light")' />
+            <label class="btn p-9 btn-outline-primary rounded-2" for="light-layout">
+                <i class="icon ti ti-brightness-up fs-7 me-2"></i>Light
+            </label>
+
+            <input type="radio" class="btn-check dark-layout" name="theme-layout" id="dark-layout" autocomplete="off" value="dark" checked="@(CurrentSettings.Theme == "dark")" @onclick='() => SetThemeMode("dark")' />
+            <label class="btn p-9 btn-outline-primary rounded-2" for="dark-layout">
+                <i class="icon ti ti-moon fs-7 me-2"></i>Dark
+            </label>
+        </div>
+
+        <h6 class="mt-5 fw-semibold fs-4 mb-2">Theme Direction</h6>
+        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+            <input type="radio" class="btn-check" name="direction-l" id="ltr-layout" autocomplete="off" value="ltr" checked="@(CurrentSettings.Direction == "ltr")" @onclick='() => SetLayoutDirection("ltr")' />
+            <label class="btn p-9 btn-outline-primary" for="ltr-layout">
+                <i class="icon ti ti-text-direction-ltr fs-7 me-2"></i>LTR
+            </label>
+
+            <input type="radio" class="btn-check" name="direction-l" id="rtl-layout" autocomplete="off" value="rtl" checked="@(CurrentSettings.Direction == "rtl")" @onclick='() => SetLayoutDirection("rtl")' />
+            <label class="btn p-9 btn-outline-primary" for="rtl-layout">
+                <i class="icon ti ti-text-direction-rtl fs-7 me-2"></i>RTL
+            </label>
+        </div>
+
+        <h6 class="mt-5 fw-semibold fs-4 mb-2">Theme Colors</h6>
+        <div class="d-flex flex-row flex-wrap gap-3 customizer-box color-pallete" role="group">
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Blue_Theme" autocomplete="off" value="Blue_Theme" checked="@(CurrentSettings.ColorTheme == "Blue_Theme")" @onclick='() => SetColorTheme("Blue_Theme")' />
+            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" for="Blue_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="BLUE_THEME">
+                <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-1">
+                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                </div>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Aqua_Theme" autocomplete="off" value="Aqua_Theme" checked="@(CurrentSettings.ColorTheme == "Aqua_Theme")" @onclick='() => SetColorTheme("Aqua_Theme")' />
+            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" for="Aqua_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="AQUA_THEME">
+                <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-2">
+                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                </div>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Purple_Theme" autocomplete="off" value="Purple_Theme" checked="@(CurrentSettings.ColorTheme == "Purple_Theme")" @onclick='() => SetColorTheme("Purple_Theme")' />
+            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" for="Purple_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="PURPLE_THEME">
+                <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-3">
+                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                </div>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Green_Theme" autocomplete="off" value="Green_Theme" checked="@(CurrentSettings.ColorTheme == "Green_Theme")" @onclick='() => SetColorTheme("Green_Theme")' />
+            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" for="Green_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="GREEN_THEME">
+                <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-4">
+                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                </div>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Cyan_Theme" autocomplete="off" value="Cyan_Theme" checked="@(CurrentSettings.ColorTheme == "Cyan_Theme")" @onclick='() => SetColorTheme("Cyan_Theme")' />
+            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" for="Cyan_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="CYAN_THEME">
+                <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-5">
+                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                </div>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Orange_Theme" autocomplete="off" value="Orange_Theme" checked="@(CurrentSettings.ColorTheme == "Orange_Theme")" @onclick='() => SetColorTheme("Orange_Theme")' />
+            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" for="Orange_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ORANGE_THEME">
+                <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-6">
+                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                </div>
+            </label>
+        </div>
+
+        <h6 class="mt-5 fw-semibold fs-4 mb-2">Layout Type</h6>
+        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+            <div>
+                <input type="radio" class="btn-check" name="page-layout" id="vertical-layout" autocomplete="off" value="vertical" checked="@(CurrentSettings.Layout == "vertical")" @onclick='() => SetLayoutType("vertical")' />
+                <label class="btn p-9 btn-outline-primary" for="vertical-layout">
+                    <i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Vertical
+                </label>
+            </div>
+            <div>
+                <input type="radio" class="btn-check" name="page-layout" id="horizontal-layout" autocomplete="off" value="horizontal" checked="@(CurrentSettings.Layout == "horizontal")" @onclick='() => SetLayoutType("horizontal")' />
+                <label class="btn p-9 btn-outline-primary" for="horizontal-layout">
+                    <i class="icon ti ti-layout-navbar fs-7 me-2"></i>Horizontal
+                </label>
+            </div>
+        </div>
+
+        <h6 class="mt-5 fw-semibold fs-4 mb-2">Container Option</h6>
+        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+            <input type="radio" class="btn-check" name="layout" id="boxed-layout" autocomplete="off" value="boxed" checked="@(CurrentSettings.ContainerOption == "boxed")" @onclick='() => SetContainerOption("boxed")' />
+            <label class="btn p-9 btn-outline-primary" for="boxed-layout">
+                <i class="icon ti ti-layout-distribute-vertical fs-7 me-2"></i>Boxed
+            </label>
+
+            <input type="radio" class="btn-check" name="layout" id="full-layout" autocomplete="off" value="full" checked="@(CurrentSettings.ContainerOption == "full")" @onclick='() => SetContainerOption("full")' />
+            <label class="btn p-9 btn-outline-primary" for="full-layout">
+                <i class="icon ti ti-layout-distribute-horizontal fs-7 me-2"></i>Full
+            </label>
+        </div>
+
+        <h6 class="fw-semibold fs-4 mb-2 mt-5">Sidebar Type</h6>
+        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+            <a href="javascript:void(0)" class="fullsidebar">
+                <input type="radio" class="btn-check" name="sidebar-type" id="full-sidebar" autocomplete="off" value="full" checked="@(CurrentSettings.SidebarType == "full")" @onclick='() => SetSidebarType("full")' />
+                <label class="btn p-9 btn-outline-primary" for="full-sidebar">
+                    <i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Full
+                </label>
+            </a>
+            <div>
+                <input type="radio" class="btn-check " name="sidebar-type" id="mini-sidebar" autocomplete="off" value="mini-sidebar" checked="@(CurrentSettings.SidebarType == "mini-sidebar")" @onclick='() => SetSidebarType("mini-sidebar")' />
+                <label class="btn p-9 btn-outline-primary" for="mini-sidebar">
+                    <i class="icon ti ti-layout-sidebar fs-7 me-2"></i>Collapse
+                </label>
+            </div>
+        </div>
+
+        <h6 class="mt-5 fw-semibold fs-4 mb-2">Card With</h6>
+        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+            <input type="radio" class="btn-check" name="card-layout" id="card-with-border" autocomplete="off" value="border" checked="@(CurrentSettings.CardLayout == "border")" @onclick='() => SetCardLayout("border")' />
+            <label class="btn p-9 btn-outline-primary" for="card-with-border">
+                <i class="icon ti ti-border-outer fs-7 me-2"></i>Border
+            </label>
+
+            <input type="radio" class="btn-check" name="card-layout" id="card-without-border" autocomplete="off" value="shadow" checked="@(CurrentSettings.CardLayout == "shadow")" @onclick='() => SetCardLayout("shadow")' />
+            <label class="btn p-9 btn-outline-primary" for="card-without-border">
+                <i class="icon ti ti-border-none fs-7 me-2"></i>Shadow
+            </label>
+        </div>
+    </div>
+</div>

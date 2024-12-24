@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+<SidebarMenu MenuItems="MenuItems"></SidebarMenu>
+
+<div class="page-wrapper">
+    <HeaderMenu></HeaderMenu>
+
+    <SidebarMenuHorizontal MenuItems="MenuItems"></SidebarMenuHorizontal>
+
+    <div class="body-wrapper">
+        <div class="container-fluid">
+            @Body
+        </div>
+    </div>
+
+    <LayoutSettings CurrentSettings="Settings"></LayoutSettings>
+</div>
+
+<div class="dark-transparent sidebartoggler"></div>

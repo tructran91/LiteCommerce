@@ -1,0 +1,52 @@
+﻿@using LiteCommerce.Admin.Models
+
+<aside class="left-sidebar with-horizontal">
+    <div>
+        <nav id="sidebarnavh" class="sidebar-nav scroll-sidebar container-fluid">
+            <ul id="sidebarnav">
+                <li class="nav-small-cap">
+                    <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                    <span class="hide-menu">Home</span>
+                </li>
+                @foreach (var item in MenuItems)
+                {
+                    <li class="sidebar-item">
+                        <a class="sidebar-link @(item.HasChildren ? "has-arrow" : "") @(item.IsActive ? "active" : "")"
+                           href="@item.Url"
+                           aria-expanded="false">
+                            @if (!string.IsNullOrEmpty(item.Icon))
+                            {
+                                <span>
+                                    <i class="@item.Icon"></i>
+                                </span>
+                            }
+                            <span class="hide-menu">@item.Title</span>
+                        </a>
+                        @if (item.HasChildren)
+                        {
+                            <ul aria-expanded="false" class="collapse first-level">
+                                @foreach (var child in item.Children)
+                                {
+                                    <li class="sidebar-item">
+                                        <a href="@child.Url" class="sidebar-link @(child.IsActive ? "active" : "")">
+                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                            {
+                                                <i class="@child.Icon"></i>
+                                            }
+                                            <span class="hide-menu">@child.Title</span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</aside>
+
+@code {
+    [Parameter]
+    public List<MenuItemModel> MenuItems { get; set; } = new();
+}

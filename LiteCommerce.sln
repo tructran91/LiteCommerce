@@ -25,6 +25,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Logging", "Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Core", "Infrastructure\Common.Core\Common.Core.csproj", "{12D29095-CB2C-457C-A685-2A3A68E7D325}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{F6593ABD-3DB2-43DB-9053-8E5DABF935B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteCommerce.Admin", "Web\LiteCommerce.Admin\LiteCommerce.Admin.csproj", "{E70F6397-420D-4220-8FE9-EC243FB2CA83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,10 @@ Global
 		{12D29095-CB2C-457C-A685-2A3A68E7D325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12D29095-CB2C-457C-A685-2A3A68E7D325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12D29095-CB2C-457C-A685-2A3A68E7D325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E70F6397-420D-4220-8FE9-EC243FB2CA83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E70F6397-420D-4220-8FE9-EC243FB2CA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E70F6397-420D-4220-8FE9-EC243FB2CA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E70F6397-420D-4220-8FE9-EC243FB2CA83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +80,7 @@ Global
 		{FA8681E0-391F-44AC-A35D-C6C7BE968D04} = {DB2FF3E1-0E49-45EB-A6A6-16C61FD106B0}
 		{76691426-DB17-42AF-95D1-CB0C6511C7E1} = {2673F334-0753-4995-BAA7-AA72EA62ABAD}
 		{12D29095-CB2C-457C-A685-2A3A68E7D325} = {2673F334-0753-4995-BAA7-AA72EA62ABAD}
+		{E70F6397-420D-4220-8FE9-EC243FB2CA83} = {F6593ABD-3DB2-43DB-9053-8E5DABF935B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CEA1BC91-2CB8-4384-B3D8-0789E4539B5B}

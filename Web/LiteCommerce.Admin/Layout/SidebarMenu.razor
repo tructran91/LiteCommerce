@@ -1,0 +1,48 @@
+﻿<aside class="left-sidebar with-vertical">
+    <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+            <a href="./main/index.html" class="text-nowrap logo-img">
+                <img src="./images/logos/dark-logo.svg" class="dark-logo" alt="Logo-Dark" />
+                <img src="./images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
+            </a>
+            <a href="javascript:void(0)" class="sidebartoggler ms-auto text-decoration-none fs-5 d-block d-xl-none" @onclick="HandleSidebar">
+                <i class="ti ti-x"></i>
+            </a>
+        </div>
+
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar>
+            <ul id="sidebarnav">
+                @foreach (var item in MenuItems)
+                {
+                    if (!string.IsNullOrEmpty(item.SpecialMenu))
+                    {
+                        var renderedHtml = (MarkupString)item.SpecialMenu;
+                        @renderedHtml
+                        ;
+                        @if (item.HasChildren)
+                        {
+                            <ul class="collapse in">
+                                @foreach (var child in item.Children)
+                                {
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link @(child.IsActive ? "active" : "")"
+                                           href="@child.Url"
+                                           @onclick="() => ToggleMenu(child)">
+                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                            {
+                                                <div class="round-16 d-flex align-items-center justify-content-center">
+                                                    <i class="@child.Icon"></i>
+                                                </div>
+                                            }
+                                            <span class="hide-menu">@child.Title</span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    }
+                }
+            </ul>
+        </nav>
+    </div>
+</aside>

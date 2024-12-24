@@ -342,8 +342,8 @@ namespace Catalog.Infrastructure.Data
                     new Product
                     {
                         Id = Guid.Parse("1761d0be-6a7d-49c2-bb97-d40cea3eb8d5"),
-                        Name = "iPhone 14 Pro Max",
-                        Slug = "iphone-14-pro-max",
+                        Name = "iPhone 16 Pro Max",
+                        Slug = "iphone-16-pro-max",
                         Price = 1024,
                         IsCallForPricing = false,
                         IsAllowToOrder = false,
@@ -352,13 +352,13 @@ namespace Catalog.Infrastructure.Data
                         DisplayOrder = 0,
                         BrandId = Guid.Parse("148DF6D1-65C1-4E00-B664-5F0A461160A9"),
                         ThumbnailImage = CheckAndAddMedia(context, Guid.Parse("6BBBA2AD-8DD0-46EB-85D6-B22D3A85823B")),
-                        MetaTitle = "iPhone 14 Pro Max - Latest Model",
-                        MetaKeywords = "iPhone 14, iPhone, Pro Max, Latest iPhone",
-                        MetaDescription = "iPhone 14 Pro Max with stunning features and performance.",
+                        MetaTitle = "iPhone 16 Pro Max - Latest Model",
+                        MetaKeywords = "iPhone 16, iPhone, Pro Max, Latest iPhone",
+                        MetaDescription = "iPhone 16 Pro Max with stunning features and performance.",
                         CanonicalUrl = "iphone-14-pro-max",
-                        OgTitle = "iPhone 14 Pro Max - Latest Model",
-                        OgDescription = "iPhone 14 Pro Max with cutting-edge technology.",
-                        OgImage = "images/iphone-14-pro-max.jpg",
+                        OgTitle = "iPhone 16 Pro Max - Latest Model",
+                        OgDescription = "iPhone 16 Pro Max with cutting-edge technology.",
+                        OgImage = "images/iphone-16-pro-max.jpg",
                         OgUrl = "iphone-14-pro-max",
                         SchemaJson = "",
                         CreatedDate = DateTime.Now,
@@ -399,13 +399,13 @@ namespace Catalog.Infrastructure.Data
             if (!context.ProductAttributeValues.Any())
             {
                 context.ProductAttributeValues.AddRange(
-                    // Apple iPhone 14 Pro Max
+                    // Apple iPhone 16 Pro Max
                     new ProductAttributeValue
                     {
                         Id = Guid.Parse("dfc25c73-6f00-43e8-938f-cc42310338ae"),
                         AttributeId = Guid.Parse("45F254D5-7658-490C-B7C5-1895C04DAA86"),
                         ProductId = Guid.Parse("1761d0be-6a7d-49c2-bb97-d40cea3eb8d5"),
-                        Value = "2022, September 07"
+                        Value = "2024, September 07"
                     },
                     new ProductAttributeValue
                     {
