@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Serilog.Events;
-using Serilog.Sinks.Elasticsearch;
 using Serilog;
+using Serilog.Events;
 using Serilog.Exceptions;
-using Microsoft.Extensions.Configuration;
 
-namespace Common.Logging
+namespace LiteCommerce.Shared.Logging
 {
     public static class Logging
     {

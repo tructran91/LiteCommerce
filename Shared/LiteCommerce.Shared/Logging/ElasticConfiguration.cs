@@ -1,4 +1,4 @@
-﻿namespace Common.Logging
+﻿namespace LiteCommerce.Shared.Logging
 {
     public class ElasticConfiguration
     {

@@ -1,6 +1,6 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
-using Common.Logging;
+using LiteCommerce.Shared.Logging;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
