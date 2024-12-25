@@ -4,7 +4,6 @@ using Catalog.Application.Products.Commands;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
 using Catalog.Application.Services;
-using Catalog.Application.ViewModels;
 using Catalog.Core.Entities;
 using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
@@ -99,7 +98,7 @@ namespace Catalog.Application.Products.Handlers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"CreateProductHandler => Error: {ex.Message}");
-                return BaseResponse<ProductResponse>.Failure(ex.Message, null);
+                return BaseResponse<ProductResponse>.Failure(ex.Message);
             }
         }
 

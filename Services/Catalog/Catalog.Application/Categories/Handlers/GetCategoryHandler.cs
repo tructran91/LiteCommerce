@@ -4,6 +4,7 @@ using Catalog.Application.Responses;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using MediatR;
+using System.Net;
 
 namespace Catalog.Application.Categories.Handlers
 {
@@ -23,7 +24,7 @@ namespace Catalog.Application.Categories.Handlers
             var category = await _categoryRepository.GetByIdAsync(request.Id);
             if (category is null)
             {
-                return BaseResponse<CategoryResponse>.Failure("Category does not exist.", null);
+                return BaseResponse<CategoryResponse>.Failure("Category does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             var categoryMapping = _mapper.Map<CategoryResponse>(category);

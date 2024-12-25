@@ -1,22 +1,18 @@
-﻿using Catalog.Application.Brands.Commands;
+﻿using Catalog.Application.Brands.Queries;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Validators;
 
 namespace Catalog.Application.Brands.Validators
 {
-    public class UpdateBrandValidator : AbstractValidator<UpdateBrandCommand>
+    public class GetBrandValidator : AbstractValidator<GetBrandQuery>
     {
-        public UpdateBrandValidator()
+        public GetBrandValidator()
         {
-            RuleFor(x => x.Payload.Id)
+            RuleFor(x => x.Id)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
                 .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
                 .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("Id"));
-
-            RuleFor(x => x.Payload.Name)
-                .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
-                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"));
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Catalog.Application.Brands.Commands;
 using Catalog.Application.Categories.Commands;
 using Catalog.Application.Extensions;
 using Catalog.Application.Responses;
@@ -7,6 +6,7 @@ using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
@@ -31,7 +31,7 @@ namespace Catalog.Application.Categories.Handlers
             var existingCategory = await _categoryRepository.GetByIdAsync(Guid.Parse(request.Payload.Id));
             if (existingCategory == null)
             {
-                return BaseResponse<CategoryResponse>.Failure("Category does not exist.", null);
+                return BaseResponse<CategoryResponse>.Failure("Category does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             _mapper.Map(request.Payload, existingCategory);

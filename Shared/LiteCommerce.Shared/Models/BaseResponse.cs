@@ -1,10 +1,11 @@
 ﻿using LiteCommerce.Shared.Models;
+using System.Net;
 
 namespace Catalog.Application.Responses
 {
     public class BaseResponse<T>
     {
-        public BaseResponse(bool isSuccess, string message, T data, int statusCode = 200)
+        public BaseResponse(bool isSuccess, string message, T data, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             IsSuccess = isSuccess;
             Message = message;
@@ -20,21 +21,16 @@ namespace Catalog.Application.Responses
 
         public Pagination? Pagination { get; set; }
 
-        public int StatusCode { get; set; }
+        public HttpStatusCode StatusCode { get; set; }
 
         public Dictionary<string, List<string>>? Errors { get; set; }
 
-        public static BaseResponse<T> Success(T data, string message = "Request succeeded", int statusCode = 200)
+        public static BaseResponse<T> Success(T data, string message = "Request succeeded", HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            return new BaseResponse<T>(true, string.Empty, data, statusCode);
+            return new BaseResponse<T>(true, message, data, statusCode);
         }
 
-        public static BaseResponse<T> Failure(string errors, T data)
-        {
-            return new BaseResponse<T>(false, errors, data);
-        }
-
-        public static BaseResponse<T> Failure(string message, Dictionary<string, List<string>>? errors = null, T? data = default, int statusCode = 400)
+        public static BaseResponse<T> Failure(string message, Dictionary<string, List<string>>? errors = null, T? data = default, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             return new BaseResponse<T>(false, message, data, statusCode)
             {

@@ -18,9 +18,8 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetAllBrands")]
-        public async Task<IActionResult> GetAllBrands()
+        public async Task<IActionResult> GetAllBrands([FromQuery] GetAllBrandsQuery query)
         {
-            var query = new GetAllBrandsQuery();
             var result = await _mediator.Send(query);
             return Ok(result);
         }
@@ -28,7 +27,7 @@ namespace Catalog.API.Controllers
         [HttpGet("GetBrandById/{id}")]
         public async Task<ActionResult> GetBrandById(string id)
         {
-            var query = new GetBrandQuery(Guid.Parse(id));
+            var query = new GetBrandQuery(id);
             var result = await _mediator.Send(query);
             return Ok(result);
         }

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using LiteCommerce.Admin.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using LiteCommerce.Admin.Models;
 
 namespace LiteCommerce.Admin.Layout
 {

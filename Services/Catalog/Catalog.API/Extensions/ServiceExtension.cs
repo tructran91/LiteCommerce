@@ -8,7 +8,6 @@ using Catalog.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Reflection;
 
 namespace Catalog.API.Extensions

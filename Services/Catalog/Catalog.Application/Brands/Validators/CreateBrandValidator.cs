@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Brands.Commands;
 using FluentValidation;
+using LiteCommerce.Shared.Constants;
 
 namespace Catalog.Application.Brands.Validators
 {
@@ -7,7 +8,9 @@ namespace Catalog.Application.Brands.Validators
     {
         public CreateBrandValidator()
         {
-            RuleFor(x => x.Payload.Name).NotNull().NotEmpty();
+            RuleFor(x => x.Payload.Name)
+                .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
+                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"));
         }
     }
 }

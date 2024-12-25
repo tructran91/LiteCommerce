@@ -3,6 +3,7 @@ using Catalog.Application.Brands.Queries;
 using Catalog.Application.Responses;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Models;
 using MediatR;
 
 namespace Catalog.Application.Brands.Handlers
@@ -21,8 +22,17 @@ namespace Catalog.Application.Brands.Handlers
         public async Task<BaseResponse<List<BrandResponse>>> Handle(GetAllBrandsQuery request, CancellationToken cancellationToken)
         {
             var brands = await _brandRepository.GetAllAsync();
-            var brandsMapping = _mapper.Map<List<BrandResponse>>(brands);
-            return BaseResponse<List<BrandResponse>>.Success(brandsMapping);
+            var brandResponses = _mapper.Map<List<BrandResponse>>(brands);
+            var response = BaseResponse<List<BrandResponse>>.Success(brandResponses);
+            response.Pagination = new Pagination
+            {
+                CurrentPage = request.CurrentPage,
+                PageSize = request.PageSize,
+                TotalPages = 1,
+                TotalRecords = 5
+            };
+
+            return response;
         }
     }
 }

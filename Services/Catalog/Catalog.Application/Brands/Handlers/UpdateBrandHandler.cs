@@ -6,6 +6,7 @@ using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
@@ -30,7 +31,7 @@ namespace Catalog.Application.Brands.Handlers
             var existingBrand = await _brandRepository.GetByIdAsync(Guid.Parse(request.Payload.Id));
             if (existingBrand == null)
             {
-                return BaseResponse<BrandResponse>.Failure("Brand does not exist.", null);
+                return BaseResponse<BrandResponse>.Failure("Brand does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             _mapper.Map(request.Payload, existingBrand);

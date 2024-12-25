@@ -22,6 +22,6 @@ namespace Ocelot.ApiGateway.Extensions
                 {
                     x.WithDictionaryHandle();
                 });
-        }    
+        }
     }
 }

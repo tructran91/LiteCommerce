@@ -1,10 +1,8 @@
 ﻿using Catalog.Application.Products.Commands;
 using Catalog.Application.Products.Queries;
 using Catalog.Application.Requests;
-using Catalog.Application.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace Catalog.API.Controllers
 {

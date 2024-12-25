@@ -4,6 +4,7 @@ using Catalog.Application.Responses;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using MediatR;
+using System.Net;
 
 namespace Catalog.Application.Brands.Handlers
 {
@@ -20,10 +21,10 @@ namespace Catalog.Application.Brands.Handlers
 
         public async Task<BaseResponse<BrandResponse>> Handle(GetBrandQuery request, CancellationToken cancellationToken)
         {
-            var brand = await _brandRepository.GetByIdAsync(request.Id);
+            var brand = await _brandRepository.GetByIdAsync(Guid.Parse(request.Id));
             if (brand is null)
             {
-                return BaseResponse<BrandResponse>.Failure("Brand does not exist.", null);
+                return BaseResponse<BrandResponse>.Failure("Brand does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             var brandMapping = _mapper.Map<BrandResponse>(brand);

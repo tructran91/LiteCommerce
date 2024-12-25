@@ -3,11 +3,11 @@ using Catalog.Application.Products.Queries;
 using Catalog.Application.Responses;
 using Catalog.Application.Services;
 using Catalog.Application.ViewModels;
-using Catalog.Core.Entities;
 using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Text.Json;
 
 namespace Catalog.Application.Products.Handlers
@@ -35,7 +35,7 @@ namespace Catalog.Application.Products.Handlers
             var product = await _productRepository.GetProductAsync(request.Id);
             if (product is null)
             {
-                return BaseResponse<ProductResponse>.Failure("Product does not exist.", null);
+                return BaseResponse<ProductResponse>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             _logger.LogInformation($"GetProductHandler: product data: {JsonSerializer.Serialize(product)}");
