@@ -2,6 +2,19 @@
 // However, since these settings need to modify the attributes of the HTML tags in the index.html file from a Blazor component,
 // it was necessary to use an intermediate JavaScript file that the component could invoke.
 
+window.externalLibs = {
+    showModal: function (modalId) {
+        const modal = document.getElementById(modalId);
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+    },
+    hideModal: function (modalId) {
+        const modal = document.getElementById(modalId);
+        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+        bootstrapModal.hide();
+    }
+}
+
 // Data & default operations
 window.appInterop = {
     toggleSidebarMenu: function () {

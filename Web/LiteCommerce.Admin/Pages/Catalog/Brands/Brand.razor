@@ -1,0 +1,55 @@
+﻿@page "/brands"
+@using BlazorTable
+@using LiteCommerce.Admin.Models
+@using LiteCommerce.Admin.Shared.Components
+
+<PageTitle>Brands</PageTitle>
+
+<Breadcrumb Title="Brands" BreadcrumbItems="breadcrumb"></Breadcrumb>
+
+<div class="mb-7 d-flex justify-content-end">
+    <button type="button" class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" @onclick="ShowModal">
+        <i class="ti ti-plus fs-5 me-2"></i>
+        Add Brand
+    </button>
+</div>
+
+<Table TableItem="BrandModel" Items="brands" PageSize="4">
+    <Column TableItem="BrandModel" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="30%" />
+    <Column TableItem="BrandModel" Title="Name" Field="@(x => x.Name)" Sortable="true" Filterable="true" Width="40%" />
+    <Column TableItem="BrandModel" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true" Width="30%" />
+    <Pager ShowPageNumber="true" ShowTotalCount="true" />
+</Table>
+
+<div class="modal fade" id="addBrandModal" tabindex="-1" aria-labelledby="addBrandModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-colored-header bg-success">
+                <h5 class="modal-title text-white" id="addBrandModalTitle">Add Brand</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="HideModal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-6">
+                        <label for="recipient-name" class="">Recipient:</label>
+                        <input type="text" class="form-control" id="recipient-name1">
+                    </div>
+                    <div class="mb-6">
+                        <label for="message-text" class="">Message:</label>
+                        <textarea class="form-control" id="message-text1"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="justify-content-center d-flex align-items-center btn btn-outline-warning" @onclick="HideModal">
+                    <i class="ti ti-x fs-5 me-2"></i>
+                    Cancel
+                </button>
+                <button type="button" class="justify-content-center d-flex align-items-center btn btn-outline-primary">
+                    <i class="ti ti-device-floppy fs-5 me-2"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

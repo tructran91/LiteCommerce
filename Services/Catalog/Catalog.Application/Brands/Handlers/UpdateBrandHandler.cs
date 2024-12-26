@@ -34,6 +34,12 @@ namespace Catalog.Application.Brands.Handlers
                 return BaseResponse<BrandResponse>.Failure("Brand does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
+            var existingBrandByName = await _brandRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
+            if (existingBrandByName)
+            {
+                return BaseResponse<BrandResponse>.Failure("Brand already exists.", statusCode: HttpStatusCode.Conflict);
+            }
+
             _mapper.Map(request.Payload, existingBrand);
             existingBrand.Slug = existingBrand.Name.Slugify();
 
