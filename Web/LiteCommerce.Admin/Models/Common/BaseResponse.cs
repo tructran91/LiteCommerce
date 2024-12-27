@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace LiteCommerce.Admin.Models
+namespace LiteCommerce.Admin.Models.Common
 {
     public class BaseResponse<T>
     {
@@ -15,13 +15,5 @@ namespace LiteCommerce.Admin.Models
         public HttpStatusCode StatusCode { get; set; }
 
         public Dictionary<string, List<string>>? Errors { get; set; }
-    }
-
-    public class Pagination
-    {
-        public int CurrentPage { get; set; }
-        public int PageSize { get; set; }
-        public int TotalPages { get; set; }
-        public int TotalRecords { get; set; }
     }
 }

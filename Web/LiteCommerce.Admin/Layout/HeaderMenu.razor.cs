@@ -1,4 +1,4 @@
-﻿using LiteCommerce.Admin.Models;
+﻿using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -13,7 +13,7 @@ namespace LiteCommerce.Admin.Layout
         [Inject]
         private IMenuService MenuService { get; set; }
 
-        public List<MenuItemModel> MenuItems { get; set; } = new();
+        public List<MenuItem> MenuItems { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -21,11 +21,11 @@ namespace LiteCommerce.Admin.Layout
             MenuItems = MenuService.GetHeaderMenu();
         }
 
-        private void ToggleMenu(MenuItemModel item)
+        private void ToggleMenu(MenuItem item)
         {
             if (item.IsActive)
             {
-                CloseAllMenus(new List<MenuItemModel> { item });
+                CloseAllMenus(new List<MenuItem> { item });
             }
             else
             {
@@ -34,7 +34,7 @@ namespace LiteCommerce.Admin.Layout
             }
         }
 
-        private void CloseAllMenus(List<MenuItemModel> items)
+        private void CloseAllMenus(List<MenuItem> items)
         {
             foreach (var item in items)
             {

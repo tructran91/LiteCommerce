@@ -1,16 +1,16 @@
 ﻿using Blazored.LocalStorage;
 using LiteCommerce.Admin.Constants;
-using LiteCommerce.Admin.Models;
+using LiteCommerce.Admin.Models.Application;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Reflection.Metadata;
 
 namespace LiteCommerce.Admin.Layout
 {
-    public partial class LayoutSettings
+    public partial class LayoutSettingPanel
     {
         [Parameter]
-        public LayoutSettingsModel CurrentSettings { get; set; }
+        public LayoutSettings CurrentSettings { get; set; }
 
         [Inject]
         public IJSRuntime JSRuntime { get; set; }

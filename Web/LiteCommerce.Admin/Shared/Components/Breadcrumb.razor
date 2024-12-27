@@ -1,4 +1,4 @@
-﻿@using LiteCommerce.Admin.Models
+﻿@using LiteCommerce.Admin.Models.Application
 
 @if (BreadcrumbItems.Count > 0)
 {
@@ -40,5 +40,5 @@
     public string Title { get; set; } = string.Empty;
 
     [Parameter]
-    public List<BreadcrumbItemModel> BreadcrumbItems { get; set; } = new();
+    public List<BreadcrumbItem> BreadcrumbItems { get; set; } = new();
 }

@@ -1,39 +1,39 @@
 ﻿using LiteCommerce.Admin.Enums;
-using LiteCommerce.Admin.Models;
+using LiteCommerce.Admin.Models.Application;
 
 namespace LiteCommerce.Admin.Services
 {
     public interface IMenuService
     {
-        List<MenuItemModel> GetMenuItems(PageType pageType);
+        List<MenuItem> GetMenuItems(PageType pageType);
 
-        List<MenuItemModel> GetHeaderMenu();
+        List<MenuItem> GetHeaderMenu();
 
-        List<MenuItemModel> SetActiveMenuItems(List<MenuItemModel> menuItems, string currentUrl);
+        List<MenuItem> SetActiveMenuItems(List<MenuItem> menuItems, string currentUrl);
     }
 
     public class MenuService : IMenuService
     {
-        public List<MenuItemModel> GetMenuItems(PageType pageType)
+        public List<MenuItem> GetMenuItems(PageType pageType)
         {
             return pageType switch
             {
                 PageType.Site => GetSiteMenu(),
                 PageType.Catalog => GetCatalogMenu(),
-                _ => new List<MenuItemModel>()
+                _ => new List<MenuItem>()
             };
         }
 
-        public List<MenuItemModel> GetHeaderMenu()
+        public List<MenuItem> GetHeaderMenu()
         {
-            return new List<MenuItemModel>
+            return new List<MenuItem>
             {
                 GetSiteMenu().First(),
                 GetCatalogMenu().First()
             };
         }
 
-        public List<MenuItemModel> SetActiveMenuItems(List<MenuItemModel> menuItems, string currentUrl)
+        public List<MenuItem> SetActiveMenuItems(List<MenuItem> menuItems, string currentUrl)
         {
             foreach (var item in menuItems)
             {
@@ -67,11 +67,11 @@ namespace LiteCommerce.Admin.Services
             return currentUrlWithoutParams.StartsWith(menuUrl + "/");
         }
 
-        private List<MenuItemModel> GetSiteMenu()
+        private List<MenuItem> GetSiteMenu()
         {
-            return new List<MenuItemModel>
+            return new List<MenuItem>
             {
-                new MenuItemModel
+                new MenuItem
                 {
                     SpecialMenu = @"
                         <li class=""nav-small-cap"">
@@ -80,39 +80,39 @@ namespace LiteCommerce.Admin.Services
                         </li>",
                     Url = string.Empty,
                     Title = "Site",
-                    Children = new List<MenuItemModel>
+                    Children = new List<MenuItem>
                     {
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Users",
                             Icon = "ti ti-users",
                             Url = "/users",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Vendors",
                             Icon = "ti ti-building-store",
                             Url = "/vendors",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Customer Groups",
                             Icon = "ti ti-user-circle",
                             Url = "/customer-groups",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Reviews",
                             Icon = "ti ti-star",
                             Url = "/reviews",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Review Replies",
                             Icon = "ti ti-message-chatbot",
                             Url = "/review-replies",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Comments",
                             Icon = "ti ti-category",
@@ -123,11 +123,11 @@ namespace LiteCommerce.Admin.Services
             };
         }
 
-        private List<MenuItemModel> GetDivisionsMenu()
+        private List<MenuItem> GetDivisionsMenu()
         {
-            return new List<MenuItemModel>
+            return new List<MenuItem>
             {
-                new MenuItemModel
+                new MenuItem
                 {
                     SpecialMenu = @"
                         <li class=""nav-small-cap"">
@@ -136,26 +136,26 @@ namespace LiteCommerce.Admin.Services
                         </li>",
                     Title = "Divisions",
                     Url = string.Empty,
-                    Children = new List<MenuItemModel>
+                    Children = new List<MenuItem>
                     {
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Division Details",
                             Url = "/divisions/division-details"
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Location",
                             Url = "/divisions/location"
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Communities",
                             Url = "/divisions/communities"
                         }
                     }
                 },
-                new MenuItemModel
+                new MenuItem
                 {
                     SpecialMenu = @"
                         <li class=""nav-small-cap"">
@@ -164,14 +164,14 @@ namespace LiteCommerce.Admin.Services
                         </li>",
                     Title = "Costing",
                     Url = string.Empty,
-                    Children = new List<MenuItemModel>
+                    Children = new List<MenuItem>
                     {
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Vendors",
                             Url = "/divisions/vendors"
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Community Taxes",
                             Url = "/divisions/community-taxes"
@@ -181,11 +181,11 @@ namespace LiteCommerce.Admin.Services
             };
         }
 
-        private List<MenuItemModel> GetCatalogMenu()
+        private List<MenuItem> GetCatalogMenu()
         {
-            return new List<MenuItemModel>
+            return new List<MenuItem>
             {
-                new MenuItemModel
+                new MenuItem
                 {
                     SpecialMenu = @"
                         <li class=""nav-small-cap"">
@@ -194,51 +194,51 @@ namespace LiteCommerce.Admin.Services
                         </li>",
                     Title = "Catalog",
                     Url = string.Empty,
-                    Children = new List<MenuItemModel>
+                    Children = new List<MenuItem>
                     {
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Products",
                             Icon = "ti ti-package",
                             Url = "/products",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Product Prices",
                             Icon = "ti ti-currency-dollar",
                             Url = "/product-prices",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Categories",
                             Icon = "ti ti-timeline-event",
                             Url = "/categories",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Brands",
                             Icon = "ti ti-badge",
                             Url = "/brands",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Product Options",
                             Icon = "ti ti-adjustments",
                             Url = "/product-options",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Product Attribute Groups",
                             Icon = "ti ti-category",
                             Url = "/product-attribute-groups",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Product Attributes",
                             Icon = "ti ti-tags",
                             Url = "/product-attributes",
                         },
-                        new MenuItemModel
+                        new MenuItem
                         {
                             Title = "Product Templates",
                             Icon = "ti ti-template",

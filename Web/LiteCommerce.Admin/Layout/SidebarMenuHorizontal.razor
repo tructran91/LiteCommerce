@@ -1,4 +1,4 @@
-﻿@using LiteCommerce.Admin.Models
+﻿@using LiteCommerce.Admin.Models.Application
 
 <aside class="left-sidebar with-horizontal">
     <div>
@@ -48,5 +48,5 @@
 
 @code {
     [Parameter]
-    public List<MenuItemModel> MenuItems { get; set; } = new();
+    public List<MenuItem> MenuItems { get; set; } = new();
 }

@@ -1,6 +1,6 @@
-﻿namespace LiteCommerce.Admin.Models
+﻿namespace LiteCommerce.Admin.Models.Application
 {
-    public class MenuItemModel
+    public class MenuItem
     {
         public string? Title { get; set; }
 
@@ -14,6 +14,6 @@
 
         public bool HasChildren => Children != null && Children.Any();
 
-        public List<MenuItemModel> Children { get; set; } = new();
+        public List<MenuItem> Children { get; set; } = new();
     }
 }

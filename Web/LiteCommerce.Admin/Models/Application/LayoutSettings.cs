@@ -1,6 +1,6 @@
-﻿namespace LiteCommerce.Admin.Models
+﻿namespace LiteCommerce.Admin.Models.Application
 {
-    public class LayoutSettingsModel
+    public class LayoutSettings
     {
         public string Layout { get; set; } = "vertical";
         public string SidebarType { get; set; } = "full";

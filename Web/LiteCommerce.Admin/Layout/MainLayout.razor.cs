@@ -1,7 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Enums;
-using LiteCommerce.Admin.Models;
+using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
@@ -19,9 +19,9 @@ namespace LiteCommerce.Admin.Layout
         [Inject]
         private IMenuService MenuService { get; set; }
 
-        private LayoutSettingsModel Settings { get; set; }
+        private LayoutSettings Settings { get; set; }
 
-        public List<MenuItemModel> MenuItems { get; set; } = new();
+        public List<MenuItem> MenuItems { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -33,10 +33,10 @@ namespace LiteCommerce.Admin.Layout
 
         private async Task GetCurrentSettingsAsync()
         {
-            Settings = await LocalStorage.GetItemAsync<LayoutSettingsModel>(LayoutConstant.LayoutSettingName);
+            Settings = await LocalStorage.GetItemAsync<LayoutSettings>(LayoutConstant.LayoutSettingName);
             if (Settings == null)
             {
-                Settings = new LayoutSettingsModel();
+                Settings = new LayoutSettings();
             }
         }
 

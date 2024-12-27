@@ -1,11 +1,12 @@
-﻿using LiteCommerce.Admin.Models;
+﻿using LiteCommerce.Admin.Models.Application;
+using LiteCommerce.Admin.Models.Business;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Brands
 {
-    public partial class Brand
+    public partial class BrandManagement
     {
         [Inject]
         private IBrandService BrandService { get; set; }
@@ -13,13 +14,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
         [Inject]
         public IJSRuntime JSRuntime { get; set; }
 
-        private List<BreadcrumbItemModel> breadcrumb = new List<BreadcrumbItemModel>
+        private List<BreadcrumbItem> breadcrumb = new List<BreadcrumbItem>
         {
-            new BreadcrumbItemModel { Label = "Home", Url = "/", IsActive = false },
-            new BreadcrumbItemModel { Label = "Brands", Url = "/brands", IsActive = true }
+            new BreadcrumbItem { Label = "Home", Url = "/", IsActive = false },
+            new BreadcrumbItem { Label = "Brands", Url = "/brands", IsActive = true }
         };
 
-        private List<BrandModel> brands = new();
+        private List<Brand> brands = new();
 
         protected override async Task OnInitializedAsync()
         {

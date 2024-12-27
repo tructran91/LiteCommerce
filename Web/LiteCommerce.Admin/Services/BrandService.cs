@@ -1,11 +1,11 @@
 ﻿using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Models;
+using LiteCommerce.Admin.Models.Business;
 
 namespace LiteCommerce.Admin.Services
 {
     public interface IBrandService
     {
-        Task<List<BrandModel>> GetBrands();
+        Task<List<Brand>> GetBrands();
     }
 
     public class BrandService : IBrandService
@@ -17,7 +17,7 @@ namespace LiteCommerce.Admin.Services
             _brandApi = brandApi;
         }
 
-        public async Task<List<BrandModel>> GetBrands()
+        public async Task<List<Brand>> GetBrands()
         {
             var response = await _brandApi.GetBrands();
             return response.Data;

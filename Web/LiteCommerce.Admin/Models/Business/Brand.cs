@@ -1,9 +1,12 @@
-﻿namespace LiteCommerce.Admin.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LiteCommerce.Admin.Models.Business
 {
-    public class BrandModel
+    public class Brand
     {
         public string? Id { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
         public string? Slug { get; set; }

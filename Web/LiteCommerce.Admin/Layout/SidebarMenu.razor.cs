@@ -1,4 +1,4 @@
-﻿using LiteCommerce.Admin.Models;
+﻿using LiteCommerce.Admin.Models.Application;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -10,15 +10,15 @@ namespace LiteCommerce.Admin.Layout
         private IJSRuntime JSRuntime { get; set; }
 
         [Parameter]
-        public List<MenuItemModel> MenuItems { get; set; } = new();
+        public List<MenuItem> MenuItems { get; set; } = new();
 
-        private void ToggleMenu(MenuItemModel item)
+        private void ToggleMenu(MenuItem item)
         {
             // item.IsActive = !item.IsActive;
 
             if (item.IsActive)
             {
-                CloseAllMenus(new List<MenuItemModel> { item });
+                CloseAllMenus(new List<MenuItem> { item });
             }
             else
             {
@@ -27,7 +27,7 @@ namespace LiteCommerce.Admin.Layout
             }
         }
 
-        private void CloseAllMenus(List<MenuItemModel> items)
+        private void CloseAllMenus(List<MenuItem> items)
         {
             foreach (var item in items)
             {

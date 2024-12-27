@@ -1,6 +1,6 @@
-﻿namespace LiteCommerce.Admin.Models
+﻿namespace LiteCommerce.Admin.Models.Application
 {
-    public class BreadcrumbItemModel
+    public class BreadcrumbItem
     {
         public string Label { get; set; } = string.Empty;
 
