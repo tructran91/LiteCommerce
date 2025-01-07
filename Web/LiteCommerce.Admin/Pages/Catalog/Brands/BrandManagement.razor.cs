@@ -1,6 +1,7 @@
-﻿using LiteCommerce.Admin.Models.Application;
+﻿using Blazored.Toast.Services;
+using LiteCommerce.Admin.ApiClients;
+using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Models.Business;
-using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -9,10 +10,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
     public partial class BrandManagement
     {
         [Inject]
-        private IBrandService BrandService { get; set; }
+        private IBrandApi BrandApi { get; set; }
 
         [Inject]
         public IJSRuntime JSRuntime { get; set; }
+
+        [Inject]
+        public IToastService ToastService { get; set; }
 
         private List<BreadcrumbItem> breadcrumb = new List<BreadcrumbItem>
         {
@@ -22,10 +26,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private List<Brand> brands = new();
 
+        private Brand addEditBrand = new Brand();
+
+        private bool isLoading = true;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            brands = await BrandService.GetBrands();
+            await GetBrands();
         }
 
         private async Task ShowModal()
@@ -36,6 +44,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
         private async Task HideModal()
         {
             await JSRuntime.InvokeVoidAsync("externalLibs.hideModal", "addBrandModal");
+        }
+
+        private async Task GetBrands()
+        {
+            var response = await BrandApi.GetBrandsAsync();
+            brands = response.Data;
+            isLoading = false;
+        }
+
+        private async Task FormSubmitted()
+        {
+            ToastService.ShowSuccess("thanh cong");
+            await JSRuntime.InvokeVoidAsync("externalLibs.hideModal", "addBrandModal");
+            //var request = await BrandApi.CreateBrandAsync(addEditBrand);
         }
     }
 }

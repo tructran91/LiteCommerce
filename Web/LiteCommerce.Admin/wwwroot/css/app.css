@@ -1,3 +1,19 @@
-﻿.float-right{
+﻿.float-right {
     float: right;
+}
+
+.form-control.invalid {
+    border-color: var(--bs-form-invalid-border-color);
+    padding-right: calc(1.5em + 16px);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23fa896b'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23fa896b' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + 4px) center;
+    background-size: calc(.75em + 8px) calc(.75em + 8px)
+}
+
+.validation-message {
+    width: 100%;
+    margin-top: .25rem;
+    font-size: .875em;
+    color: var(--bs-form-invalid-color);
 }

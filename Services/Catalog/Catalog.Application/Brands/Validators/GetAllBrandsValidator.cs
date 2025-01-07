@@ -9,12 +9,12 @@ namespace Catalog.Application.Brands.Validators
         public GetAllBrandsValidator()
         {
             RuleFor(x => x.PageSize)
-                .GreaterThan(Pagination.MinPageSize).WithMessage(ValidationMessages.MustBeGreaterThan("PageSize", Pagination.MinPageSize))
-                .LessThanOrEqualTo(Pagination.MaxPageSize).WithMessage(ValidationMessages.MustBeLessThanOrEqual("PageSize", Pagination.MaxPageSize));
+                .GreaterThan(PaginationSetting.MinPageSize).WithMessage(ValidationMessages.MustBeGreaterThan("PageSize", PaginationSetting.MinPageSize))
+                .LessThanOrEqualTo(PaginationSetting.MaxPageSize).WithMessage(ValidationMessages.MustBeLessThanOrEqual("PageSize", PaginationSetting.MaxPageSize));
 
             RuleFor(x => x.CurrentPage)
-                .GreaterThan(Pagination.MinPageSize).WithMessage(ValidationMessages.MustBeGreaterThan("CurrentPage", Pagination.MinCurrentPage))
-                .LessThanOrEqualTo(Pagination.MaxCurrentPage).WithMessage(ValidationMessages.MustBeLessThanOrEqual("CurrentPage", Pagination.MaxCurrentPage));
+                .GreaterThan(PaginationSetting.MinPageSize).WithMessage(ValidationMessages.MustBeGreaterThan("CurrentPage", PaginationSetting.MinCurrentPage))
+                .LessThanOrEqualTo(PaginationSetting.MaxCurrentPage).WithMessage(ValidationMessages.MustBeLessThanOrEqual("CurrentPage", PaginationSetting.MaxCurrentPage));
         }
     }
 }

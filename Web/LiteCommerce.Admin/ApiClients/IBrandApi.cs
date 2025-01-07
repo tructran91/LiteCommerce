@@ -7,6 +7,9 @@ namespace LiteCommerce.Admin.ApiClients
     public interface IBrandApi
     {
         [Get("/api/admin/brand/GetAllBrands")]
-        Task<BaseResponse<List<Brand>>> GetBrands();
+        Task<BaseResponse<List<Brand>>> GetBrandsAsync();
+
+        [Post("/api/admin/brand/CreateBrand")]
+        Task<BaseResponse<Brand>> CreateBrandAsync([Body] Brand brand);
     }
 }

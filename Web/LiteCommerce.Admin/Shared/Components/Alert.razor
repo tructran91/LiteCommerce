@@ -1,0 +1,14 @@
+﻿@if (!string.IsNullOrEmpty(Content))
+{
+    <div class="alert text-primary border border-primary" role="alert">
+        <div class="d-flex align-items-center me-3 me-md-0">
+            <i class="ti ti-info-circle fs-5 me-2 flex-shrink-0 text-primary"></i>
+            @Content
+        </div>
+    </div>
+}
+
+@code{
+    [Parameter]
+    public string Content { get; set; }
+}

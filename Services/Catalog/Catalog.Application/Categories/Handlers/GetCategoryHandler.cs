@@ -3,6 +3,7 @@ using Catalog.Application.Brands.Queries;
 using Catalog.Application.Responses;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using System.Net;
 

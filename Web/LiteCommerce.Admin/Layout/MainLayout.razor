@@ -1,4 +1,17 @@
-﻿@inherits LayoutComponentBase
+﻿@using Blazored.Toast
+@using Blazored.Toast.Configuration
+@inherits LayoutComponentBase
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="5"
+                IconType="IconType.Blazored"
+                ShowProgressBar="@true"
+                ShowCloseButton="@true"
+                MaxToastCount="3">
+    <CloseButtonContent>
+        <i class="cursor-pointer fs-5 ti ti-x"></i>
+    </CloseButtonContent>
+</BlazoredToasts>
 
 <SidebarMenu MenuItems="MenuItems"></SidebarMenu>
 

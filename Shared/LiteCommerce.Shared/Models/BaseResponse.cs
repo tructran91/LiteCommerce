@@ -1,7 +1,7 @@
 ﻿using LiteCommerce.Shared.Models;
 using System.Net;
 
-namespace Catalog.Application.Responses
+namespace LiteCommerce.Shared.Models
 {
     public class BaseResponse<T>
     {

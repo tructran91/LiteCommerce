@@ -1,6 +1,6 @@
 ﻿namespace LiteCommerce.Shared.Constants
 {
-    public static class Pagination
+    public static class PaginationSetting
     {
         public const int DefaultPageSize = 10;
         public const int MinPageSize = 0;

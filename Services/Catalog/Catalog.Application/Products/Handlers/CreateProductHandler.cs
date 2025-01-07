@@ -7,6 +7,7 @@ using Catalog.Application.Services;
 using Catalog.Core.Entities;
 using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
