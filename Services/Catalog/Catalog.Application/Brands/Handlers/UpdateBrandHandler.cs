@@ -29,13 +29,15 @@ namespace Catalog.Application.Brands.Handlers
         {
             _logger.LogInformation($"UpdateBrandHandler: {JsonSerializer.Serialize(request.Payload)}");
 
-            var existingBrand = await _brandRepository.GetByIdAsync(Guid.Parse(request.Payload.Id));
+            var existingBrand = await _brandRepository
+                .GetByIdAsync(Guid.Parse(request.Payload.Id));
             if (existingBrand == null)
             {
                 return BaseResponse<BrandResponse>.Failure("Brand does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
-            var existingBrandByName = await _brandRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
+            var existingBrandByName = await _brandRepository
+                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id.ToString() != request.Payload.Id);
             if (existingBrandByName)
             {
                 return BaseResponse<BrandResponse>.Failure("Brand already exists.", statusCode: HttpStatusCode.Conflict);

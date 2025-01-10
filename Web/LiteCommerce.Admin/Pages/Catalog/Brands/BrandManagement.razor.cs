@@ -1,5 +1,6 @@
 ﻿using Blazored.Toast.Services;
 using LiteCommerce.Admin.ApiClients;
+using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Models.Business;
 using Microsoft.AspNetCore.Components;
@@ -30,6 +31,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private bool isLoading = true;
 
+        private bool isEditMode = false;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -38,12 +41,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private async Task ShowModal()
         {
-            await JSRuntime.InvokeVoidAsync("externalLibs.showModal", "addBrandModal");
+            await JSRuntime.InvokeVoidAsync("externalLibs.showModal", "brandModal");
         }
 
         private async Task HideModal()
         {
-            await JSRuntime.InvokeVoidAsync("externalLibs.hideModal", "addBrandModal");
+            await JSRuntime.InvokeVoidAsync("externalLibs.hideModal", "brandModal");
         }
 
         private async Task GetBrands()
@@ -53,11 +56,64 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             isLoading = false;
         }
 
+        private async Task OpenAddModal()
+        {
+            isEditMode = false;
+            addEditBrand = new Brand();
+            await ShowModal();
+        }
+
+        private async Task OpenEditModal(string brandId)
+        {
+            isEditMode = true;
+            var request = await BrandApi.GetBrandAsync(brandId);
+            if (request.IsSuccess)
+            {
+                var brandToEdit = request.Data;
+                addEditBrand = new Brand
+                {
+                    Id = brandToEdit.Id,
+                    Name = brandToEdit.Name,
+                    IsPublished = brandToEdit.IsPublished
+                };
+                await ShowModal();
+            }
+            else
+            {
+                ToastService.ShowError(request.Message);
+            }
+        }
+
         private async Task FormSubmitted()
         {
-            ToastService.ShowSuccess("thanh cong");
-            await JSRuntime.InvokeVoidAsync("externalLibs.hideModal", "addBrandModal");
-            //var request = await BrandApi.CreateBrandAsync(addEditBrand);
+            if (isEditMode)
+            {
+                var response = await BrandApi.UpdateBrandAsync(addEditBrand);
+                if (response.IsSuccess)
+                {
+                    await GetBrands();
+                    await HideModal();
+                    ToastService.ShowSuccess(SystemMessages.UpdateDataSuccess);
+                }
+                else
+                {
+                    ToastService.ShowError(response.Message);
+                }
+            }
+            else
+            {
+                var request = await BrandApi.CreateBrandAsync(addEditBrand);
+                if (request.IsSuccess)
+                {
+                    await GetBrands();
+                    await HideModal();
+                    ToastService.ShowSuccess(SystemMessages.AddDataSuccess);
+                }
+                else
+                {
+                    ToastService.ShowError(request.Message);
+                }
+            }
         }
     }
 }

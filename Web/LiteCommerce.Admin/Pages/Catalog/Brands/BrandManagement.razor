@@ -9,7 +9,7 @@
 <Breadcrumb Title="Brands" BreadcrumbItems="breadcrumb"></Breadcrumb>
 
 <div class="mb-7 d-flex justify-content-end">
-    <button type="button" class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" @onclick="ShowModal" >
+    <button type="button" class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" @onclick="OpenAddModal" >
         <i class="ti ti-plus fs-5 me-2"></i>
         Add Brand
     </button>
@@ -27,7 +27,7 @@ else
     }
     else
     {
-        <Table TableItem="Brand" Items="brands" PageSize="4" TableBodyClass="align-middle">
+        <Table TableItem="Brand" Items="brands" PageSize="10" TableBodyClass="align-middle">
             <Column TableItem="Brand" Title="Name" Field="@(x => x.Name)" Sortable="true" Filterable="true" />
             <Column TableItem="Brand" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
                 <Template>
@@ -39,7 +39,7 @@ else
             <Column TableItem="Brand" Width="150px">
                 <Template>
                     <div class="button-group text-center">
-                        <button type="button" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center">
+                        <button type="button" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenEditModal(context.Id)">
                             <i class="fs-5 ti ti-pencil"></i>
                         </button>
                         <button type="button" class="btn mb-0 bg-danger-subtle btn-sm d-inline-flex align-items-center justify-content-center">
@@ -54,11 +54,11 @@ else
 }
 
 
-<div class="modal fade" id="addBrandModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+<div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header modal-colored-header bg-success">
-                <h5 class="modal-title text-white" id="modalTitle">Add Brand</h5>
+                <h5 class="modal-title text-white" id="modalTitle">@(isEditMode ? "Edit Brand" : "Add Brand")</h5>
                 <button type="button" class="btn-close btn-close-white" @onclick="HideModal" aria-label="Close"></button>
             </div>
             <EditForm Model="addEditBrand" OnValidSubmit="FormSubmitted">
