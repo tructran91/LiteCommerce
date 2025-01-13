@@ -17,5 +17,8 @@ namespace LiteCommerce.Admin.ApiClients
 
         [Put("/api/admin/brand/UpdateBrand")]
         Task<BaseResponse<Brand>> UpdateBrandAsync([Body] Brand brand);
+
+        [Delete("/api/admin/brand/DeleteBrand/{id}")]
+        Task<BaseResponse<Brand>> DeleteBrandAsync(string id);
     }
 }

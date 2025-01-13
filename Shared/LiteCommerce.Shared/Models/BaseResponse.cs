@@ -1,5 +1,4 @@
-﻿using LiteCommerce.Shared.Models;
-using System.Net;
+﻿using System.Net;
 
 namespace LiteCommerce.Shared.Models
 {

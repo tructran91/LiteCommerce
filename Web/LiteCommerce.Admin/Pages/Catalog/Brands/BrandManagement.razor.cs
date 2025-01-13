@@ -1,4 +1,5 @@
 ﻿using Blazored.Toast.Services;
+using CurrieTechnologies.Razor.SweetAlert2;
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Application;
@@ -18,6 +19,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         [Inject]
         public IToastService ToastService { get; set; }
+
+        [Inject]
+        public SweetAlertService SweetAlertService { get; set; }
 
         private List<BreadcrumbItem> breadcrumb = new List<BreadcrumbItem>
         {
@@ -81,6 +85,34 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             else
             {
                 ToastService.ShowError(request.Message);
+            }
+        }
+
+        private async Task OpenDeleteModal(string brandId, string brandName)
+        {
+            var confirmationResult = await SweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirm Brand Deletion",
+                Html = $"Are you sure you want to delete the brand <strong>{brandName}</strong>? This action cannot be undone.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Yes, delete it!",
+                CancelButtonText = "Cancel"
+            });
+
+            if (confirmationResult.IsConfirmed)
+            {
+                var deletedResult = await BrandApi.DeleteBrandAsync(brandId);
+
+                if (deletedResult.IsSuccess)
+                {
+                    await SweetAlertService.FireAsync("Deleted!", SystemMessages.DeleteDataSuccess, SweetAlertIcon.Success);
+                    await GetBrands();
+                }
+                else
+                {
+                    await SweetAlertService.FireAsync("Error!", deletedResult.Message, SweetAlertIcon.Error);
+                }
             }
         }
 

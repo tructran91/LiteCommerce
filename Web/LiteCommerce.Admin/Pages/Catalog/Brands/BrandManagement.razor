@@ -42,7 +42,7 @@ else
                         <button type="button" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenEditModal(context.Id)">
                             <i class="fs-5 ti ti-pencil"></i>
                         </button>
-                        <button type="button" class="btn mb-0 bg-danger-subtle btn-sm d-inline-flex align-items-center justify-content-center">
+                        <button type="button" class="btn mb-0 bg-danger-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenDeleteModal(context.Id, context.Name)">
                             <i class="fs-5 ti ti-trash"></i>
                         </button>
                     </div>

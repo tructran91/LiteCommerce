@@ -4,9 +4,7 @@ namespace Catalog.Core.Repositories
 {
     public interface IBaseRepository<T>
     {
-        Task<List<T>> GetAllAsync(bool disableTracking = true);
-
-        Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate);
+        Task<List<T>> GetAllAsync(bool disableTracking = true, bool isDeletedIncluded = false);
 
         Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate = null,
                                         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
@@ -14,16 +12,11 @@ namespace Catalog.Core.Repositories
                                         int pageNumber = 1, int pageSize = 10,
                                         bool disableTracking = true);
 
-        Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate = null,
-                                        Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-                                        List<Expression<Func<T, object>>> includes = null,
-                                        bool disableTracking = true);
-
         IQueryable<T> Query();
 
         Task<int> CountAsync(Expression<Func<T, bool>> predicate = null);
 
-        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate = null);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate = null, bool isDeletedIncluded = false);
 
         Task<T> GetByIdAsync(Guid id);
 

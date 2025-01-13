@@ -47,5 +47,13 @@ namespace Catalog.API.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
+
+        [HttpDelete("DeleteBrand/{id}")]
+        public async Task<IActionResult> DeleteBrand(string id)
+        {
+            var command = new DeleteBrandCommand(id);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
     }
 }

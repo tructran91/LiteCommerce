@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using Blazored.Toast;
 using BlazorTable;
+using CurrieTechnologies.Razor.SweetAlert2;
 using LiteCommerce.Admin;
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Services;
@@ -28,5 +29,6 @@ builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
 builder.Services.AddBlazorTable();
+builder.Services.AddSweetAlert2();
 
 await builder.Build().RunAsync();
