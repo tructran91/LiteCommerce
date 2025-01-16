@@ -22,6 +22,11 @@
             return $"{fieldName} must be greater than {min}.";
         }
 
+        public static string MustBeGreaterThanOrEqual(string fieldName, int min)
+        {
+            return $"{fieldName} must be greater than or equal to {min}.";
+        }
+
         public static string MustBeLessThanOrEqual(string fieldName, int max)
         {
             return $"{fieldName} must be less than or equal to {max}.";

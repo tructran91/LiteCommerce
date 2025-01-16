@@ -18,9 +18,8 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetAllCategories")]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories([FromQuery] GetAllCategoriesQuery query)
         {
-            var query = new GetAllCategoriesQuery();
             var result = await _mediator.Send(query);
             return Ok(result);
         }
@@ -28,7 +27,7 @@ namespace Catalog.API.Controllers
         [HttpGet("GetCategoryById/{id}")]
         public async Task<ActionResult> GetCategoryById(string id)
         {
-            var query = new GetCategoryQuery(Guid.Parse(id));
+            var query = new GetCategoryQuery(id);
             var result = await _mediator.Send(query);
             return Ok(result);
         }

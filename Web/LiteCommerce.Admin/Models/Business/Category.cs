@@ -1,8 +1,8 @@
-﻿namespace Catalog.Application.Responses
+﻿namespace LiteCommerce.Admin.Models.Business
 {
-    public class CategoryResponse
+    public class Category
     {
-        public Guid? Id { get; set; }
+        public string Id { get; set; }
 
         public string Name { get; set; }
 
@@ -24,10 +24,6 @@
 
         public int DisplayOrder { get; set; }
 
-        public Guid? ParentCategoryId { get; set; }
-
-        //public CategoryDto? Parent { get; set; }
-
-        //public IList<CategoryDto> Children { get; set; } = new List<CategoryDto>();
+        public string? ParentCategoryId { get; set; }
     }
 }

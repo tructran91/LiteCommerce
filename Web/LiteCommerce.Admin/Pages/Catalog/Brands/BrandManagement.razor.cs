@@ -55,8 +55,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private async Task GetBrands()
         {
-            var response = await BrandApi.GetBrandsAsync();
-            brands = response.Data;
+            var response = await BrandApi.GetBrandsAsync(1, 100);
+            if (response.IsSuccess)
+            {
+                brands = response.Data;
+            }
             isLoading = false;
         }
 
@@ -106,12 +109,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
                 if (deletedResult.IsSuccess)
                 {
-                    await SweetAlertService.FireAsync("Deleted!", SystemMessages.DeleteDataSuccess, SweetAlertIcon.Success);
+                    ToastService.ShowSuccess(SystemMessages.DeleteDataSuccess);
                     await GetBrands();
                 }
                 else
                 {
-                    await SweetAlertService.FireAsync("Error!", deletedResult.Message, SweetAlertIcon.Error);
+                    ToastService.ShowError(deletedResult.Message);
                 }
             }
         }

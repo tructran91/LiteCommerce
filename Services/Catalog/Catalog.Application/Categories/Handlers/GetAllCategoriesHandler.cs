@@ -21,7 +21,13 @@ namespace Catalog.Application.Categories.Handlers
 
         public async Task<BaseResponse<List<CategoryResponse>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
-            var categories = await _categoryRepository.GetAllAsync(false);
+            var categories = await _categoryRepository.GetAsync(
+                predicate: t => !t.IsDeleted,
+                orderBy: x => x.OrderBy(y => y.Name),
+                includeString: "ParentCategory",
+                pageNumber: request.CurrentPage,
+                pageSize: request.PageSize);
+            var totalRecords = await _categoryRepository.CountAsync(t => !t.IsDeleted);
             var categoriesMapping = new List<CategoryResponse>();
 
             foreach (var category in categories)
@@ -40,7 +46,10 @@ namespace Catalog.Application.Categories.Handlers
 
             categoriesMapping = categoriesMapping.OrderBy(t => t.DisplayName).ToList();
 
-            return BaseResponse<List<CategoryResponse>>.Success(categoriesMapping);
+            var response = BaseResponse<List<CategoryResponse>>.Success(categoriesMapping);
+            response.Pagination = new Pagination(totalRecords, request.CurrentPage, request.PageSize);
+
+            return response;
         }
     }
 }

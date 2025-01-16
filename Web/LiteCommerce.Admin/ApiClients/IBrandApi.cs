@@ -7,7 +7,7 @@ namespace LiteCommerce.Admin.ApiClients
     public interface IBrandApi
     {
         [Get("/api/admin/brand/GetAllBrands")]
-        Task<BaseResponse<List<Brand>>> GetBrandsAsync();
+        Task<BaseResponse<List<Brand>>> GetBrandsAsync(int currentPage, int pageSize);
 
         [Get("/api/admin/brand/GetBrandById/{id}")]
         Task<BaseResponse<Brand>> GetBrandAsync(string id);

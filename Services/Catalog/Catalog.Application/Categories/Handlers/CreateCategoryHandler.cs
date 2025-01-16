@@ -7,6 +7,7 @@ using Catalog.Core.Repositories;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
@@ -27,6 +28,21 @@ namespace Catalog.Application.Categories.Handlers
         public async Task<BaseResponse<CategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"CreateCategoryHandler: {JsonSerializer.Serialize(request.Payload)}");
+
+            var isExistingCategory = await _categoryRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
+            if (isExistingCategory)
+            {
+                return BaseResponse<CategoryResponse>.Failure("Category already exists.", statusCode: HttpStatusCode.Conflict);
+            }
+
+            if (!string.IsNullOrEmpty(request.Payload.ParentId))
+            {
+                var isExistingParentCategory = await _categoryRepository.GetByIdAsync(Guid.Parse(request.Payload.ParentId));
+                if (isExistingParentCategory is null)
+                {
+                    return BaseResponse<CategoryResponse>.Failure("Parent Category does not exist.", statusCode: HttpStatusCode.NotFound);
+                }
+            }
 
             var category = _mapper.Map<Category>(request.Payload);
             category.Slug = category.Name.Slugify();

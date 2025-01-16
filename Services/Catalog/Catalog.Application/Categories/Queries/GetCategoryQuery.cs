@@ -6,9 +6,9 @@ namespace Catalog.Application.Brands.Queries
 {
     public class GetCategoryQuery : IRequest<BaseResponse<CategoryResponse>>
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
-        public GetCategoryQuery(Guid id)
+        public GetCategoryQuery(string id)
         {
             Id = id;
         }

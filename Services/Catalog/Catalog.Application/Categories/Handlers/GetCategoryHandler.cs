@@ -22,7 +22,7 @@ namespace Catalog.Application.Categories.Handlers
 
         public async Task<BaseResponse<CategoryResponse>> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetByIdAsync(request.Id);
+            var category = await _categoryRepository.GetByIdAsync(Guid.Parse(request.Id));
             if (category is null)
             {
                 return BaseResponse<CategoryResponse>.Failure("Category does not exist.", statusCode: HttpStatusCode.NotFound);
