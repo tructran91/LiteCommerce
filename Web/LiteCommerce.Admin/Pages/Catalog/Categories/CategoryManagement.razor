@@ -1,7 +1,7 @@
 ﻿@page "/categories"
 @using BlazorTable
 @using LiteCommerce.Admin.Constants
-@using LiteCommerce.Admin.Models.Business
+@using LiteCommerce.Admin.Models.Business.Category
 @using LiteCommerce.Admin.Shared.Components
 
 <PageTitle>Categories</PageTitle>
@@ -9,10 +9,10 @@
 <Breadcrumb Title="Categories" BreadcrumbItems="breadcrumb"></Breadcrumb>
 
 <div class="mb-7 d-flex justify-content-end">
-    <button type="button" class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary">
+    <a class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" href="/categories/add-category">
         <i class="ti ti-plus fs-5 me-2"></i>
         Add Category
-    </button>
+    </a>
 </div>
 
 @if (isLoading)
@@ -27,24 +27,24 @@ else
     }
     else
     {
-        <Table TableItem="Category" Items="categories" PageSize="10" TableBodyClass="align-middle">
-            <Column TableItem="Category" Title="Name" Field="@(x => x.DisplayName)" Sortable="true" Filterable="true" />
-            <Column TableItem="Category" Title="Display order" Field="@(x => x.DisplayOrder)" Sortable="true" Filterable="true" />
-            <Column TableItem="Category" Title="Include in menu" Field="@(x => x.IncludeInMenu)" Sortable="true" Filterable="true">
+        <Table TableItem="CategoryModel" Items="categories" PageSize="10" TableBodyClass="align-middle">
+            <Column TableItem="CategoryModel" Title="Name" Field="@(x => x.DisplayName)" Sortable="true" Filterable="true" />
+            <Column TableItem="CategoryModel" Title="Display order" Field="@(x => x.DisplayOrder)" Sortable="true" Filterable="true" />
+            <Column TableItem="CategoryModel" Title="Include in menu" Field="@(x => x.IncludeInMenu)" Sortable="true" Filterable="true">
                 <Template>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" disabled checked="@context.IncludeInMenu">
                     </div>
                 </Template>
             </Column>
-            <Column TableItem="Category" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
+            <Column TableItem="CategoryModel" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
                 <Template>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" disabled checked="@context.IsPublished">
                     </div>
                 </Template>
             </Column>
-            <Column TableItem="Category" Width="150px">
+            <Column TableItem="CategoryModel" Width="150px">
                 <Template>
                     <div class="button-group text-center">
                         <button type="button" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center">

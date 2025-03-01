@@ -1,5 +1,6 @@
 ﻿using Catalog.Application.Brands.Queries;
 using Catalog.Application.Categories.Commands;
+using Catalog.Application.Categories.Queries;
 using Catalog.Application.Requests;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,14 @@ namespace Catalog.API.Controllers
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCategories([FromQuery] GetAllCategoriesQuery query)
         {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpGet("GetAllBasicCategories")]
+        public async Task<IActionResult> GetAllBasicCategories()
+        {
+            var query = new GetAllBasicCategoriesQuery();
             var result = await _mediator.Send(query);
             return Ok(result);
         }

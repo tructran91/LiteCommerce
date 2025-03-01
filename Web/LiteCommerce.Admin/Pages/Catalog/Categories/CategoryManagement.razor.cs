@@ -2,7 +2,7 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Models.Application;
-using LiteCommerce.Admin.Models.Business;
+using LiteCommerce.Admin.Models.Business.Category;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -28,7 +28,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             new BreadcrumbItem { Label = "Categories", Url = "/categories", IsActive = true }
         };
 
-        private List<Category> categories = new();
+        private List<CategoryModel> categories = new();
 
         private bool isLoading = true;
 

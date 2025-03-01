@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LiteCommerce.Admin.Models.Business
+namespace LiteCommerce.Admin.Models.Business.Brand
 {
-    public class Brand
+    public class BrandModel
     {
         public string? Id { get; set; }
 

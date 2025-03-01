@@ -24,6 +24,8 @@ namespace Catalog.Application
             CreateMap<UpdateCategoryRequest, Category>()
                 .ForMember(prop => prop.ParentCategoryId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)))
                 .ForMember(prop => prop.LastModifiedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
+            CreateMap<Category, BasicCategoryResponse>()
+                .ForMember(prop => prop.DisplayName, opt => opt.MapFrom(o => o.Name));
 
             CreateMap<Product, ProductResponse>();
             CreateMap<ProductViewModel, Product>()

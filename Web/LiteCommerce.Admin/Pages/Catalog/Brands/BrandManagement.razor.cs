@@ -3,7 +3,7 @@ using CurrieTechnologies.Razor.SweetAlert2;
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Application;
-using LiteCommerce.Admin.Models.Business;
+using LiteCommerce.Admin.Models.Business.Brand;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -29,9 +29,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             new BreadcrumbItem { Label = "Brands", Url = "/brands", IsActive = true }
         };
 
-        private List<Brand> brands = new();
+        private List<BrandModel> brands = new();
 
-        private Brand addEditBrand = new Brand();
+        private BrandModel addEditBrand = new BrandModel();
 
         private bool isLoading = true;
 
@@ -66,7 +66,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
         private async Task OpenAddModal()
         {
             isEditMode = false;
-            addEditBrand = new Brand();
+            addEditBrand = new BrandModel();
             await ShowModal();
         }
 
@@ -77,7 +77,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             if (request.IsSuccess)
             {
                 var brandToEdit = request.Data;
-                addEditBrand = new Brand
+                addEditBrand = new BrandModel
                 {
                     Id = brandToEdit.Id,
                     Name = brandToEdit.Name,

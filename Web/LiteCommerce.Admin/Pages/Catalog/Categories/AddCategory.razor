@@ -1,5 +1,108 @@
-﻿<h3>AddCategory</h3>
+﻿@page "/categories/add-category"
+@using LiteCommerce.Admin.Shared.Components
 
-@code {
+<PageTitle>Add Category</PageTitle>
 
-}
+<Breadcrumb Title="Add Category" BreadcrumbItems="breadcrumb"></Breadcrumb>
+
+<div>
+    <ul class="nav nav-underline" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#tab-info" role="tab">
+                <span>General Information</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-product" role="tab">
+                <span>Products</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content border mt-2">
+        <div class="tab-pane active" id="tab-info" role="tabpanel">
+            <div class="card mb-0">
+                <div class="card-body">
+                    <EditForm Model="initCategory">
+                        <div class="mb-3 row align-items-center">
+                            <label for="name" class="form-label col-sm-2 col-form-label">Name <span class="text-danger">*</span></label>
+                            <div class="col-sm-10">
+                                <InputText id="name" class="form-control" @bind-Value="initCategory.Name" autocomplete="off" placeholder="Ex: Accessories, Computers, Phones..." />
+                                <ValidationMessage For="@(() => initCategory.Name)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Meta title</label>
+                            <div class="col-sm-10">
+                                <InputText id="order" class="form-control" @bind-Value="initCategory.MetaTitle" autocomplete="off" />
+                                <ValidationMessage For="@(() => initCategory.MetaTitle)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Meta keywords</label>
+                            <div class="col-sm-10">
+                                <InputText id="order" class="form-control" @bind-Value="initCategory.MetaKeywords" autocomplete="off" />
+                                <ValidationMessage For="@(() => initCategory.MetaKeywords)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Meta description</label>
+                            <div class="col-sm-10">
+                                <InputTextArea id="order" class="form-control" @bind-Value="initCategory.MetaDescription" rows="4" autocomplete="off" />
+                                <ValidationMessage For="@(() => initCategory.MetaDescription)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Parent category</label>
+                            <div class="col-sm-10">
+                                <select class="form-select mr-sm-2" title="Region is required">
+                                    <option value="" selected disabled="disabled">None</option>
+                                    @foreach (var category in basicCategories)
+                                    {
+                                        <option value="@category.Id">@category.DisplayName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Description</label>
+                            <div class="col-sm-10">
+                                <InputTextArea id="order" class="form-control" @bind-Value="initCategory.Description" rows="4" autocomplete="off" />
+                                <ValidationMessage For="@(() => initCategory.Description)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Display order</label>
+                            <div class="col-sm-10">
+                                <InputNumber id="order" class="form-control" @bind-Value="initCategory.DisplayOrder" autocomplete="off" />
+                                <ValidationMessage For="@(() => initCategory.DisplayOrder)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="order" class="form-label col-sm-2 col-form-label">Thumbnail</label>
+                            <div class="col-sm-10">
+
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check form-switch">
+                            <InputCheckbox class="form-check-input" id="IncludeInMenu" @bind-Value="initCategory.IncludeInMenu" />
+                            <label class="form-check-label" for="IncludeInMenu">Include in Menu</label>
+                        </div>
+                        <div class="mb-3 form-check form-switch">
+                            <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="initCategory.IsPublished" />
+                            <label class="form-check-label" for="IsPublished">Is published</label>
+                        </div>
+                        <p class="mb-0">(<span class="text-danger">*</span>) Mandatory</p>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane p-3" id="tab-product" role="tabpanel">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Products</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
