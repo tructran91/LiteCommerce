@@ -23,7 +23,8 @@
         <div class="tab-pane active" id="tab-info" role="tabpanel">
             <div class="card mb-0">
                 <div class="card-body">
-                    <EditForm Model="initCategory">
+                    <EditForm Model="initCategory" OnValidSubmit="FormSubmitted">
+                        <DataAnnotationsValidator />
                         <div class="mb-3 row align-items-center">
                             <label for="name" class="form-label col-sm-2 col-form-label">Name <span class="text-danger">*</span></label>
                             <div class="col-sm-10">
@@ -32,23 +33,23 @@
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
-                            <label for="order" class="form-label col-sm-2 col-form-label">Meta title</label>
+                            <label for="meta-title" class="form-label col-sm-2 col-form-label">Meta title</label>
                             <div class="col-sm-10">
-                                <InputText id="order" class="form-control" @bind-Value="initCategory.MetaTitle" autocomplete="off" />
+                                <InputText id="meta-title" class="form-control" @bind-Value="initCategory.MetaTitle" autocomplete="off" />
                                 <ValidationMessage For="@(() => initCategory.MetaTitle)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
-                            <label for="order" class="form-label col-sm-2 col-form-label">Meta keywords</label>
+                            <label for="meta-keywords" class="form-label col-sm-2 col-form-label">Meta keywords</label>
                             <div class="col-sm-10">
-                                <InputText id="order" class="form-control" @bind-Value="initCategory.MetaKeywords" autocomplete="off" />
+                                <InputText id="meta-keywords" class="form-control" @bind-Value="initCategory.MetaKeywords" autocomplete="off" />
                                 <ValidationMessage For="@(() => initCategory.MetaKeywords)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
-                            <label for="order" class="form-label col-sm-2 col-form-label">Meta description</label>
+                            <label for="meta-description" class="form-label col-sm-2 col-form-label">Meta description</label>
                             <div class="col-sm-10">
-                                <InputTextArea id="order" class="form-control" @bind-Value="initCategory.MetaDescription" rows="4" autocomplete="off" />
+                                <InputTextArea id="meta-description" class="form-control" @bind-Value="initCategory.MetaDescription" rows="4" autocomplete="off" />
                                 <ValidationMessage For="@(() => initCategory.MetaDescription)" />
                             </div>
                         </div>
@@ -67,14 +68,14 @@
                         <div class="mb-3 row align-items-center">
                             <label for="order" class="form-label col-sm-2 col-form-label">Description</label>
                             <div class="col-sm-10">
-                                <InputTextArea id="order" class="form-control" @bind-Value="initCategory.Description" rows="4" autocomplete="off" />
+                                <InputTextArea id="description" class="form-control" @bind-Value="initCategory.Description" rows="4" autocomplete="off" />
                                 <ValidationMessage For="@(() => initCategory.Description)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="order" class="form-label col-sm-2 col-form-label">Display order</label>
                             <div class="col-sm-10">
-                                <InputNumber id="order" class="form-control" @bind-Value="initCategory.DisplayOrder" autocomplete="off" />
+                                <InputNumber id="display-order" class="form-control" @bind-Value="initCategory.DisplayOrder" autocomplete="off" />
                                 <ValidationMessage For="@(() => initCategory.DisplayOrder)" />
                             </div>
                         </div>
@@ -84,15 +85,30 @@
 
                             </div>
                         </div>
-                        <div class="mb-3 form-check form-switch">
-                            <InputCheckbox class="form-check-input" id="IncludeInMenu" @bind-Value="initCategory.IncludeInMenu" />
-                            <label class="form-check-label" for="IncludeInMenu">Include in Menu</label>
+                        <div class="mb-3 row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <InputCheckbox class="form-check-input" id="IncludeInMenu" @bind-Value="initCategory.IncludeInMenu" />
+                                    <label class="form-check-label" for="IncludeInMenu">Include in Menu</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="initCategory.IsPublished" />
+                                    <label class="form-check-label" for="IsPublished">Is published</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3 form-check form-switch">
-                            <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="initCategory.IsPublished" />
-                            <label class="form-check-label" for="IsPublished">Is published</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center">
+                                <i class="ti ti-device-floppy fs-5 me-2"></i>
+                                Save
+                            </button>
+                            <a href="/categories" class="btn btn-outline-warning d-inline-flex align-items-center">
+                                <i class="ti ti-x fs-5 me-2"></i>
+                                Cancel
+                            </a>
                         </div>
-                        <p class="mb-0">(<span class="text-danger">*</span>) Mandatory</p>
                     </EditForm>
                 </div>
             </div>

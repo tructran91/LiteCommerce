@@ -19,7 +19,7 @@ namespace LiteCommerce.Admin.Layout
         [Inject]
         private IMenuService MenuService { get; set; }
 
-        private LayoutSettings Settings { get; set; }
+        private LayoutSettings Settings { get; set; } = new();
 
         public List<MenuItem> MenuItems { get; set; } = new();
 
@@ -33,10 +33,10 @@ namespace LiteCommerce.Admin.Layout
 
         private async Task GetCurrentSettingsAsync()
         {
-            Settings = await LocalStorage.GetItemAsync<LayoutSettings>(LayoutConstant.LayoutSettingName);
-            if (Settings == null)
+            var savedSettings = await LocalStorage.GetItemAsync<LayoutSettings>(LayoutConstant.LayoutSettingName);
+            if (savedSettings != null)
             {
-                Settings = new LayoutSettings();
+                Settings = savedSettings;
             }
         }
 

@@ -15,8 +15,8 @@ namespace LiteCommerce.Admin.ApiClients
         [Get("/api/admin/category/GetCategoryById/{id}")]
         Task<BaseResponse<CategoryModel>> GetCategoryAsync(string id);
 
-        //[Post("/api/admin/category/CreateCategory")]
-        //Task<BaseResponse<Category>> CreateCategoryAsync([Body] Category Category);
+        [Post("/api/admin/category/CreateCategory")]
+        Task<BaseResponse<CategoryModel>> CreateCategoryAsync([Body] CategoryFormModel Category);
 
         //[Put("/api/admin/category/UpdateCategory")]
         //Task<BaseResponse<Category>> UpdateCategoryAsync([Body] Category Category);

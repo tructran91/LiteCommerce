@@ -36,5 +36,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 basicCategories = response.Data;
             }
         }
+
+        private async Task FormSubmitted()
+        {
+            //var response = await CategoryApi.CreateCategoryAsync(initCategory);
+        }
     }
 }
