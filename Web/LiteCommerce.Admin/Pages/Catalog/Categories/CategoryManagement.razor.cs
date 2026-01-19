@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 using CurrieTechnologies.Razor.SweetAlert2;
 using LiteCommerce.Admin.ApiClients;
+using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Models.Business.Category;
 using Microsoft.AspNetCore.Components;
@@ -46,6 +47,34 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 categories = response.Data;
             }
             isLoading = false;
+        }
+
+        private async Task OpenDeleteModal(string categoryId, string categoryName)
+        {
+            var confirmationResult = await SweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirm Category Deletion",
+                Html = $"Are you sure you want to delete the category <strong>{categoryName}</strong>? This action cannot be undone.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Yes, delete it!",
+                CancelButtonText = "Cancel"
+            });
+
+            if (confirmationResult.IsConfirmed)
+            {
+                var deletedResult = await CategoryApi.DeleteCategoryAsync(categoryId);
+
+                if (deletedResult.IsSuccess)
+                {
+                    ToastService.ShowSuccess(SystemMessages.DeleteDataSuccess);
+                    await GetCategories();
+                }
+                else
+                {
+                    ToastService.ShowError(deletedResult.Message);
+                }
+            }
         }
     }
 }

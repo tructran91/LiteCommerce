@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Brands.Queries;
+﻿using Catalog.Application.Brands.Commands;
+using Catalog.Application.Brands.Queries;
 using Catalog.Application.Categories.Commands;
 using Catalog.Application.Categories.Queries;
 using Catalog.Application.Requests;
@@ -53,6 +54,14 @@ namespace Catalog.API.Controllers
         public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand(request);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpDelete("DeleteCategory/{id}")]
+        public async Task<IActionResult> DeleteCategory(string id)
+        {
+            var command = new DeleteCategoryCommand(id);
             var result = await _mediator.Send(command);
             return Ok(result);
         }
