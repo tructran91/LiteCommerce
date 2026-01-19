@@ -15,7 +15,7 @@ namespace Catalog.Application.Categories.Validators
                 .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"));
 
             RuleFor(x => x.Payload.DisplayOrder)
-                .GreaterThanOrEqualTo(0).WithMessage(ValidationMessages.MustBeGreaterThanOrEqual("DisplayOrder", PaginationSetting.MinCurrentPage));
+                .GreaterThanOrEqualTo(0).WithMessage(ValidationMessages.MustBeGreaterThanOrEqual("DisplayOrder", 0));
 
             RuleFor(x => x.Payload.ParentId)
                 .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("ParentId"))

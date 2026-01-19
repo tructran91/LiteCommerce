@@ -25,7 +25,7 @@ namespace Catalog.Application.Categories.Handlers
             var categories = await _categoryRepository.GetAsync(
                 predicate: t => !t.IsDeleted,
                 orderBy: x => x.OrderBy(y => y.Name),
-                includeString: "ParentCategory",
+                includeString: "Parent",
                 pageNumber: 1,
                 pageSize: PaginationSetting.MaxPageSize);
             var categoriesMapping = new List<BasicCategoryResponse>();
@@ -34,11 +34,11 @@ namespace Catalog.Application.Categories.Handlers
             {
                 var categoryResponse = _mapper.Map<BasicCategoryResponse>(category);
 
-                var parentCategory = category.ParentCategory;
+                var parentCategory = category.Parent;
                 while (parentCategory != null)
                 {
                     categoryResponse.DisplayName = $"{parentCategory.Name} >> {categoryResponse.DisplayName}";
-                    parentCategory = parentCategory.ParentCategory;
+                    parentCategory = parentCategory.Parent;
                 }
 
                 categoriesMapping.Add(categoryResponse);

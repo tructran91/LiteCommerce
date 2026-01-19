@@ -17,7 +17,7 @@ namespace Catalog.Infrastructure.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -110,7 +110,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<string>("OgUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ParentCategoryId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SchemaJson")
@@ -122,7 +122,7 @@ namespace Catalog.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentCategoryId");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Categories");
                 });
@@ -550,11 +550,11 @@ namespace Catalog.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
-                    b.HasOne("Catalog.Core.Entities.Category", "ParentCategory")
+                    b.HasOne("Catalog.Core.Entities.Category", "Parent")
                         .WithMany("SubCategories")
-                        .HasForeignKey("ParentCategoryId");
+                        .HasForeignKey("ParentId");
 
-                    b.Navigation("ParentCategory");
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Product", b =>

@@ -28,7 +28,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             new BreadcrumbItem { Label = "Categories", Url = "/categories", IsActive = true }
         };
 
-        private List<CategoryModel> categories = new();
+        private List<CategoryResponse> categories = new();
 
         private bool isLoading = true;
 

@@ -1,9 +1,10 @@
-﻿@page "/categories/add-category"
+﻿@page "/categories/add"
+@page "/categories/edit/{id}"
 @using LiteCommerce.Admin.Shared.Components
 
-<PageTitle>Add Category</PageTitle>
+<PageTitle>@(IsEditMode ? "Edit Category" : "Add Category")</PageTitle>
 
-<Breadcrumb Title="Add Category" BreadcrumbItems="breadcrumb"></Breadcrumb>
+<Breadcrumb Title="@(IsEditMode ? "Edit Category" : "Add Category")" BreadcrumbItems="breadcrumb"></Breadcrumb>
 
 <div>
     <ul class="nav nav-underline" role="tablist">
@@ -23,60 +24,60 @@
         <div class="tab-pane active" id="tab-info" role="tabpanel">
             <div class="card mb-0">
                 <div class="card-body">
-                    <EditForm Model="initCategory" OnValidSubmit="FormSubmitted">
+                    <EditForm Model="categoryForm" OnValidSubmit="FormSubmitted">
                         <DataAnnotationsValidator />
                         <div class="mb-3 row align-items-center">
                             <label for="name" class="form-label col-sm-2 col-form-label">Name <span class="text-danger">*</span></label>
                             <div class="col-sm-10">
-                                <InputText id="name" class="form-control" @bind-Value="initCategory.Name" autocomplete="off" placeholder="Ex: Accessories, Computers, Phones..." />
-                                <ValidationMessage For="@(() => initCategory.Name)" />
+                                <InputText id="name" class="form-control" @bind-Value="categoryForm.Name" autocomplete="off" placeholder="Ex: Accessories, Computers, Phones..." />
+                                <ValidationMessage For="@(() => categoryForm.Name)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="meta-title" class="form-label col-sm-2 col-form-label">Meta title</label>
                             <div class="col-sm-10">
-                                <InputText id="meta-title" class="form-control" @bind-Value="initCategory.MetaTitle" autocomplete="off" />
-                                <ValidationMessage For="@(() => initCategory.MetaTitle)" />
+                                <InputText id="meta-title" class="form-control" @bind-Value="categoryForm.MetaTitle" autocomplete="off" />
+                                <ValidationMessage For="@(() => categoryForm.MetaTitle)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="meta-keywords" class="form-label col-sm-2 col-form-label">Meta keywords</label>
                             <div class="col-sm-10">
-                                <InputText id="meta-keywords" class="form-control" @bind-Value="initCategory.MetaKeywords" autocomplete="off" />
-                                <ValidationMessage For="@(() => initCategory.MetaKeywords)" />
+                                <InputText id="meta-keywords" class="form-control" @bind-Value="categoryForm.MetaKeywords" autocomplete="off" />
+                                <ValidationMessage For="@(() => categoryForm.MetaKeywords)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="meta-description" class="form-label col-sm-2 col-form-label">Meta description</label>
                             <div class="col-sm-10">
-                                <InputTextArea id="meta-description" class="form-control" @bind-Value="initCategory.MetaDescription" rows="4" autocomplete="off" />
-                                <ValidationMessage For="@(() => initCategory.MetaDescription)" />
+                                <InputTextArea id="meta-description" class="form-control" @bind-Value="categoryForm.MetaDescription" rows="4" autocomplete="off" />
+                                <ValidationMessage For="@(() => categoryForm.MetaDescription)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="order" class="form-label col-sm-2 col-form-label">Parent category</label>
                             <div class="col-sm-10">
-                                <select class="form-select mr-sm-2" title="Region is required">
-                                    <option value="" selected disabled="disabled">None</option>
+                                <InputSelect class="form-select" @bind-Value="categoryForm.ParentId">
+                                    <option value="">None</option>
                                     @foreach (var category in basicCategories)
                                     {
                                         <option value="@category.Id">@category.DisplayName</option>
                                     }
-                                </select>
+                                </InputSelect>
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="order" class="form-label col-sm-2 col-form-label">Description</label>
                             <div class="col-sm-10">
-                                <InputTextArea id="description" class="form-control" @bind-Value="initCategory.Description" rows="4" autocomplete="off" />
-                                <ValidationMessage For="@(() => initCategory.Description)" />
+                                <InputTextArea id="description" class="form-control" @bind-Value="categoryForm.Description" rows="4" autocomplete="off" />
+                                <ValidationMessage For="@(() => categoryForm.Description)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="order" class="form-label col-sm-2 col-form-label">Display order</label>
                             <div class="col-sm-10">
-                                <InputNumber id="display-order" class="form-control" @bind-Value="initCategory.DisplayOrder" autocomplete="off" />
-                                <ValidationMessage For="@(() => initCategory.DisplayOrder)" />
+                                <InputNumber id="display-order" class="form-control" @bind-Value="categoryForm.DisplayOrder" autocomplete="off" />
+                                <ValidationMessage For="@(() => categoryForm.DisplayOrder)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
@@ -88,13 +89,13 @@
                         <div class="mb-3 row">
                             <div class="col-md-6">
                                 <div class="form-check form-switch">
-                                    <InputCheckbox class="form-check-input" id="IncludeInMenu" @bind-Value="initCategory.IncludeInMenu" />
+                                    <InputCheckbox class="form-check-input" id="IncludeInMenu" @bind-Value="categoryForm.IncludeInMenu" />
                                     <label class="form-check-label" for="IncludeInMenu">Include in Menu</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-check form-switch">
-                                    <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="initCategory.IsPublished" />
+                                    <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="categoryForm.IsPublished" />
                                     <label class="form-check-label" for="IsPublished">Is published</label>
                                 </div>
                             </div>

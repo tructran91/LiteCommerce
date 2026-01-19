@@ -7,21 +7,21 @@ namespace LiteCommerce.Admin.ApiClients
     public interface ICategoryApi
     {
         [Get("/api/admin/category/GetAllCategories")]
-        Task<BaseResponse<List<CategoryModel>>> GetCategoriesAsync(int currentPage, int pageSize);
+        Task<BaseResponse<List<CategoryResponse>>> GetCategoriesAsync(int currentPage, int pageSize);
 
         [Get("/api/admin/category/GetAllBasicCategories")]
-        Task<BaseResponse<List<BasicCategoryModel>>> GetBasicCategoriesAsync();
+        Task<BaseResponse<List<BasicCategoryResponse>>> GetBasicCategoriesAsync();
 
         [Get("/api/admin/category/GetCategoryById/{id}")]
-        Task<BaseResponse<CategoryModel>> GetCategoryAsync(string id);
+        Task<BaseResponse<CategoryFormModel>> GetCategoryAsync(string id);
 
         [Post("/api/admin/category/CreateCategory")]
-        Task<BaseResponse<CategoryModel>> CreateCategoryAsync([Body] CategoryFormModel Category);
+        Task<BaseResponse<CategoryResponse>> CreateCategoryAsync([Body] CategoryFormModel Category);
 
-        //[Put("/api/admin/category/UpdateCategory")]
-        //Task<BaseResponse<Category>> UpdateCategoryAsync([Body] Category Category);
+        [Put("/api/admin/category/UpdateCategory")]
+        Task<BaseResponse<CategoryResponse>> UpdateCategoryAsync([Body] CategoryFormModel Category);
 
-        //[Delete("/api/admin/category/DeleteCategory/{id}")]
-        //Task<BaseResponse<Category>> DeleteCategoryAsync(string id);
+        [Delete("/api/admin/category/DeleteCategory/{id}")]
+        Task<BaseResponse<CategoryResponse>> DeleteCategoryAsync(string id);
     }
 }

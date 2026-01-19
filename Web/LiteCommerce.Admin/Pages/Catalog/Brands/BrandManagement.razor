@@ -15,7 +15,7 @@
     </button>
 </div>
 
-@if (isLoading)
+@if (IsLoading)
 {
     <Loading></Loading>
 }
@@ -58,21 +58,21 @@ else
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header modal-colored-header bg-success">
-                <h5 class="modal-title text-white" id="modalTitle">@(isEditMode ? "Edit Brand" : "Add Brand")</h5>
+                <h5 class="modal-title text-white" id="modalTitle">@(IsEditMode ? "Edit Brand" : "Add Brand")</h5>
                 <button type="button" class="btn-close btn-close-white" @onclick="HideModal" aria-label="Close"></button>
             </div>
-            <EditForm Model="addEditBrand" OnValidSubmit="FormSubmitted">
+            <EditForm Model="brandForm" OnValidSubmit="FormSubmitted">
                 <div class="modal-body">
                     <DataAnnotationsValidator />
                     <div class="mb-6 row align-items-center">
                         <label for="name" class="form-label col-sm-3 col-form-label">Brand name <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <InputText id="name" class="form-control" @bind-Value="addEditBrand.Name" autocomplete="off" placeholder="Ex: Apple, Samsung, Nike, Adidas..." />
-                            <ValidationMessage For="@(() => addEditBrand.Name)" />
+                            <InputText id="name" class="form-control" @bind-Value="brandForm.Name" autocomplete="off" placeholder="Ex: Apple, Samsung, Nike, Adidas..." />
+                            <ValidationMessage For="@(() => brandForm.Name)" />
                         </div>
                     </div>
                     <div class="mb-6 form-check form-switch">
-                        <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="addEditBrand.IsPublished" />
+                        <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="brandForm.IsPublished" />
                         <label class="form-check-label" for="IsPublished">Brand is published</label>
                     </div>
                     <p class="mb-0">(<span class="text-danger">*</span>) Mandatory</p>

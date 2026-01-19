@@ -1,6 +1,6 @@
 ﻿namespace LiteCommerce.Admin.Models.Business.Category
 {
-    public class CategoryModel
+    public class CategoryResponse
     {
         public string Id { get; set; }
 
@@ -24,6 +24,6 @@
 
         public int DisplayOrder { get; set; }
 
-        public string? ParentCategoryId { get; set; }
+        public string? ParentId { get; set; }
     }
 }

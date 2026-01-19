@@ -32,9 +32,9 @@
 
         public string? SchemaJson { get; set; }
 
-        public Guid? ParentCategoryId { get; set; }
+        public Guid? ParentId { get; set; }
 
-        public Category? ParentCategory { get; set; }
+        public Category? Parent { get; set; }
 
         public List<Category> SubCategories { get; set; } = new();
     }

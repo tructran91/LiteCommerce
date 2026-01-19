@@ -31,11 +31,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private List<BrandModel> brands = new();
 
-        private BrandModel addEditBrand = new BrandModel();
+        private BrandModel brandForm = new BrandModel();
 
-        private bool isLoading = true;
+        private bool IsLoading = true;
 
-        private bool isEditMode = false;
+        private bool IsEditMode = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -60,24 +60,24 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             {
                 brands = response.Data;
             }
-            isLoading = false;
+            IsLoading = false;
         }
 
         private async Task OpenAddModal()
         {
-            isEditMode = false;
-            addEditBrand = new BrandModel();
+            IsEditMode = false;
+            brandForm = new BrandModel();
             await ShowModal();
         }
 
         private async Task OpenEditModal(string brandId)
         {
-            isEditMode = true;
+            IsEditMode = true;
             var request = await BrandApi.GetBrandAsync(brandId);
             if (request.IsSuccess)
             {
                 var brandToEdit = request.Data;
-                addEditBrand = new BrandModel
+                brandForm = new BrandModel
                 {
                     Id = brandToEdit.Id,
                     Name = brandToEdit.Name,
@@ -121,33 +121,23 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private async Task FormSubmitted()
         {
-            if (isEditMode)
+            var response = IsEditMode 
+                ? await BrandApi.UpdateBrandAsync(brandForm)
+                : await BrandApi.CreateBrandAsync(brandForm);
+
+            if (response.IsSuccess)
             {
-                var response = await BrandApi.UpdateBrandAsync(addEditBrand);
-                if (response.IsSuccess)
-                {
-                    await GetBrands();
-                    await HideModal();
-                    ToastService.ShowSuccess(SystemMessages.UpdateDataSuccess);
-                }
-                else
-                {
-                    ToastService.ShowError(response.Message);
-                }
+                await GetBrands();
+                await HideModal();
+
+                var successMessage = IsEditMode 
+                    ? SystemMessages.UpdateDataSuccess 
+                    : SystemMessages.AddDataSuccess;
+                ToastService.ShowSuccess(successMessage);
             }
             else
             {
-                var request = await BrandApi.CreateBrandAsync(addEditBrand);
-                if (request.IsSuccess)
-                {
-                    await GetBrands();
-                    await HideModal();
-                    ToastService.ShowSuccess(SystemMessages.AddDataSuccess);
-                }
-                else
-                {
-                    ToastService.ShowError(request.Message);
-                }
+                ToastService.ShowError(response.Message);
             }
         }
     }

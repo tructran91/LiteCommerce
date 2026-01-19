@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Catalog.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class InitDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,7 +48,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     OgImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SchemaJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ParentCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -56,8 +57,8 @@ namespace Catalog.Infrastructure.Data.Migrations
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Categories_Categories_ParentCategoryId",
-                        column: x => x.ParentCategoryId,
+                        name: "FK_Categories_Categories_ParentId",
+                        column: x => x.ParentId,
                         principalTable: "Categories",
                         principalColumn: "Id");
                 });
@@ -352,9 +353,9 @@ namespace Catalog.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_ParentCategoryId",
+                name: "IX_Categories_ParentId",
                 table: "Categories",
-                column: "ParentCategoryId");
+                column: "ParentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductAttributes_GroupId",

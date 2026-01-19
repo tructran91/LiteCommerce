@@ -25,6 +25,6 @@ namespace LiteCommerce.Admin.Models.Business.Category
 
         public int DisplayOrder { get; set; }
 
-        public string? ParentCategoryId { get; set; }
+        public string? ParentId { get; set; }
     }
 }
