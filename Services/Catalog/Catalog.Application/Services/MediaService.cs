@@ -27,7 +27,7 @@ namespace Catalog.Application.Services
 
         public string GetMediaUrl(string fileName)
         {
-            return _storageService.GetMediaUrl(fileName);
+            return string.IsNullOrEmpty(fileName) ? string.Empty : _storageService.GetFileUrl(fileName);
         }
 
         public string GetThumbnailUrl(Media media)
@@ -37,11 +37,10 @@ namespace Catalog.Application.Services
 
         public async Task<string> SaveMediaAsync(IFormFile file)
         {
-            var originalFileName = file.FileName;
-            var ext = Path.GetExtension(originalFileName);
+            var ext = Path.GetExtension(file.FileName);
             var fileName = $"{Guid.NewGuid()}{ext}";
 
-            await _storageService.SaveMediaAsync(file.OpenReadStream(), fileName);
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
 
             return fileName;
         }
@@ -54,7 +53,7 @@ namespace Catalog.Application.Services
 
         public Task DeleteMediaAsync(string fileName)
         {
-            return _storageService.DeleteMediaAsync(fileName);
+            return _storageService.DeleteFileAsync(fileName);
         }
     }
 }

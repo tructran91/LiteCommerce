@@ -12,7 +12,7 @@ using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
 {
-    public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, BaseResponse<CategoryResponse>>
+    public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<Category> _categoryRepository;
         private readonly IMapper _mapper;
@@ -25,7 +25,7 @@ namespace Catalog.Application.Categories.Handlers
             _logger = logger;
         }
 
-        public async Task<BaseResponse<CategoryResponse>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<BaseResponse<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"DeleteCategoryHandler: {JsonSerializer.Serialize(request)}");
 
@@ -36,22 +36,20 @@ namespace Catalog.Application.Categories.Handlers
             var existingCategory = existingCategories.FirstOrDefault();
             if (existingCategory == null)
             {
-                return BaseResponse<CategoryResponse>.Failure("Category does not exist.", statusCode: HttpStatusCode.NotFound);
+                return BaseResponse<bool>.Failure("Category does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             // Check if category has active subcategories
             if (existingCategory.SubCategories?.Any(sc => !sc.IsDeleted) == true)
             {
-                return BaseResponse<CategoryResponse>.Failure("Cannot delete category. Please delete all subcategories first.", statusCode: HttpStatusCode.BadRequest);
+                return BaseResponse<bool>.Failure("Cannot delete category. Please delete all subcategories first.", statusCode: HttpStatusCode.BadRequest);
             }
 
             existingCategory.IsDeleted = true;
             existingCategory.LastModifiedDate = DateTime.UtcNow;
             await _categoryRepository.UpdateAsync(existingCategory);
 
-            var response = _mapper.Map<CategoryResponse>(existingCategory);
-
-            return BaseResponse<CategoryResponse>.Success(response);
+            return BaseResponse<bool>.Success(true);
         }
     }
 }

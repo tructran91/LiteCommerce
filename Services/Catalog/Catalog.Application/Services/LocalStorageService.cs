@@ -1,28 +1,37 @@
-﻿namespace Catalog.Application.Services
+﻿using Microsoft.Extensions.Configuration;
+
+namespace Catalog.Application.Services
 {
     public class LocalStorageService : IStorageService
     {
         private const string _mediaRootFolder = "user-content";
+        private readonly string _storagePath;
 
-        public string GetMediaUrl(string fileName)
+        public LocalStorageService(IConfiguration configuration)
         {
-            return $"/{_mediaRootFolder}/{fileName}";
+            var configuredPath = configuration["Storage:LocalPath"];
+            _storagePath = Path.Combine(configuredPath, _mediaRootFolder);
         }
 
-        public async Task SaveMediaAsync(Stream mediaBinaryStream, string fileName)
+        public string GetFileUrl(string fileName)
         {
-            var contentRootPath = Directory.GetCurrentDirectory();
-            var filePath = Path.Combine(contentRootPath, _mediaRootFolder, fileName);
+            return Path.Combine(_storagePath, fileName);
+        }
+
+        public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName)
+        {
+            Directory.CreateDirectory(_storagePath);
+            
+            var filePath = Path.Combine(_storagePath, fileName);
             using (var output = new FileStream(filePath, FileMode.Create))
             {
                 await mediaBinaryStream.CopyToAsync(output);
             }
         }
 
-        public async Task DeleteMediaAsync(string fileName)
+        public async Task DeleteFileAsync(string fileName)
         {
-            var contentRootPath = Directory.GetCurrentDirectory();
-            var filePath = Path.Combine(contentRootPath, _mediaRootFolder, fileName);
+            var filePath = Path.Combine(_storagePath, fileName);
             if (File.Exists(filePath))
             {
                 await Task.Run(() => File.Delete(filePath));

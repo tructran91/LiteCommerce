@@ -37,5 +37,7 @@
         public Category? Parent { get; set; }
 
         public List<Category> SubCategories { get; set; } = new();
+
+        public Media? ThumbnailImage { get; set; }
     }
 }

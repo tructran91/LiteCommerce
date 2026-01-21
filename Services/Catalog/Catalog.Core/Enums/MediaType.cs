@@ -4,8 +4,8 @@
     {
         Image = 1,
 
-        File,
-
         Video,
+
+        File,
     }
 }

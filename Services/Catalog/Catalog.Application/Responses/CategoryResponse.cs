@@ -24,10 +24,8 @@
 
         public int DisplayOrder { get; set; }
 
-        public Guid? ParentCategoryId { get; set; }
+        public Guid? ParentId { get; set; }
 
-        //public CategoryDto? Parent { get; set; }
-
-        //public IList<CategoryDto> Children { get; set; } = new List<CategoryDto>();
+        public string? ThumbnailImageUrl { get; set; }
     }
 }

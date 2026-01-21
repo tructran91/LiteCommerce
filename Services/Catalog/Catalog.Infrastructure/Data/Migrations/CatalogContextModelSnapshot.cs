@@ -120,9 +120,14 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ThumbnailImageId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("ThumbnailImageId");
 
                     b.ToTable("Categories");
                 });
@@ -554,7 +559,13 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .WithMany("SubCategories")
                         .HasForeignKey("ParentId");
 
+                    b.HasOne("Catalog.Core.Entities.Media", "ThumbnailImage")
+                        .WithMany()
+                        .HasForeignKey("ThumbnailImageId");
+
                     b.Navigation("Parent");
+
+                    b.Navigation("ThumbnailImage");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Product", b =>

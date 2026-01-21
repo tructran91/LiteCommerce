@@ -43,7 +43,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost("CreateCategory")]
-        public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
+        public async Task<ActionResult> CreateCategory([FromForm] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand(request);
             var result = await _mediator.Send(command);
@@ -51,7 +51,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut("UpdateCategory")]
-        public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest request)
+        public async Task<IActionResult> UpdateCategory([FromForm] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand(request);
             var result = await _mediator.Send(command);

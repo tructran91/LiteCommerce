@@ -1,4 +1,6 @@
-﻿namespace Catalog.Application.Requests
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Catalog.Application.Requests
 {
     public class CreateCategoryRequest
     {
@@ -19,5 +21,7 @@
         public int DisplayOrder { get; set; }
 
         public string? ParentId { get; set; }
+
+        public IFormFile? ThumbnailImage { get; set; }
     }
 }
