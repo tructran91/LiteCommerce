@@ -76,7 +76,6 @@ namespace Catalog.Application.Categories.Handlers
             await _categoryRepository.UpdateAsync(updatedCategory);
 
             var response = _mapper.Map<CategoryResponse>(updatedCategory);
-            response.ThumbnailImageUrl = _mediaService.GetMediaUrl(updatedCategory.ThumbnailImage?.FileName);
 
             return BaseResponse<CategoryResponse>.Success(response);
         }

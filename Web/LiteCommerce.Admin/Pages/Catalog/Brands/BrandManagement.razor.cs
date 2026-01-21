@@ -103,19 +103,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
                 CancelButtonText = "Cancel"
             });
 
-            if (confirmationResult.IsConfirmed)
+            if (!confirmationResult.IsConfirmed)
             {
-                var deletedResult = await BrandApi.DeleteBrandAsync(brandId);
+                return;
+            }
 
-                if (deletedResult.IsSuccess)
-                {
-                    ToastService.ShowSuccess(SystemMessages.DeleteDataSuccess);
-                    await GetBrands();
-                }
-                else
-                {
-                    ToastService.ShowError(deletedResult.Message);
-                }
+            var deletedResult = await BrandApi.DeleteBrandAsync(brandId);
+
+            if (deletedResult.IsSuccess)
+            {
+                await GetBrands();
+            }
+            else
+            {
+                ToastService.ShowError(deletedResult.Message);
             }
         }
 

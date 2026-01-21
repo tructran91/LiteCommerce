@@ -5,6 +5,7 @@ using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Models.Business.Category;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Net.Http.Headers;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Categories
 {
@@ -61,9 +62,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 categoryForm = categoryResponse.Data;
                 
                 // Load existing thumbnail if available
-                if (!string.IsNullOrEmpty(categoryForm.ThumbnailUrl))
+                if (!string.IsNullOrEmpty(categoryForm.ThumbnailImageUrl))
                 {
-                    thumbnailPreviewUrl = categoryForm.ThumbnailUrl;
+                    // Convert physical path or relative path to proper URL
+                    thumbnailPreviewUrl = categoryForm.ThumbnailImageUrl;
                 }
             }
         }
@@ -120,25 +122,48 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         {
             thumbnailFile = null;
             thumbnailPreviewUrl = null;
+            categoryForm.ThumbnailImageUrl = null;
+        }
+
+        private async Task<MultipartFormDataContent> CreateMultipartFormDataContent()
+        {
+            var content = new MultipartFormDataContent();
+
+            // Add all form fields
+            if (!string.IsNullOrEmpty(categoryForm.Id))
+                content.Add(new StringContent(categoryForm.Id), "Id");
+
+            content.Add(new StringContent(categoryForm.Name ?? string.Empty), "Name");
+            content.Add(new StringContent(categoryForm.Slug ?? string.Empty), "Slug");
+            content.Add(new StringContent(categoryForm.Description ?? string.Empty), "Description");
+            content.Add(new StringContent(categoryForm.MetaTitle ?? string.Empty), "MetaTitle");
+            content.Add(new StringContent(categoryForm.MetaKeywords ?? string.Empty), "MetaKeywords");
+            content.Add(new StringContent(categoryForm.MetaDescription ?? string.Empty), "MetaDescription");
+            content.Add(new StringContent(categoryForm.IsPublished.ToString()), "IsPublished");
+            content.Add(new StringContent(categoryForm.IncludeInMenu.ToString()), "IncludeInMenu");
+            content.Add(new StringContent(categoryForm.DisplayOrder.ToString()), "DisplayOrder");
+
+            if (!string.IsNullOrEmpty(categoryForm.ParentId))
+                content.Add(new StringContent(categoryForm.ParentId), "ParentId");
+
+            // Add thumbnail file if selected
+            if (thumbnailFile != null)
+            {
+                var fileContent = new StreamContent(thumbnailFile.OpenReadStream(MaxFileSize));
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(thumbnailFile.ContentType);
+                content.Add(fileContent, "ThumbnailImage", thumbnailFile.Name);
+            }
+
+            return content;
         }
 
         private async Task FormSubmitted()
         {
-            // TODO: Upload thumbnail to server if thumbnailFile is not null
-            // You'll need to add an API endpoint to handle file upload
-            // Example:
-            // if (thumbnailFile != null)
-            // {
-            //     var uploadResponse = await CategoryApi.UploadThumbnailAsync(thumbnailFile);
-            //     if (uploadResponse.IsSuccess)
-            //     {
-            //         categoryForm.ThumbnailUrl = uploadResponse.Data;
-            //     }
-            // }
+            var content = await CreateMultipartFormDataContent();
 
             var response = IsEditMode
-                ? await CategoryApi.UpdateCategoryAsync(categoryForm)
-                : await CategoryApi.CreateCategoryAsync(categoryForm);
+                ? await CategoryApi.UpdateCategoryAsync(content)
+                : await CategoryApi.CreateCategoryAsync(content);
 
             if (response.IsSuccess)
             {

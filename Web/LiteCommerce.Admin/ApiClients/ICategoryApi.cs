@@ -16,12 +16,14 @@ namespace LiteCommerce.Admin.ApiClients
         Task<BaseResponse<CategoryFormModel>> GetCategoryAsync(string id);
 
         [Post("/api/admin/category/CreateCategory")]
-        Task<BaseResponse<CategoryResponse>> CreateCategoryAsync([Body] CategoryFormModel Category);
+        [Multipart]
+        Task<BaseResponse<CategoryResponse>> CreateCategoryAsync(MultipartFormDataContent content);
 
         [Put("/api/admin/category/UpdateCategory")]
-        Task<BaseResponse<CategoryResponse>> UpdateCategoryAsync([Body] CategoryFormModel Category);
+        [Multipart]
+        Task<BaseResponse<CategoryResponse>> UpdateCategoryAsync(MultipartFormDataContent content);
 
         [Delete("/api/admin/category/DeleteCategory/{id}")]
-        Task<BaseResponse<CategoryResponse>> DeleteCategoryAsync(string id);
+        Task<BaseResponse<bool>> DeleteCategoryAsync(string id);
     }
 }

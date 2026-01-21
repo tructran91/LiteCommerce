@@ -10,7 +10,7 @@ namespace Catalog.API.Controllers
 {
     [Route("api/admin/category")]
     [ApiController]
-    public class AdminCategoryController : ControllerBase
+    public class AdminCategoryController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -39,6 +39,9 @@ namespace Catalog.API.Controllers
         {
             var query = new GetCategoryQuery(id);
             var result = await _mediator.Send(query);
+
+            result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
+
             return Ok(result);
         }
 
@@ -47,6 +50,9 @@ namespace Catalog.API.Controllers
         {
             var command = new CreateCategoryCommand(request);
             var result = await _mediator.Send(command);
+
+            result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
+
             return Ok(result);
         }
 

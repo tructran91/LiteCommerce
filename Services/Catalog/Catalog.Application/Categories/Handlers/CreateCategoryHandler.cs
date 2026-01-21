@@ -69,7 +69,6 @@ namespace Catalog.Application.Categories.Handlers
 
             var createdCategory = await _categoryRepository.AddAsync(category);
             var response = _mapper.Map<CategoryResponse>(createdCategory);
-            response.ThumbnailImageUrl = _mediaService.GetMediaUrl(createdCategory.ThumbnailImage?.FileName);
 
             return BaseResponse<CategoryResponse>.Success(response);
         }

@@ -61,19 +61,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 CancelButtonText = "Cancel"
             });
 
-            if (confirmationResult.IsConfirmed)
+            if (!confirmationResult.IsConfirmed)
             {
-                var deletedResult = await CategoryApi.DeleteCategoryAsync(categoryId);
+                return;
+            }
 
-                if (deletedResult.IsSuccess)
-                {
-                    ToastService.ShowSuccess(SystemMessages.DeleteDataSuccess);
-                    await GetCategories();
-                }
-                else
-                {
-                    ToastService.ShowError(deletedResult.Message);
-                }
+            var deletedResult = await CategoryApi.DeleteCategoryAsync(categoryId);
+
+            if (deletedResult.IsSuccess)
+            {
+                await GetCategories();
+            }
+            else
+            {
+                ToastService.ShowError(deletedResult.Message);
             }
         }
     }

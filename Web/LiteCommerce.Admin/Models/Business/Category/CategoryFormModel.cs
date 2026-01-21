@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using System.ComponentModel.DataAnnotations;
 
 namespace LiteCommerce.Admin.Models.Business.Category
 {
@@ -27,6 +28,8 @@ namespace LiteCommerce.Admin.Models.Business.Category
 
         public string? ParentId { get; set; }
 
-        public string? ThumbnailUrl { get; set; }
+        public string? ThumbnailImageUrl { get; set; }
+
+        public IBrowserFile? ThumbnailImage { get; set; }
     }
 }

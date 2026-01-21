@@ -4,18 +4,16 @@ namespace Catalog.Application.Services
 {
     public class LocalStorageService : IStorageService
     {
-        private const string _mediaRootFolder = "user-content";
         private readonly string _storagePath;
 
         public LocalStorageService(IConfiguration configuration)
         {
-            var configuredPath = configuration["Storage:LocalPath"];
-            _storagePath = Path.Combine(configuredPath, _mediaRootFolder);
+            _storagePath = configuration["Storage:LocalPath"];
         }
 
         public string GetFileUrl(string fileName)
         {
-            return Path.Combine(_storagePath, fileName);
+            return $"/{fileName}";
         }
 
         public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName)
