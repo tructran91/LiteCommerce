@@ -12,9 +12,9 @@ namespace Catalog.Application.Brands.Handlers
     public class DeleteBrandHandler : IRequestHandler<DeleteBrandCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<Brand> _brandRepository;
-        private readonly ILogger<UpdateBrandHandler> _logger;
+        private readonly ILogger<DeleteBrandHandler> _logger;
 
-        public DeleteBrandHandler(IBaseRepository<Brand> brandRepository, ILogger<UpdateBrandHandler> logger)
+        public DeleteBrandHandler(IBaseRepository<Brand> brandRepository, ILogger<DeleteBrandHandler> logger)
         {
             _brandRepository = brandRepository;
             _logger = logger;

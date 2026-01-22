@@ -277,17 +277,17 @@ namespace Catalog.Infrastructure.Data
             if (!context.ProductAttributeGroups.Any())
             {
                 context.ProductAttributeGroups.AddRange(
-                    new() { Id = Guid.Parse("206E76F1-1F4D-4C0B-84B2-38431548EA49"), Name = "Platform", Attributes = new() },
-                    new() { Id = Guid.Parse("B8DD305A-ABF7-41F1-83FE-3AB7432926C9"), Name = "Main Camera", Attributes = new() },
-                    new() { Id = Guid.Parse("58B6906E-8589-42CA-8D8E-EA85867D4CB7"), Name = "Selfie Camera", Attributes = new() },
-                    new() { Id = Guid.Parse("4D6E8118-5CF2-4DE6-BA04-3CF53425F910"), Name = "Features", Attributes = new() },
-                    new() { Id = Guid.Parse("A900D061-715E-4682-B493-4A3F75F95B01"), Name = "Sound", Attributes = new() },
-                    new() { Id = Guid.Parse("99BAB448-5D08-4EB1-98CE-5784A8DFFBCC"), Name = "Body", Attributes = new() },
-                    new() { Id = Guid.Parse("3673D751-C834-45A2-9416-6053581922B4"), Name = "General", Attributes = new() },
-                    new() { Id = Guid.Parse("1AC2765D-43C9-49B6-8088-876AD2E9B712"), Name = "Connectivity", Attributes = new() },
-                    new() { Id = Guid.Parse("5CDD890A-F6B8-406E-A054-B608BAA85C70"), Name = "Memory", Attributes = new() },
-                    new() { Id = Guid.Parse("646DCEEE-5ECA-46A0-8A5F-DB8D280DAB4A"), Name = "Display", Attributes = new() },
-                    new() { Id = Guid.Parse("FD3426A4-D80F-4F85-9C71-FDA22E71C662"), Name = "Battery", Attributes = new() }
+                    new() { Id = Guid.Parse("206E76F1-1F4D-4C0B-84B2-38431548EA49"), Name = "Platform", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("B8DD305A-ABF7-41F1-83FE-3AB7432926C9"), Name = "Main Camera", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("58B6906E-8589-42CA-8D8E-EA85867D4CB7"), Name = "Selfie Camera", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("4D6E8118-5CF2-4DE6-BA04-3CF53425F910"), Name = "Features", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("A900D061-715E-4682-B493-4A3F75F95B01"), Name = "Sound", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("99BAB448-5D08-4EB1-98CE-5784A8DFFBCC"), Name = "Body", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("3673D751-C834-45A2-9416-6053581922B4"), Name = "General", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("1AC2765D-43C9-49B6-8088-876AD2E9B712"), Name = "Connectivity", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("5CDD890A-F6B8-406E-A054-B608BAA85C70"), Name = "Memory", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("646DCEEE-5ECA-46A0-8A5F-DB8D280DAB4A"), Name = "Display", Attributes = new(), CreatedDate = DateTime.UtcNow },
+                    new() { Id = Guid.Parse("FD3426A4-D80F-4F85-9C71-FDA22E71C662"), Name = "Battery", Attributes = new(), CreatedDate = DateTime.UtcNow }
                 );
 
                 await context.SaveChangesAsync();
