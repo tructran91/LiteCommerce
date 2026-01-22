@@ -11,7 +11,7 @@
             </ul>
 
             <ul class="navbar-nav quick-links d-none d-lg-flex align-items-center">
-                @foreach (var menu in MenuItems)
+                @foreach (var menu in menuItems)
                 {
                     <li class="nav-item nav-icon-hover-bg rounded w-auto dropdown d-none d-lg-block mx-0">
                         <div class="hover-dd">
@@ -153,7 +153,7 @@
                 </div>
                 <div class="offcanvas-body h-n80" data-simplebar="">
                     <ul id="sidebarnav">
-                        @foreach (var menu in MenuItems)
+                        @foreach (var menu in menuItems)
                         {
                             <li class="sidebar-item">
                                 <a class="sidebar-link has-arrow @(menu.IsActive ? "active" : "")" href="javascript:void(0)" aria-expanded="false" @onclick="() => ToggleMenu(menu)">
@@ -202,8 +202,8 @@
                 </li>
             </ul>
             <ul class="navbar-nav quick-links d-none d-xl-flex align-items-center">
-                @foreach (var menu in MenuItems)
-                {
+                @foreach (var menu in menuItems)
+                        {
                     <li class="nav-item nav-icon-hover-bg rounded w-auto dropdown d-none d-lg-flex">
                         <div class="hover-dd">
                             <a class="nav-link" href="javascript:void(0)">

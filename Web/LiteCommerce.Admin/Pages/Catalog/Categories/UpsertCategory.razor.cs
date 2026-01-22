@@ -14,8 +14,6 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         [Parameter]
         public string? Id { get; set; }
 
-        private bool IsEditMode => !string.IsNullOrEmpty(Id);
-
         [Inject]
         private ICategoryApi CategoryApi { get; set; }
 
@@ -31,13 +29,15 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             new BreadcrumbItem { Label = "Categories", Url = "/categories", IsActive = false }
         };
 
+        private bool isEditMode => !string.IsNullOrEmpty(Id);
+
         private List<BasicCategoryResponse> basicCategories = new();
 
         private CategoryFormModel categoryForm = new();
 
         private IBrowserFile? thumbnailFile;
+
         private string? thumbnailPreviewUrl;
-        private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
 
         protected override async Task OnInitializedAsync()
         {
@@ -47,12 +47,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             // Update breadcrumb based on mode
             breadcrumb.Add(new BreadcrumbItem
             {
-                Label = IsEditMode ? "Edit Category" : "Add Category",
-                Url = IsEditMode ? $"/categories/edit/{Id}" : "/categories/add",
+                Label = isEditMode ? "Edit Category" : "Add Category",
+                Url = isEditMode ? $"/categories/edit/{Id}" : "/categories/add",
                 IsActive = true
             });
 
-            if (IsEditMode)
+            if (isEditMode)
             {
                 var categoryResponse = await CategoryApi.GetCategoryAsync(Id);
                 if (!categoryResponse.IsSuccess)
@@ -86,17 +86,17 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             if (thumbnailFile != null)
             {
                 // Validate file size
-                if (thumbnailFile.Size > MaxFileSize)
+                if (thumbnailFile.Size > FileUploadConstants.MaxImageSize)
                 {
-                    ToastService.ShowError($"File size must not exceed {MaxFileSize / 1024 / 1024}MB");
+                    ToastService.ShowError(FileUploadConstants.ImageSizeExceededMessage);
                     thumbnailFile = null;
                     return;
                 }
 
                 // Validate file type
-                if (!thumbnailFile.ContentType.StartsWith("image/"))
+                if (!FileUploadConstants.AllowedImageTypes.Contains(thumbnailFile.ContentType))
                 {
-                    ToastService.ShowError("Only image files are allowed");
+                    ToastService.ShowError(FileUploadConstants.InvalidImageTypeMessage);
                     thumbnailFile = null;
                     return;
                 }
@@ -105,7 +105,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 try
                 {
                     var buffer = new byte[thumbnailFile.Size];
-                    await thumbnailFile.OpenReadStream(MaxFileSize).ReadAsync(buffer);
+                    await thumbnailFile.OpenReadStream(FileUploadConstants.MaxImageSize).ReadAsync(buffer);
                     var imageBase64 = Convert.ToBase64String(buffer);
                     thumbnailPreviewUrl = $"data:{thumbnailFile.ContentType};base64,{imageBase64}";
                 }
@@ -149,7 +149,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             // Add thumbnail file if selected
             if (thumbnailFile != null)
             {
-                var fileContent = new StreamContent(thumbnailFile.OpenReadStream(MaxFileSize));
+                var fileContent = new StreamContent(thumbnailFile.OpenReadStream(FileUploadConstants.MaxImageSize));
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(thumbnailFile.ContentType);
                 content.Add(fileContent, "ThumbnailImage", thumbnailFile.Name);
             }
@@ -161,7 +161,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         {
             var content = await CreateMultipartFormDataContent();
 
-            var response = IsEditMode
+            var response = isEditMode
                 ? await CategoryApi.UpdateCategoryAsync(content)
                 : await CategoryApi.CreateCategoryAsync(content);
 
@@ -169,7 +169,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             {
                 NavigationManager.NavigateTo("/categories");
 
-                var successMessage = IsEditMode
+                var successMessage = isEditMode
                     ? SystemMessages.UpdateDataSuccess
                     : SystemMessages.AddDataSuccess;
                 ToastService.ShowSuccess(successMessage);

@@ -33,9 +33,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private BrandModel brandForm = new BrandModel();
 
-        private bool IsLoading = true;
+        private bool isLoading = true;
 
-        private bool IsEditMode = false;
+        private bool isEditMode = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -60,19 +60,19 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             {
                 brands = response.Data;
             }
-            IsLoading = false;
+            isLoading = false;
         }
 
         private async Task OpenAddModal()
         {
-            IsEditMode = false;
+            isEditMode = false;
             brandForm = new BrandModel();
             await ShowModal();
         }
 
         private async Task OpenEditModal(string brandId)
         {
-            IsEditMode = true;
+            isEditMode = true;
             var request = await BrandApi.GetBrandAsync(brandId);
             if (request.IsSuccess)
             {
@@ -122,7 +122,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         private async Task FormSubmitted()
         {
-            var response = IsEditMode 
+            var response = isEditMode 
                 ? await BrandApi.UpdateBrandAsync(brandForm)
                 : await BrandApi.CreateBrandAsync(brandForm);
 
@@ -131,7 +131,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
                 await GetBrands();
                 await HideModal();
 
-                var successMessage = IsEditMode 
+                var successMessage = isEditMode 
                     ? SystemMessages.UpdateDataSuccess 
                     : SystemMessages.AddDataSuccess;
                 ToastService.ShowSuccess(successMessage);

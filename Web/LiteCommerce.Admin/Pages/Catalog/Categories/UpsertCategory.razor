@@ -2,9 +2,9 @@
 @page "/categories/edit/{id}"
 @using LiteCommerce.Admin.Shared.Components
 
-<PageTitle>@(IsEditMode ? "Edit Category" : "Add Category")</PageTitle>
+<PageTitle>@(isEditMode ? "Edit Category" : "Add Category")</PageTitle>
 
-<Breadcrumb Title="@(IsEditMode ? "Edit Category" : "Add Category")" BreadcrumbItems="breadcrumb"></Breadcrumb>
+<Breadcrumb Title="@(isEditMode ? "Edit Category" : "Add Category")" BreadcrumbItems="breadcrumb"></Breadcrumb>
 
 <div>
     <ul class="nav nav-underline" role="tablist">
@@ -87,7 +87,7 @@
                                 @if (!string.IsNullOrEmpty(thumbnailPreviewUrl))
                                 {
                                     <div class="mt-3">
-                                        <img src="@thumbnailPreviewUrl" alt="Thumbnail preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                                        <img src="@thumbnailPreviewUrl" alt="Thumbnail preview" class="img-thumbnail" style="max-height: 200px;" />
                                         <div class="mt-2">
                                             <button type="button" class="d-inline-flex align-items-center btn btn-sm btn-outline-danger" @onclick="RemoveThumbnail">
                                                 <i class="ti ti-trash fs-6 me-1"></i>

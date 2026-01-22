@@ -19,9 +19,9 @@ namespace LiteCommerce.Admin.Layout
         [Inject]
         private IMenuService MenuService { get; set; }
 
-        private LayoutSettings Settings { get; set; } = new();
+        private LayoutSettings settings { get; set; } = new();
 
-        public List<MenuItem> MenuItems { get; set; } = new();
+        public List<MenuItem> menuItems { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -36,7 +36,7 @@ namespace LiteCommerce.Admin.Layout
             var savedSettings = await LocalStorage.GetItemAsync<LayoutSettings>(LayoutConstant.LayoutSettingName);
             if (savedSettings != null)
             {
-                Settings = savedSettings;
+                settings = savedSettings;
             }
         }
 
@@ -50,8 +50,8 @@ namespace LiteCommerce.Admin.Layout
         {
             var currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
             var pageType = DeterminePageType(currentUrl);
-            MenuItems = MenuService.GetMenuItems(pageType);
-            MenuItems = MenuService.SetActiveMenuItems(MenuItems, currentUrl);
+            menuItems = MenuService.GetMenuItems(pageType);
+            menuItems = MenuService.SetActiveMenuItems(menuItems, currentUrl);
         }
 
         private PageType DeterminePageType(string url)

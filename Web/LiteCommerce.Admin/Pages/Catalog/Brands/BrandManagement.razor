@@ -15,7 +15,7 @@
     </button>
 </div>
 
-@if (IsLoading)
+@if (isLoading)
 {
     <Loading></Loading>
 }
@@ -58,7 +58,7 @@ else
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header modal-colored-header bg-success">
-                <h5 class="modal-title text-white" id="modalTitle">@(IsEditMode ? "Edit Brand" : "Add Brand")</h5>
+                <h5 class="modal-title text-white" id="modalTitle">@(isEditMode ? "Edit Brand" : "Add Brand")</h5>
                 <button type="button" class="btn-close btn-close-white" @onclick="HideModal" aria-label="Close"></button>
             </div>
             <EditForm Model="brandForm" OnValidSubmit="FormSubmitted">

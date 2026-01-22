@@ -13,12 +13,12 @@ namespace LiteCommerce.Admin.Layout
         [Inject]
         private IMenuService MenuService { get; set; }
 
-        public List<MenuItem> MenuItems { get; set; } = new();
+        public List<MenuItem> menuItems { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            MenuItems = MenuService.GetHeaderMenu();
+            menuItems = MenuService.GetHeaderMenu();
         }
 
         private void ToggleMenu(MenuItem item)
@@ -29,7 +29,7 @@ namespace LiteCommerce.Admin.Layout
             }
             else
             {
-                CloseAllMenus(MenuItems);
+                CloseAllMenus(menuItems);
                 item.IsActive = true;
             }
         }
