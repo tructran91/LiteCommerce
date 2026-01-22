@@ -27,8 +27,8 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
                 pageNumber: request.CurrentPage,
                 pageSize: request.PageSize);
             var totalRecords = await _productAttributeGroupRepository.CountAsync(t => !t.IsDeleted);
-            var ProductAttributeGroupResponses = _mapper.Map<List<ProductAttributeGroupResponse>>(ProductAttributeGroups);
-            var response = BaseResponse<List<ProductAttributeGroupResponse>>.Success(ProductAttributeGroupResponses);
+            var productAttributeGroupResponses = _mapper.Map<List<ProductAttributeGroupResponse>>(ProductAttributeGroups);
+            var response = BaseResponse<List<ProductAttributeGroupResponse>>.Success(productAttributeGroupResponses);
             response.Pagination = new Pagination(totalRecords, request.CurrentPage, request.PageSize);
 
             return response;

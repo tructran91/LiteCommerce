@@ -31,7 +31,7 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
             var isExistingProductAttributeGroup = await _ProductAttributeGroupRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
             if (isExistingProductAttributeGroup)
             {
-                return BaseResponse<ProductAttributeGroupResponse>.Failure("Product Option already exists.", statusCode: HttpStatusCode.Conflict);
+                return BaseResponse<ProductAttributeGroupResponse>.Failure("Product Attribute Group already exists.", statusCode: HttpStatusCode.Conflict);
             }
 
             var newProductAttributeGroup = _mapper.Map<ProductAttributeGroup>(request.Payload);
