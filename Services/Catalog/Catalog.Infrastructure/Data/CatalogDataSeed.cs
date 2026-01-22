@@ -260,6 +260,20 @@ namespace Catalog.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
+            if (!context.ProductOptions.Any())
+            {
+                context.ProductOptions.AddRange(
+                    new() { Id = Guid.Parse("452d918b-b5bf-41b7-90e6-51cad397b292"), Name = "Color" },
+                    new() { Id = Guid.Parse("b8dd305a-abf7-41f1-83fe-3ab7432926c9"), Name = "Storage" },
+                    new() { Id = Guid.Parse("58b6906e-8589-42ca-8d8e-ea85867d4cb7"), Name = "RAM" },
+                    new() { Id = Guid.Parse("a900d061-715e-4682-b493-4a3f75f95b01"), Name = "Size" },
+                    new() { Id = Guid.Parse("3673d751-c834-45a2-9416-6053581922b4"), Name = "Dimensions" },
+                    new() { Id = Guid.Parse("646dceee-5eca-46a0-8a5f-db8d280dab4a"), Name = "Warranty" }
+                );
+
+                await context.SaveChangesAsync();
+            }
+
             if (!context.ProductAttributeGroups.Any())
             {
                 context.ProductAttributeGroups.AddRange(

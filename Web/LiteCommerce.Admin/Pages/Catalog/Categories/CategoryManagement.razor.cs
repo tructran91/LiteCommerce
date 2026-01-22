@@ -1,11 +1,9 @@
 ﻿using Blazored.Toast.Services;
 using CurrieTechnologies.Razor.SweetAlert2;
 using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Models.Business.Category;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Categories
 {
@@ -13,9 +11,6 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
     {
         [Inject]
         private ICategoryApi CategoryApi { get; set; }
-
-        [Inject]
-        public IJSRuntime JSRuntime { get; set; }
 
         [Inject]
         public IToastService ToastService { get; set; }

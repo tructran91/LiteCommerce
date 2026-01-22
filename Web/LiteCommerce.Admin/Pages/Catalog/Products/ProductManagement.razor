@@ -1,0 +1,62 @@
+﻿@page "/products"
+@using BlazorTable
+@using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Models.Business.Category
+@using LiteCommerce.Admin.Shared.Components
+
+<PageTitle>Products</PageTitle>
+
+<Breadcrumb Title="Products" BreadcrumbItems="breadcrumb"></Breadcrumb>
+
+<div class="mb-7 d-flex justify-content-end">
+    <a class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" href="/products/add">
+        <i class="ti ti-plus fs-5 me-2"></i>
+        Add Product
+    </a>
+</div>
+
+@if (isLoading)
+{
+    <Loading></Loading>
+}
+else
+{
+    @* if (categories.Count == 0)
+    {
+        <Alert Content="@SystemMessages.NoData"></Alert>
+    }
+    else
+    {
+        <Table TableItem="CategoryResponse" Items="categories" PageSize="20" TableBodyClass="align-middle">
+            <Column TableItem="CategoryResponse" Title="Name" Field="@(x => x.DisplayName)" Sortable="true" Filterable="true" />
+            <Column TableItem="CategoryResponse" Title="Display order" Field="@(x => x.DisplayOrder)" Sortable="true" Filterable="true" />
+            <Column TableItem="CategoryResponse" Title="Include in menu" Field="@(x => x.IncludeInMenu)" Sortable="true" Filterable="true">
+                <Template>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" disabled checked="@context.IncludeInMenu">
+                    </div>
+                </Template>
+            </Column>
+            <Column TableItem="CategoryResponse" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
+                <Template>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" disabled checked="@context.IsPublished">
+                    </div>
+                </Template>
+            </Column>
+            <Column TableItem="CategoryResponse" Title="Actions" Width="150px">
+                <Template>
+                    <div class="button-group text-center">
+                        <a href="/categories/edit/@context.Id" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center">
+                            <i class="fs-5 ti ti-pencil"></i>
+                        </a>
+                        <button type="button" class="btn mb-0 bg-danger-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenDeleteModal(context.Id, context.Name)">
+                            <i class="fs-5 ti ti-trash"></i>
+                        </button>
+                    </div>
+                </Template>
+            </Column>
+            <Pager ShowPageNumber="true" ShowTotalCount="true" />
+        </Table>
+    } *@
+}

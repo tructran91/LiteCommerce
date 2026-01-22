@@ -30,6 +30,12 @@ namespace Catalog.Application
             CreateMap<Category, BasicCategoryResponse>()
                 .ForMember(prop => prop.DisplayName, opt => opt.MapFrom(o => o.Name));
 
+            CreateMap<ProductOption, ProductOptionResponse>();
+            CreateMap<CreateProductOptionRequest, ProductOption>()
+                .ForMember(prop => prop.CreatedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
+            CreateMap<UpdateProductOptionRequest, ProductOption>()
+                .ForMember(prop => prop.LastModifiedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
+
             CreateMap<Product, ProductResponse>();
             CreateMap<ProductViewModel, Product>()
                 .ForMember(prop => prop.Id, opt => opt.Ignore())

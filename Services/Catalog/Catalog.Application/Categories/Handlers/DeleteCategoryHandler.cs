@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-using Catalog.Application.Categories.Commands;
-using Catalog.Application.Responses;
+﻿using Catalog.Application.Categories.Commands;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
-using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -15,13 +12,11 @@ namespace Catalog.Application.Categories.Handlers
     public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<Category> _categoryRepository;
-        private readonly IMapper _mapper;
         private readonly ILogger<DeleteCategoryHandler> _logger;
 
-        public DeleteCategoryHandler(IBaseRepository<Category> categoryRepository, IMapper mapper, ILogger<DeleteCategoryHandler> logger)
+        public DeleteCategoryHandler(IBaseRepository<Category> categoryRepository, ILogger<DeleteCategoryHandler> logger)
         {
             _categoryRepository = categoryRepository;
-            _mapper = mapper;
             _logger = logger;
         }
 

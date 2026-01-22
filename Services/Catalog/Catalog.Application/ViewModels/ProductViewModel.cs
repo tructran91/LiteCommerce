@@ -18,7 +18,7 @@
 
         public string? MetaDescription { get; set; }
 
-        public bool IsPublished { get; set; }
+        public bool IsPublished { get; set; } = true;
 
         public decimal Price { get; set; }
 

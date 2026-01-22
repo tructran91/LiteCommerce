@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Catalog.Application.Brands.Commands;
-using Catalog.Application.Responses;
+﻿using Catalog.Application.Brands.Commands;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using LiteCommerce.Shared.Models;
@@ -14,13 +12,11 @@ namespace Catalog.Application.Brands.Handlers
     public class DeleteBrandHandler : IRequestHandler<DeleteBrandCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<Brand> _brandRepository;
-        private readonly IMapper _mapper;
         private readonly ILogger<UpdateBrandHandler> _logger;
 
-        public DeleteBrandHandler(IBaseRepository<Brand> brandRepository, IMapper mapper, ILogger<UpdateBrandHandler> logger)
+        public DeleteBrandHandler(IBaseRepository<Brand> brandRepository, ILogger<UpdateBrandHandler> logger)
         {
             _brandRepository = brandRepository;
-            _mapper = mapper;
             _logger = logger;
         }
 
