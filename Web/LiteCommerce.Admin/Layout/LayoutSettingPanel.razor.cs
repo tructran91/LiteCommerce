@@ -123,7 +123,7 @@ namespace LiteCommerce.Admin.Layout
 
         private async Task SaveSettingsAsync()
         {
-            await LocalStorage.SetItemAsync(LayoutConstant.LayoutSettingName, CurrentSettings);
+            await LocalStorage.SetItemAsync(AppConstants.LayoutSettingName, CurrentSettings);
         }
     }
 }

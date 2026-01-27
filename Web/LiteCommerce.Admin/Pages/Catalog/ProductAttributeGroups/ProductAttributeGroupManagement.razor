@@ -1,17 +1,17 @@
-﻿@page "/brands"
+﻿@page "/product-attribute-groups"
 @using BlazorTable
 @using LiteCommerce.Admin.Constants
-@using LiteCommerce.Admin.Models.Business.Brand
+@using LiteCommerce.Admin.Models.Business.ProductAttributeGroup
 @using LiteCommerce.Admin.Shared.Components
 
-<PageTitle>Brands</PageTitle>
+<PageTitle>Product Attribute Groups</PageTitle>
 
-<Breadcrumb Title="Brands" BreadcrumbItems="breadcrumb"></Breadcrumb>
+<Breadcrumb Title="Product Attribute Groups" BreadcrumbItems="breadcrumb"></Breadcrumb>
 
 <div class="mb-7 d-flex justify-content-end">
-    <button type="button" class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" @onclick="OpenAddModal" >
+    <button type="button" class="justify-content-center d-flex align-items-center btn btn-rounded btn-primary" @onclick="OpenAddModal">
         <i class="ti ti-plus fs-5 me-2"></i>
-        Add Brand
+        Add Attribute Group
     </button>
 </div>
 
@@ -21,22 +21,15 @@
 }
 else
 {
-    if (brands.Count == 0)
+    if (productAttributeGroups.Count == 0)
     {
         <Alert Content="@SystemMessages.NoData"></Alert>
     }
     else
     {
-        <Table TableItem="BrandModel" Items="brands" PageSize="@AppConstants.PageSize" TableBodyClass="align-middle">
-            <Column TableItem="BrandModel" Title="Name" Field="@(x => x.Name)" Sortable="true" Filterable="true" />
-            <Column TableItem="BrandModel" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
-                <Template>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" disabled checked="@context.IsPublished">
-                    </div>
-                </Template>
-            </Column>
-            <Column TableItem="BrandModel" Title="Actions" Width="150px">
+        <Table TableItem="ProductAttributeGroupResponse" Items="productAttributeGroups" PageSize="@AppConstants.PageSize" TableBodyClass="align-middle">
+            <Column TableItem="ProductAttributeGroupResponse" Title="Name" Field="@(x => x.Name)" Sortable="true" Filterable="true" />
+            <Column TableItem="ProductAttributeGroupResponse" Title="Actions" Width="150px">
                 <Template>
                     <div class="button-group text-center">
                         <button type="button" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenEditModal(context.Id)">
@@ -54,26 +47,22 @@ else
 }
 
 
-<div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+<div class="modal fade" id="productAttributeGroupModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header modal-colored-header bg-success">
-                <h5 class="modal-title text-white" id="modalTitle">@(isEditMode ? "Edit Brand" : "Add Brand")</h5>
+                <h5 class="modal-title text-white" id="modalTitle">@(isEditMode ? "Edit Attribute Group" : "Add Attribute Group")</h5>
                 <button type="button" class="btn-close btn-close-white" @onclick="HideModal" aria-label="Close"></button>
             </div>
-            <EditForm Model="brandForm" OnValidSubmit="FormSubmitted">
+            <EditForm Model="productAttributeGroupForm" OnValidSubmit="FormSubmitted">
                 <div class="modal-body">
                     <DataAnnotationsValidator />
                     <div class="mb-6 row align-items-center">
-                        <label for="name" class="form-label col-sm-3 col-form-label">Brand name <span class="text-danger">*</span></label>
+                        <label for="name" class="form-label col-sm-3 col-form-label">Attribute Group Name <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <InputText id="name" class="form-control" @bind-Value="brandForm.Name" autocomplete="off" placeholder="Ex: Apple, Samsung, Nike, Adidas..." />
-                            <ValidationMessage For="@(() => brandForm.Name)" />
+                            <InputText id="name" class="form-control" @bind-Value="productAttributeGroupForm.Name" autocomplete="off" placeholder="Ex: Specifications, Features, Dimensions..." />
+                            <ValidationMessage For="@(() => productAttributeGroupForm.Name)" />
                         </div>
-                    </div>
-                    <div class="mb-6 form-check form-switch">
-                        <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="brandForm.IsPublished" />
-                        <label class="form-check-label" for="IsPublished">Brand is published</label>
                     </div>
                     <p class="mb-0">(<span class="text-danger">*</span>) Mandatory</p>
                 </div>
@@ -91,3 +80,4 @@ else
         </div>
     </div>
 </div>
+

@@ -22,6 +22,9 @@ if (string.IsNullOrEmpty(catalogUrl))
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(catalogUrl) });
 builder.Services.AddRefitClient<IBrandApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 builder.Services.AddRefitClient<ICategoryApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductOptionApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductAttributeGroupApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductAttributeApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 
 // Register for internal service
 builder.Services.AddScoped<IMenuService, MenuService>();

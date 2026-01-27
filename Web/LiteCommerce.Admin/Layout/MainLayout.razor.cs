@@ -33,7 +33,7 @@ namespace LiteCommerce.Admin.Layout
 
         private async Task GetCurrentSettingsAsync()
         {
-            var savedSettings = await LocalStorage.GetItemAsync<LayoutSettings>(LayoutConstant.LayoutSettingName);
+            var savedSettings = await LocalStorage.GetItemAsync<LayoutSettings>(AppConstants.LayoutSettingName);
             if (savedSettings != null)
             {
                 settings = savedSettings;
@@ -54,35 +54,35 @@ namespace LiteCommerce.Admin.Layout
             menuItems = MenuService.SetActiveMenuItems(menuItems, currentUrl);
         }
 
+        private static readonly HashSet<string> SitePages = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "users",
+            "vendors"
+        };
+
+        private static readonly HashSet<string> CatalogPages = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "products",
+            "product-prices",
+            "categories",
+            "brands",
+            "product-options",
+            "product-attribute-groups",
+            "product-attributes",
+            "product-templates"
+        };
+
         private PageType DeterminePageType(string url)
         {
             var urlParts = url.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-            if (urlParts.Length > 0)
+            if (urlParts.Length > 0 && SitePages.Contains(urlParts[0]))
             {
-                switch (urlParts[0].ToLower())
-                {
-                    case "users":
-                        return PageType.Site;
-
-                    case "vendors":
-                        return PageType.Site;
-
-                    case "products":
-                        return PageType.Catalog;
-
-                    case "product-prices":
-                        return PageType.Catalog;
-
-                    case "categories":
-                        return PageType.Catalog;
-
-                    case "brands":
-                        return PageType.Catalog;
-
-                    default:
-                        return PageType.Site;
-                }
+                return PageType.Site;
+            }
+            else if (urlParts.Length > 0 && CatalogPages.Contains(urlParts[0]))
+            {
+                return PageType.Catalog;
             }
 
             return PageType.Site;

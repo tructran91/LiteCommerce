@@ -27,7 +27,7 @@ else
     }
     else
     {
-        <Table TableItem="CategoryResponse" Items="categories" PageSize="20" TableBodyClass="align-middle">
+        <Table TableItem="CategoryResponse" Items="categories" PageSize="@AppConstants.PageSize" TableBodyClass="align-middle">
             <Column TableItem="CategoryResponse" Title="Name" Field="@(x => x.DisplayName)" Sortable="true" Filterable="true" />
             <Column TableItem="CategoryResponse" Title="Display order" Field="@(x => x.DisplayOrder)" Sortable="true" Filterable="true" />
             <Column TableItem="CategoryResponse" Title="Include in menu" Field="@(x => x.IncludeInMenu)" Sortable="true" Filterable="true">
