@@ -1,4 +1,5 @@
-﻿using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
+﻿using LiteCommerce.Admin.Constants;
+using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
 using LiteCommerce.Admin.Models.Common;
 using Refit;
 
@@ -6,19 +7,19 @@ namespace LiteCommerce.Admin.ApiClients
 {
     public interface IProductAttributeApi
     {
-        [Get("/api/admin/product-attribute/GetAllProductAttributes")]
+        [Get(ApiRoutes.ProductAttribute.GetAll)]
         Task<BaseResponse<List<ProductAttributeResponse>>> GetProductAttributesAsync(int currentPage, int pageSize);
 
-        [Get("/api/admin/product-attribute/GetProductAttributeById/{id}")]
+        [Get(ApiRoutes.ProductAttribute.GetById)]
         Task<BaseResponse<ProductAttributeResponse>> GetProductAttributeAsync(string id);
 
-        [Post("/api/admin/product-attribute/CreateProductAttribute")]
-        Task<BaseResponse<ProductAttributeResponse>> CreateProductAttributeAsync([Body] ProductAttributeFormModel ProductAttribute);
+        [Post(ApiRoutes.ProductAttribute.Create)]
+        Task<BaseResponse<ProductAttributeResponse>> CreateProductAttributeAsync([Body] ProductAttributeFormModel productAttribute);
 
-        [Put("/api/admin/product-attribute/UpdateProductAttribute")]
-        Task<BaseResponse<ProductAttributeResponse>> UpdateProductAttributeAsync([Body] ProductAttributeFormModel ProductAttribute);
+        [Put(ApiRoutes.ProductAttribute.Update)]
+        Task<BaseResponse<ProductAttributeResponse>> UpdateProductAttributeAsync([Body] ProductAttributeFormModel productAttribute);
 
-        [Delete("/api/admin/product-attribute/DeleteProductAttribute/{id}")]
+        [Delete(ApiRoutes.ProductAttribute.Delete)]
         Task<BaseResponse<bool>> DeleteProductAttributeAsync(string id);
     }
 }

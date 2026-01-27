@@ -21,7 +21,7 @@ namespace LiteCommerce.Admin.Layout
 
         private LayoutSettings settings { get; set; } = new();
 
-        public List<MenuItem> menuItems { get; set; } = new();
+        private List<MenuItem> menuItems { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {

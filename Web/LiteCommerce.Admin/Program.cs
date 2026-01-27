@@ -13,11 +13,8 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#main-wrapper");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"];
-if (string.IsNullOrEmpty(catalogUrl))
-{
-    catalogUrl = builder.HostEnvironment.BaseAddress;
-}
+var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"] 
+    ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(catalogUrl) });
 builder.Services.AddRefitClient<IBrandApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));

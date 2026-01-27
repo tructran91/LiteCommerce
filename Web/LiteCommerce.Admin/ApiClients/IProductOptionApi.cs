@@ -1,4 +1,5 @@
-﻿using LiteCommerce.Admin.Models.Business.ProductOption;
+﻿using LiteCommerce.Admin.Constants;
+using LiteCommerce.Admin.Models.Business.ProductOption;
 using LiteCommerce.Admin.Models.Common;
 using Refit;
 
@@ -6,19 +7,19 @@ namespace LiteCommerce.Admin.ApiClients
 {
     public interface IProductOptionApi
     {
-        [Get("/api/admin/product-option/GetAllProductOptions")]
+        [Get(ApiRoutes.ProductOption.GetAll)]
         Task<BaseResponse<List<ProductOptionResponse>>> GetProductOptionsAsync(int currentPage, int pageSize);
 
-        [Get("/api/admin/product-option/GetProductOptionById/{id}")]
+        [Get(ApiRoutes.ProductOption.GetById)]
         Task<BaseResponse<ProductOptionResponse>> GetProductOptionAsync(string id);
 
-        [Post("/api/admin/product-option/CreateProductOption")]
-        Task<BaseResponse<ProductOptionResponse>> CreateProductOptionAsync([Body] ProductOptionFormModel ProductOption);
+        [Post(ApiRoutes.ProductOption.Create)]
+        Task<BaseResponse<ProductOptionResponse>> CreateProductOptionAsync([Body] ProductOptionFormModel productOption);
 
-        [Put("/api/admin/product-option/UpdateProductOption")]
-        Task<BaseResponse<ProductOptionResponse>> UpdateProductOptionAsync([Body] ProductOptionFormModel ProductOption);
+        [Put(ApiRoutes.ProductOption.Update)]
+        Task<BaseResponse<ProductOptionResponse>> UpdateProductOptionAsync([Body] ProductOptionFormModel productOption);
 
-        [Delete("/api/admin/product-option/DeleteProductOption/{id}")]
+        [Delete(ApiRoutes.ProductOption.Delete)]
         Task<BaseResponse<bool>> DeleteProductOptionAsync(string id);
     }
 }
