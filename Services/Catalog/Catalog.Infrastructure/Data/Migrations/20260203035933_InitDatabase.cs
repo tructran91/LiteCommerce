@@ -77,6 +77,21 @@ namespace Catalog.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductTemplates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductTemplates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
@@ -361,6 +376,34 @@ namespace Catalog.Infrastructure.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProductTemplateProductAttributes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductTemplateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductAttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductTemplateProductAttributes", x => new { x.ProductTemplateId, x.ProductAttributeId });
+                    table.ForeignKey(
+                        name: "FK_ProductTemplateProductAttributes_ProductAttributes_ProductAttributeId",
+                        column: x => x.ProductAttributeId,
+                        principalTable: "ProductAttributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductTemplateProductAttributes_ProductTemplates_ProductTemplateId",
+                        column: x => x.ProductTemplateId,
+                        principalTable: "ProductTemplates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_ParentId",
                 table: "Categories",
@@ -440,6 +483,11 @@ namespace Catalog.Infrastructure.Data.Migrations
                 name: "IX_Products_ThumbnailImageId",
                 table: "Products",
                 column: "ThumbnailImageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductTemplateProductAttributes_ProductAttributeId",
+                table: "ProductTemplateProductAttributes",
+                column: "ProductAttributeId");
         }
 
         /// <inheritdoc />
@@ -464,7 +512,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                 name: "ProductPriceHistories");
 
             migrationBuilder.DropTable(
-                name: "ProductAttributes");
+                name: "ProductTemplateProductAttributes");
 
             migrationBuilder.DropTable(
                 name: "Categories");
@@ -476,13 +524,19 @@ namespace Catalog.Infrastructure.Data.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "ProductAttributeGroups");
+                name: "ProductAttributes");
+
+            migrationBuilder.DropTable(
+                name: "ProductTemplates");
 
             migrationBuilder.DropTable(
                 name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "Medias");
+
+            migrationBuilder.DropTable(
+                name: "ProductAttributeGroups");
         }
     }
 }

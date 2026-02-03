@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Catalog.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20260122035256_InitDatabase")]
+    [Migration("20260203035933_InitDatabase")]
     partial class InitDatabase
     {
         /// <inheritdoc />
@@ -566,6 +566,59 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.ToTable("ProductPriceHistories");
                 });
 
+            modelBuilder.Entity("Catalog.Core.Entities.ProductTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductTemplates");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductTemplateProductAttribute", b =>
+                {
+                    b.Property<Guid>("ProductTemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductAttributeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(0);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ProductTemplateId", "ProductAttributeId");
+
+                    b.HasIndex("ProductAttributeId");
+
+                    b.ToTable("ProductTemplateProductAttributes");
+                });
+
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
                     b.HasOne("Catalog.Core.Entities.Category", "Parent")
@@ -715,6 +768,25 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Catalog.Core.Entities.ProductTemplateProductAttribute", b =>
+                {
+                    b.HasOne("Catalog.Core.Entities.ProductAttribute", "ProductAttribute")
+                        .WithMany("ProductTemplates")
+                        .HasForeignKey("ProductAttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Core.Entities.ProductTemplate", "ProductTemplate")
+                        .WithMany("ProductAttributes")
+                        .HasForeignKey("ProductTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductAttribute");
+
+                    b.Navigation("ProductTemplate");
+                });
+
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
                     b.Navigation("SubCategories");
@@ -737,9 +809,19 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("ProductLinks");
                 });
 
+            modelBuilder.Entity("Catalog.Core.Entities.ProductAttribute", b =>
+                {
+                    b.Navigation("ProductTemplates");
+                });
+
             modelBuilder.Entity("Catalog.Core.Entities.ProductAttributeGroup", b =>
                 {
                     b.Navigation("Attributes");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductTemplate", b =>
+                {
+                    b.Navigation("ProductAttributes");
                 });
 #pragma warning restore 612, 618
         }

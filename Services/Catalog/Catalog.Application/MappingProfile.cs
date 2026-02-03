@@ -36,6 +36,7 @@ namespace Catalog.Application
             CreateMap<UpdateProductAttributeGroupRequest, ProductAttributeGroup>()
                 .ForMember(prop => prop.LastModifiedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
 
+            CreateMap<ProductAttribute, ProductAttributeOverviewViewModel>();
             CreateMap<ProductAttribute, ProductAttributeResponse>();
             CreateMap<CreateProductAttributeRequest, ProductAttribute>()
                 .ForMember(prop => prop.CreatedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
@@ -52,6 +53,14 @@ namespace Catalog.Application
             CreateMap<CreateProductOptionRequest, ProductOption>()
                 .ForMember(prop => prop.CreatedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
             CreateMap<UpdateProductOptionRequest, ProductOption>()
+                .ForMember(prop => prop.LastModifiedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
+
+            CreateMap<ProductTemplate, ProductTemplateResponse>()
+                .ForMember(prop => prop.ProductAttributes, opt => opt.Ignore());
+            CreateMap<CreateProductTemplateRequest, ProductTemplate>()
+                .ForMember(prop => prop.ProductAttributes, opt => opt.Ignore())
+                .ForMember(prop => prop.CreatedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
+            CreateMap<UpdateProductTemplateRequest, ProductTemplate>()
                 .ForMember(prop => prop.LastModifiedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
 
             CreateMap<Product, ProductResponse>();

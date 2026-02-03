@@ -12,9 +12,9 @@ namespace Catalog.Application.ProductOptions.Handlers
     public class DeleteProductOptionHandler : IRequestHandler<DeleteProductOptionCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<ProductOption> _productOptionRepository;
-        private readonly ILogger<UpdateProductOptionHandler> _logger;
+        private readonly ILogger<DeleteProductOptionHandler> _logger;
 
-        public DeleteProductOptionHandler(IBaseRepository<ProductOption> productOptionRepository, ILogger<UpdateProductOptionHandler> logger)
+        public DeleteProductOptionHandler(IBaseRepository<ProductOption> productOptionRepository, ILogger<DeleteProductOptionHandler> logger)
         {
             _productOptionRepository = productOptionRepository;
             _logger = logger;

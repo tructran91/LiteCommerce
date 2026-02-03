@@ -35,6 +35,10 @@ namespace Catalog.Infrastructure.Data
 
         public DbSet<ProductPriceHistory> ProductPriceHistories { get; set; }
 
+        public DbSet<ProductTemplate> ProductTemplates { get; set; }
+
+        public DbSet<ProductTemplateProductAttribute> ProductTemplateProductAttributes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogContext).Assembly);

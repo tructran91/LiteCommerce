@@ -7,5 +7,7 @@
         public Guid GroupId { get; set; }
 
         public ProductAttributeGroup Group { get; set; }
+
+        public List<ProductTemplateProductAttribute> ProductTemplates { get; set; } = new();
     }
 }
