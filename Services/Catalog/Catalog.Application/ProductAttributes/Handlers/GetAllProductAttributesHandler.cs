@@ -21,13 +21,14 @@ namespace Catalog.Application.ProductAttributes.Handlers
 
         public async Task<BaseResponse<List<ProductAttributeResponse>>> Handle(GetAllProductAttributesQuery request, CancellationToken cancellationToken)
         {
-            var ProductAttributes = await _productAttributeRepository.GetAsync(
+            var productAttributes = await _productAttributeRepository.GetAsync(
                 predicate: t => !t.IsDeleted,
                 orderBy: x => x.OrderBy(y=>y.Name),
+                includeString: "Group",
                 pageNumber: request.CurrentPage,
                 pageSize: request.PageSize);
             var totalRecords = await _productAttributeRepository.CountAsync(t => !t.IsDeleted);
-            var productAttributeResponses = _mapper.Map<List<ProductAttributeResponse>>(ProductAttributes);
+            var productAttributeResponses = _mapper.Map<List<ProductAttributeResponse>>(productAttributes);
             var response = BaseResponse<List<ProductAttributeResponse>>.Success(productAttributeResponses);
             response.Pagination = new Pagination(totalRecords, request.CurrentPage, request.PageSize);
 

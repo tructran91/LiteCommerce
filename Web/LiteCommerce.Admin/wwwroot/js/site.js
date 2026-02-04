@@ -12,6 +12,48 @@ window.externalLibs = {
         const modal = document.getElementById(modalId);
         const bootstrapModal = bootstrap.Modal.getInstance(modal);
         bootstrapModal.hide();
+    },
+    initSelect2WithGroups: function (selector, groupedOptions, selectedValues, placeholder, dropdownParent) {
+        const $select = $(selector);
+
+        if ($select.length === 0) {
+            return;
+        }
+
+        $select.empty();
+        
+        groupedOptions.forEach(group => {
+            const $optgroup = $('<optgroup>').attr('label', group.groupName);
+            group.attributes.forEach(attr => {
+                const $option = $('<option>')
+                    .val(attr.id)
+                    .text(attr.name);
+                $optgroup.append($option);
+            });
+            $select.append($optgroup);
+            console.log($optgroup.html())
+        });
+        
+        $select.select2({
+            placeholder: placeholder || 'Select options...',
+            allowClear: true,
+            closeOnSelect: false,
+            dropdownParent: dropdownParent ? $(dropdownParent) : null,
+            width: '100%'
+        });
+        
+        if (selectedValues && selectedValues.length > 0) {
+            $select.val(selectedValues).trigger('change');
+        }
+    },
+    destroySelect2: function (selector) {
+        const $select = $(selector);
+        if ($select.data('select2')) {
+            $select.select2('destroy');
+        }
+    },
+    getSelect2Values: function (selector) {
+        return $(selector).val() || [];
     }
 }
 

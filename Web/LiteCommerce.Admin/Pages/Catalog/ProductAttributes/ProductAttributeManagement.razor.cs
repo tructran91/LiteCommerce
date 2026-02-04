@@ -77,12 +77,6 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
             }
         }
 
-        private string GetGroupNameById(string groupId)
-        {
-            var group = productAttributeGroups.FirstOrDefault(g => g.Id == groupId);
-            return group?.Name ?? "N/A";
-        }
-
         private async Task OpenAddModal()
         {
             isEditMode = false;

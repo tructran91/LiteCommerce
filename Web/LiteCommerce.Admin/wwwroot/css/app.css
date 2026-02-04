@@ -17,3 +17,7 @@
     font-size: .875em;
     color: var(--bs-form-invalid-color);
 }
+
+.select2-results__options {
+    max-height: 380px !important;
+}
