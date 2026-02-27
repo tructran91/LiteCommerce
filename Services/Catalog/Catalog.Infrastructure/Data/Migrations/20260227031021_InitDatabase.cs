@@ -152,6 +152,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     IsAllowToOrder = table.Column<bool>(type: "bit", nullable: false),
                     StockQuantity = table.Column<int>(type: "int", nullable: false),
                     Sku = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Gtin = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DisplayOrder = table.Column<int>(type: "int", nullable: false),
                     MetaTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MetaKeywords = table.Column<string>(type: "nvarchar(max)", nullable: true),

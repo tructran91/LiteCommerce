@@ -14,8 +14,19 @@
             "image/webp"
         };
 
+        public static readonly string[] AllowedDocumentTypes = new[]
+        {
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        };
+
         // Error Messages
         public const string ImageSizeExceededMessage = "File size must not exceed 5MB";
         public const string InvalidImageTypeMessage = "Only image files are allowed";
+        public const string DocumentSizeExceededMessage = "File size must not exceed 10MB";
+        public const string InvalidDocumentTypeMessage = "Only PDF, Word, and Excel files are allowed";
     }
 }

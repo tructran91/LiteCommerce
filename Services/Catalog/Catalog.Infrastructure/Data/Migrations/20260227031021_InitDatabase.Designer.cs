@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Catalog.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20260203035933_InitDatabase")]
+    [Migration("20260227031021_InitDatabase")]
     partial class InitDatabase
     {
         /// <inheritdoc />
@@ -189,6 +189,9 @@ namespace Catalog.Infrastructure.Data.Migrations
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
+
+                    b.Property<string>("Gtin")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAllowToOrder")
                         .HasColumnType("bit");

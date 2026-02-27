@@ -1,0 +1,372 @@
+﻿@page "/products/add"
+@page "/products/edit/{id}"
+@using LiteCommerce.Admin.Shared.Components
+
+<PageTitle>@(isEditMode ? "Edit Product" : "Add Product")</PageTitle>
+
+<HeadContent>
+    <link rel="stylesheet" href="libs/quill/dist/quill.snow.css">
+</HeadContent>
+
+<Breadcrumb Title="@(isEditMode ? "Edit Product" : "Add Product")" BreadcrumbItems="breadcrumb"></Breadcrumb>
+
+<EditForm Model="productForm" OnValidSubmit="FormSubmitted">
+    <DataAnnotationsValidator />
+    <div>
+        <ul class="nav nav-underline" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#tab-info" role="tab">
+                    <span>General</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-pricing" role="tab">
+                    <span>Pricing</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-variation" role="tab">
+                    <span>Variations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-product-attribute" role="tab">
+                    <span>Product Attributes</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-category-mapping" role="tab">
+                    <span>Category Mapping</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-related-product" role="tab">
+                    <span>Related Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-cross-sell-product" role="tab">
+                    <span>Cross-sell Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-seo" role="tab">
+                    <span>SEO</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content border mt-2">
+            <div class="tab-pane active" id="tab-info" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                        <div class="mb-3 row align-items-center">
+                            <label for="name" class="form-label col-sm-2 col-form-label">Name <span class="text-danger">*</span></label>
+                            <div class="col-sm-10">
+                                <InputText id="name" class="form-control" @bind-Value="productForm.Name" autocomplete="off" placeholder="Ex: iPhone 17 Pro Max, Samsung Galaxy S21, MacBook Pro 16,..." />
+                                <ValidationMessage For="@(() => productForm.Name)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="brand" class="form-label col-sm-2 col-form-label">Brand</label>
+                            <div class="col-sm-10">
+                                <InputSelect id="brand" class="form-select" @bind-Value="productForm.BrandId">
+                                    <option value="">None</option>
+                                    @foreach (var brand in brands)
+                                    {
+                                        <option value="@brand.Id">@brand.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label class="form-label col-sm-2 col-form-label">Short Description</label>
+                            <div class="col-sm-10">
+                                <div id="short-description-editor"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label class="form-label col-sm-2 col-form-label">Description</label>
+                            <div class="col-sm-10">
+                                <div id="description-editor"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="sku" class="form-label col-sm-2 col-form-label">SKU</label>
+                            <div class="col-sm-10">
+                                <InputText id="sku" class="form-control" @bind-Value="productForm.Sku" autocomplete="off" placeholder="Ex: IP17-512GB-BLACK, PRD-12345,..." />
+                                <ValidationMessage For="@(() => productForm.Sku)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="gtin" class="form-label col-sm-2 col-form-label">GTIN</label>
+                            <div class="col-sm-10">
+                                <InputText id="gtin" class="form-control" @bind-Value="productForm.Gtin" autocomplete="off" placeholder="Ex: 0123456789012, 012345678901,..." />
+                                <ValidationMessage For="@(() => productForm.Gtin)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="thumbnail" class="form-label col-sm-2 col-form-label">Thumbnail</label>
+                            <div class="col-sm-10">
+                                <InputFile id="thumbnail" class="form-control" OnChange="OnThumbnailSelected" accept="image/*" />
+                                @if (!string.IsNullOrEmpty(thumbnailPreviewUrl))
+                                {
+                                    <div class="mt-3">
+                                        <img src="@thumbnailPreviewUrl" alt="Thumbnail preview" class="img-thumbnail" style="max-height: 150px;" />
+                                        <div class="mt-2">
+                                            <button type="button" class="d-inline-flex align-items-center btn btn-sm btn-outline-danger" @onclick="RemoveThumbnail">
+                                                <i class="ti ti-trash fs-6 me-1"></i>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="product-images" class="form-label col-sm-2 col-form-label">Product Images</label>
+                            <div class="col-sm-10">
+                                <InputFile id="product-images" class="form-control" OnChange="OnProductImagesSelected" accept="image/*" multiple />
+                                @if (productImagePreviewUrls.Count > 0)
+                                {
+                                    <div class="mt-3 d-flex flex-wrap gap-3">
+                                        @for (var i = 0; i < productImagePreviewUrls.Count; i++)
+                                        {
+                                            var index = i;
+                                            <div class="position-relative">
+                                                <img src="@productImagePreviewUrls[index]" alt="Product image @(index + 1)" class="img-thumbnail" style="max-height: 150px;" />
+                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" @onclick="() => RemoveProductImage(index)">
+                                                    <i class="ti ti-x"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="product-documents" class="form-label col-sm-2 col-form-label">Product Documents</label>
+                            <div class="col-sm-10">
+                                <InputFile id="product-documents" class="form-control" OnChange="OnProductDocumentsSelected" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple />
+                                @if (createProductForm.ProductDocuments.Count > 0)
+                                {
+                                    <div class="mt-3">
+                                        <ul class="list-group">
+                                            @for (var i = 0; i < createProductForm.ProductDocuments.Count; i++)
+                                            {
+                                                var index = i;
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>
+                                                        <i class="ti ti-file-text me-2"></i>
+                                                        @createProductForm.ProductDocuments[index].Name
+                                                        <small class="text-muted ms-2">(@((createProductForm.ProductDocuments[index].Size / 1024.0).ToString("N1")) KB)</small>
+                                                    </span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveProductDocument(index)">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <div class="offset-sm-2 col-sm-10">
+                                <div class="mb-2 form-check form-switch">
+                                    <InputCheckbox id="is-featured" class="form-check-input" @bind-Value="productForm.IsFeatured" />
+                                    <label class="form-check-label" for="is-featured">Is Featured</label>
+                                </div>
+                                <div class="mb-2 form-check form-switch">
+                                    <InputCheckbox id="is-published" class="form-check-input" @bind-Value="productForm.IsPublished" />
+                                    <label class="form-check-label" for="is-published">Is Published</label>
+                                </div>
+                                <div class="mb-2 form-check form-switch">
+                                    <InputCheckbox id="is-called-for-pricing" class="form-check-input" @bind-Value="productForm.IsCallForPricing" />
+                                    <label class="form-check-label" for="is-called-for-pricing">Is Called For Pricing</label>
+                                </div>
+                                <div class="mb-2 form-check form-switch">
+                                    <InputCheckbox id="is-allowed-to-order" class="form-check-input" @bind-Value="productForm.IsAllowToOrder" />
+                                    <label class="form-check-label" for="is-allowed-to-order">Is Allowed To Order</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-pricing" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                        <div class="mb-3 row align-items-center">
+                            <label for="price" class="form-label col-sm-2 col-form-label">Price</label>
+                            <div class="col-sm-10">
+                                <InputNumber id="price" class="form-control" @bind-Value="productForm.Price" autocomplete="off" placeholder="0.00" />
+                                <ValidationMessage For="@(() => productForm.Price)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="old-price" class="form-label col-sm-2 col-form-label">Old Price</label>
+                            <div class="col-sm-10">
+                                <InputNumber id="old-price" class="form-control" @bind-Value="productForm.OldPrice" autocomplete="off" placeholder="0.00" />
+                                <ValidationMessage For="@(() => productForm.OldPrice)" />
+                            </div>
+                        </div>
+                        <div class="mb-7">
+                            <label class="form-label">Discount Type</label>
+                            <nav>
+                                <div class="nav nav-tabs justify-content-between align-items-center gap-9" id="nav-tab" role="tablist">
+                                    <label for="radio1" class="form-check-label form-check p-3 border gap-2 rounded-2 d-flex flex-fill justify-content-center cursor-pointer" id="customControlValidation2" data-bs-toggle="tab" data-bs-target="#no-discount" aria-controls="no-discount">
+                                        <input type="radio" class="form-check-input" name="new-products" id="radio1" checked>
+                                        <span class="fs-4 text-dark">No Discount</span>
+                                    </label>
+                                    <label for="radio2" class="form-check-label form-check p-3 border gap-2 rounded-2 d-flex flex-fill justify-content-center cursor-pointer" id="customControlValidation2" data-bs-toggle="tab" data-bs-target="#fix-price" aria-controls="fix-price">
+                                        <input type="radio" class="form-check-input" name="new-products" id="radio2">
+                                        <span class="fs-4 text-dark">Fixed Price</span>
+                                    </label>
+                                    <label for="radio3" class="form-check-label p-3 form-check border gap-2 rounded-2 d-flex flex-fill justify-content-center cursor-pointer" id="customControlValidation2" data-bs-toggle="tab" data-bs-target="#percentage" aria-controls="percentage">
+                                        <input type="radio" class="form-check-input" name="new-products" id="radio3">
+                                        <span class="fs-4 text-dark">Percentage %</span>
+                                    </label>
+                                </div>
+                            </nav>
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade mt-7" id="fix-price" role="tabpanel" aria-labelledby="fix-price-tab" tabindex="0">
+                                    <div class="mb-7">
+                                        <div class="mb-3 row align-items-center">
+                                            <label for="special-price-end" class="form-label col-sm-2 col-form-label">Fixed Discounted Price</label>
+                                            <div class="col-sm-10">
+                                                <InputNumber id="special-price" class="form-control" @bind-Value="productForm.SpecialPrice" autocomplete="off" placeholder="0.00" />
+                                                <ValidationMessage For="@(() => productForm.SpecialPrice)" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row align-items-center">
+                                            <label for="special-price-start" class="form-label col-sm-2 col-form-label">Discount Start Date</label>
+                                            <div class="col-sm-10">
+                                                <InputDate id="special-price-start" class="form-control" @bind-Value="productForm.SpecialPriceStart" autocomplete="off" />
+                                                <ValidationMessage For="@(() => productForm.SpecialPriceStart)" />
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row align-items-center">
+                                            <label for="special-price-end" class="form-label col-sm-2 col-form-label">Discount End Date</label>
+                                            <div class="col-sm-10">
+                                                <InputDate id="special-price-end" class="form-control" @bind-Value="productForm.SpecialPriceEnd" autocomplete="off" />
+                                                <ValidationMessage For="@(() => productForm.SpecialPriceEnd)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade mt-7" id="percentage" role="tabpanel" aria-labelledby="percentage-tab" tabindex="0">
+                                    <div class="form-group">
+                                        <h1>Not implement =)))</h1>
+                                        @* <label class="form-label">Set Discount Percentage</label>
+                                        <input type="range" class="form-range" id="customRange1" min="0" max="100" step="10">
+                                        <p class="fs-2">Set a percentage discount to be applied on this product.</p> *@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row align-items-center">
+                            <label for="tax" class="form-label col-sm-2 col-form-label">Tax Class</label>
+                            <div class="col-sm-10">
+                                <select class="form-select mr-sm-2" id="tax">
+                                    <option selected="">Select an option</option>
+                                    <option value="1">Tax Free</option>
+                                    <option value="2">Taxable Goods</option>
+                                    <option value="3">Downloadable Products</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-variation" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-product-attribute" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-category-mapping" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                        @if (basicCategories.Count == 0)
+                        {
+                            <p class="text-muted">No categories available.</p>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                @foreach (var category in basicCategories)
+                                {
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="cat-@category.Id"
+                                                   checked="@productForm.CategoryIds.Contains(category.Id)"
+                                                   @onchange="(e) => OnCategoryCheckedChanged(category.Id, e.Value)" />
+                                            <label class="form-check-label" for="cat-@category.Id">@category.DisplayName</label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-related-product" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-cross-sell-product" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-seo" role="tabpanel">
+                <div class="card mb-0">
+                    <div class="card-body">
+                        <div class="mb-3 row align-items-center">
+                            <label for="meta-title" class="form-label col-sm-2 col-form-label">Meta Title</label>
+                            <div class="col-sm-10">
+                                <InputText id="meta-title" class="form-control" @bind-Value="productForm.MetaTitle" autocomplete="off" placeholder="Enter meta title for SEO" />
+                                <ValidationMessage For="@(() => productForm.MetaTitle)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="meta-keywords" class="form-label col-sm-2 col-form-label">Meta Keywords</label>
+                            <div class="col-sm-10">
+                                <InputText id="meta-keywords" class="form-control" @bind-Value="productForm.MetaKeywords" autocomplete="off" placeholder="Enter meta keywords, separated by commas" />
+                                <ValidationMessage For="@(() => productForm.MetaKeywords)" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label for="meta-description" class="form-label col-sm-2 col-form-label">Meta Description</label>
+                            <div class="col-sm-10">
+                                <InputTextArea id="meta-description" class="form-control" @bind-Value="productForm.MetaDescription" rows="4" placeholder="Enter meta description for SEO" />
+                                <ValidationMessage For="@(() => productForm.MetaDescription)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center">
+            <i class="ti ti-device-floppy fs-5 me-2"></i>
+            Save
+        </button>
+        <a href="/products" class="btn btn-outline-warning d-inline-flex align-items-center">
+            <i class="ti ti-x fs-5 me-2"></i>
+            Cancel
+        </a>
+    </div>
+</EditForm>

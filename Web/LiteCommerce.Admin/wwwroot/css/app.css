@@ -21,3 +21,15 @@
 .select2-results__options {
     max-height: 380px !important;
 }
+
+#short-description-editor .ql-editor {
+    min-height: 80px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+#description-editor .ql-editor {
+    min-height: 150px;
+    max-height: 200px;
+    overflow-y: auto;
+}

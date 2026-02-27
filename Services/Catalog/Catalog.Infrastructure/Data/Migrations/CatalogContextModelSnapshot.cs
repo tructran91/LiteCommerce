@@ -187,6 +187,9 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
+                    b.Property<string>("Gtin")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsAllowToOrder")
                         .HasColumnType("bit");
 

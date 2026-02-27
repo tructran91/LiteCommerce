@@ -54,10 +54,37 @@ window.externalLibs = {
     },
     getSelect2Values: function (selector) {
         return $(selector).val() || [];
+    },
+
+    // Quill rich text editor
+    _quillInstances: {},
+    createQuill: function (selector, initialContent) {
+        var quill = new Quill(selector, {
+            theme: "snow"
+        });
+
+        if (initialContent) {
+            quill.root.innerHTML = initialContent;
+        }
+
+        this._quillInstances[selector] = quill;
+    },
+    getQuillHtml: function (selector) {
+        var quill = this._quillInstances[selector];
+        if (!quill) return "";
+        var html = quill.root.innerHTML;
+        return html === "<p><br></p>" ? "" : html;
+    },
+    setQuillHtml: function (selector, html) {
+        var quill = this._quillInstances[selector];
+        if (quill) {
+            quill.root.innerHTML = html || "";
+        }
+    },
+    destroyQuill: function (selector) {
+        delete this._quillInstances[selector];
     }
 }
-
-// Data & default operations
 window.appInterop = {
     toggleSidebarMenu: function () {
         document.querySelectorAll(".sidebartoggler").forEach((el) => {

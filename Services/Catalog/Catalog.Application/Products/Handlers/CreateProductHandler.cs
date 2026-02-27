@@ -111,6 +111,7 @@ namespace Catalog.Application.Products.Handlers
                 if (product.ThumbnailImage != null)
                 {
                     product.ThumbnailImage.FileName = fileName;
+                    product.ThumbnailImage.LastModifiedDate = DateTime.UtcNow;
                 }
                 else
                 {

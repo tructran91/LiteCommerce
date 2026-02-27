@@ -32,6 +32,8 @@
 
         public string? Sku { get; set; }
 
+        public string? Gtin { get; set; }
+
         public int DisplayOrder { get; set; }
 
         public string? MetaTitle { get; set; }

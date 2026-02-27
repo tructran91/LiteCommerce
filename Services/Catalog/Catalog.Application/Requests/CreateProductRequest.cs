@@ -5,7 +5,7 @@ namespace Catalog.Application.Requests
 {
     public class CreateProductRequest
     {
-        public ProductViewModel Product { get; set; } = new ProductViewModel();
+        public ProductViewModel Product { get; set; } = new();
 
         public IFormFile ThumbnailImage { get; set; }
 

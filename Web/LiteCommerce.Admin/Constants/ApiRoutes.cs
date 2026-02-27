@@ -62,5 +62,14 @@
             public const string Update = $"{Base}/UpdateProductTemplate";
             public const string Delete = $"{Base}/DeleteProductTemplate/{{id}}";
         }
+
+        public static class Product
+        {
+            private const string Base = "/api/admin/product";
+            public const string GetById = $"{Base}/GetProductById/{{id}}";
+            public const string Create = $"{Base}/CreateProduct";
+            public const string Update = $"{Base}/UpdateProduct";
+            public const string Delete = $"{Base}/DeleteProduct/{{id}}";
+        }
     }
 }

@@ -41798,7 +41798,7 @@ html[data-card=border] .card {
 }
 
 .ql-container {
-    height: 300px !important;
+    /*height: 300px !important;*/
     font-family: inherit !important
 }
 

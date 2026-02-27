@@ -38,6 +38,8 @@
 
         public string? Sku { get; set; }
 
+        public string? Gtin { get; set; }
+
         public string ThumbnailImageUrl { get; set; }
 
         public string BrandId { get; set; }

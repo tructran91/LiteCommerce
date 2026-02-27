@@ -23,6 +23,7 @@ builder.Services.AddRefitClient<IProductOptionApi>().ConfigureHttpClient(c => c.
 builder.Services.AddRefitClient<IProductAttributeGroupApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 builder.Services.AddRefitClient<IProductAttributeApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 builder.Services.AddRefitClient<IProductTemplateApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 
 // Register for internal service
 builder.Services.AddScoped<IMenuService, MenuService>();
