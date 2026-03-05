@@ -7,10 +7,10 @@ namespace Catalog.Application.Requests
     {
         public ProductViewModel Product { get; set; } = new();
 
-        public IFormFile ThumbnailImage { get; set; }
+        public IFormFile? ThumbnailImage { get; set; }
 
-        public List<IFormFile> ProductImages { get; set; } = new List<IFormFile>();
+        public List<IFormFile>? ProductImages { get; set; } = new List<IFormFile>();
 
-        public List<IFormFile> ProductDocuments { get; set; } = new List<IFormFile>();
+        public List<IFormFile>? ProductDocuments { get; set; } = new List<IFormFile>();
     }
 }

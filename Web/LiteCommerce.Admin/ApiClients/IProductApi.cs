@@ -7,16 +7,17 @@ namespace LiteCommerce.Admin.ApiClients
 {
     public interface IProductApi
     {
+        [Get(ApiRoutes.Product.GetAll)]
+        Task<BaseResponse<List<BasicProductResponse>>> GetProductsAsync(int currentPage, int pageSize);
+
         [Get(ApiRoutes.Product.GetById)]
         Task<BaseResponse<ProductFormModel>> GetProductAsync(string id);
 
         [Post(ApiRoutes.Product.Create)]
-        [Multipart]
-        Task<BaseResponse<ProductFormModel>> CreateProductAsync(MultipartFormDataContent content);
+        Task<BaseResponse<ProductFormModel>> CreateProductAsync([Body] MultipartFormDataContent content);
 
         [Put(ApiRoutes.Product.Update)]
-        [Multipart]
-        Task<BaseResponse<ProductFormModel>> UpdateProductAsync(MultipartFormDataContent content);
+        Task<BaseResponse<ProductFormModel>> UpdateProductAsync([Body] MultipartFormDataContent content);
 
         [Delete(ApiRoutes.Product.Delete)]
         Task<BaseResponse<bool>> DeleteProductAsync(string id);

@@ -9,7 +9,8 @@ namespace LiteCommerce.Admin.Models.Business.Product
         [Required]
         public string Name { get; set; }
 
-        public string? BrandId { get; set; }
+        [Required(ErrorMessage = "Please select a brand")]
+        public string BrandId { get; set; }
 
         public string? ShortDescription { get; set; }
 
@@ -23,7 +24,7 @@ namespace LiteCommerce.Admin.Models.Business.Product
 
         public bool IsPublished { get; set; } = true;
 
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         public decimal? OldPrice { get; set; }
 
@@ -46,5 +47,7 @@ namespace LiteCommerce.Admin.Models.Business.Product
         public string? ThumbnailImageUrl { get; set; }
 
         public IList<string> CategoryIds { get; set; } = new List<string>();
+
+        public IList<ProductAttributeFormItem> Attributes { get; set; } = new List<ProductAttributeFormItem>();
     }
 }

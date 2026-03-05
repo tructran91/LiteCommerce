@@ -40,24 +40,24 @@
 
         public string? Gtin { get; set; }
 
-        public string ThumbnailImageUrl { get; set; }
+        public string? ThumbnailImageUrl { get; set; }
 
-        public string BrandId { get; set; }
+        public string? BrandId { get; set; }
 
-        public IList<string> CategoryIds { get; set; } = new List<string>();
+        public IList<string>? CategoryIds { get; set; } = new List<string>();
 
-        public IList<ProductAttributeViewModel> Attributes { get; set; } = new List<ProductAttributeViewModel>();
+        public IList<ProductAttributeViewModel>? Attributes { get; set; } = new List<ProductAttributeViewModel>();
 
-        public IList<ProductOptionViewModel> Options { get; set; } = new List<ProductOptionViewModel>();
+        public IList<ProductOptionViewModel>? Options { get; set; } = new List<ProductOptionViewModel>();
 
-        public IList<ProductMediaViewModel> ProductImages { get; set; } = new List<ProductMediaViewModel>();
+        public IList<ProductMediaViewModel>? ProductImages { get; set; } = new List<ProductMediaViewModel>();
 
-        public IList<ProductMediaViewModel> ProductDocuments { get; set; } = new List<ProductMediaViewModel>();
+        public IList<ProductMediaViewModel>? ProductDocuments { get; set; } = new List<ProductMediaViewModel>();
 
-        public IList<string> DeletedMediaIds { get; set; } = new List<string>();
+        public IList<string>? DeletedMediaIds { get; set; } = new List<string>();
 
-        public List<ProductLinkViewModel> RelatedProducts { get; set; } = new List<ProductLinkViewModel>();
+        public List<ProductLinkViewModel>? RelatedProducts { get; set; } = new List<ProductLinkViewModel>();
 
-        public List<ProductLinkViewModel> CrossSellProducts { get; set; } = new List<ProductLinkViewModel>();
+        public List<ProductLinkViewModel>? CrossSellProducts { get; set; } = new List<ProductLinkViewModel>();
     }
 }

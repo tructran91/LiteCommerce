@@ -1,4 +1,5 @@
-﻿using Catalog.Core.Entities;
+using Catalog.Core.DTOs;
+using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -25,30 +26,28 @@ namespace Catalog.Infrastructure.Repositories
             return product;
         }
 
-        //public async Task<List<Product>> GetProductsAsync(ProductCriteriaDto criteria)
-        //{
-        //    IQueryable<Product> query = _dbContext.Products.AsNoTracking();
+        public async Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(int currentPage, int pageSize)
+        {
+            var query = _dbContext.Products.AsNoTracking().Where(p => !p.IsDeleted);
 
-        //    if (!string.IsNullOrEmpty(criteria.SearchKeyword))
-        //    {
-        //        query = query.Where(t => t.Name.ToLower().Contains(criteria.SearchKeyword, StringComparison.OrdinalIgnoreCase));
-        //    }
+            var totalCount = await query.CountAsync();
 
-        //    // làm sao để đưa cái biến này ra ngoài tầng service 1 cách đẹp trai nhất
-        //    int totalRecord = await query.CountAsync();
+            var products = await query
+                .OrderBy(p => p.CreatedDate)
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductListItemDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    IsFeatured = p.IsFeatured,
+                    IsAllowToOrder = p.IsAllowToOrder,
+                    IsCallForPricing = p.IsCallForPricing,
+                    IsPublished = p.IsPublished
+                })
+                .ToListAsync();
 
-        //    if (!string.IsNullOrEmpty(criteria.SortColumn))
-        //    {
-        //        query = query.OrderBy(t => t.Name);
-        //    }
-
-        //    var result = await query.Skip((criteria.PageNumber - 1) * criteria.PageSize)
-        //        .Take(criteria.PageSize)
-        //        .ToListAsync();
-
-        //    // phân trang nên để ở tầng repo hay tầng service
-
-        //    return null;
-        //}
+            return (products, totalCount);
+        }
     }
 }

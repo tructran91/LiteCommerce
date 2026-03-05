@@ -17,14 +17,12 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        //[HttpGet("GetAllBrands")]
-        //[ProducesResponseType(typeof(BaseResponse<List<BrandResponse>>), (int)HttpStatusCode.OK)]
-        //public async Task<IActionResult> GetAllBrands()
-        //{
-        //    var query = new GetAllBrandsQuery();
-        //    var result = await _mediator.Send(query);
-        //    return Ok(result);
-        //}
+        [HttpGet("GetAllProducts")]
+        public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
 
         [HttpGet("GetProductById/{id}")]
         public async Task<ActionResult> GetBrandById(string id)
@@ -41,16 +39,5 @@ namespace Catalog.API.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
-
-        //[HttpPut]
-        //[Route("UpdateBrand")]
-        //[ProducesResponseType(typeof(BaseResponse<BrandResponse>), (int)HttpStatusCode.OK)]
-        //[ProducesResponseType((int)HttpStatusCode.NotFound)]
-        //public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
-        //{
-        //    var command = new UpdateBrandCommand(request);
-        //    var result = await _mediator.Send(command);
-        //    return Ok(result);
-        //}
     }
 }

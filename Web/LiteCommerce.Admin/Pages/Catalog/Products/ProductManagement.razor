@@ -1,7 +1,7 @@
 ﻿@page "/products"
 @using BlazorTable
 @using LiteCommerce.Admin.Constants
-@using LiteCommerce.Admin.Models.Business.Category
+@using LiteCommerce.Admin.Models.Business.Product
 @using LiteCommerce.Admin.Shared.Components
 
 <PageTitle>Products</PageTitle>
@@ -21,36 +21,49 @@
 }
 else
 {
-    @* if (categories.Count == 0)
+    if (products.Count == 0)
     {
         <Alert Content="@SystemMessages.NoData"></Alert>
     }
     else
     {
-        <Table TableItem="CategoryResponse" Items="categories" PageSize="@AppConstants.PageSize" TableBodyClass="align-middle">
-            <Column TableItem="CategoryResponse" Title="Name" Field="@(x => x.DisplayName)" Sortable="true" Filterable="true" />
-            <Column TableItem="CategoryResponse" Title="Display order" Field="@(x => x.DisplayOrder)" Sortable="true" Filterable="true" />
-            <Column TableItem="CategoryResponse" Title="Include in menu" Field="@(x => x.IncludeInMenu)" Sortable="true" Filterable="true">
+        <Table TableItem="BasicProductResponse" Items="products" PageSize="@AppConstants.PageSize" TableBodyClass="align-middle">
+            <Column TableItem="BasicProductResponse" Title="Name" Field="@(x => x.Name)" Sortable="true" Filterable="true" />
+            <Column TableItem="BasicProductResponse" Title="Is Featured" Field="@(x => x.IsFeatured)" Sortable="true" Filterable="true">
                 <Template>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" disabled checked="@context.IncludeInMenu">
+                        <input class="form-check-input" type="checkbox" disabled checked="@context.IsFeatured">
                     </div>
                 </Template>
             </Column>
-            <Column TableItem="CategoryResponse" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
+            <Column TableItem="BasicProductResponse" Title="Allow To Order" Field="@(x => x.IsAllowToOrder)" Sortable="true" Filterable="true">
+                <Template>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" disabled checked="@context.IsAllowToOrder">
+                    </div>
+                </Template>
+            </Column>
+            <Column TableItem="BasicProductResponse" Title="Call For Pricing" Field="@(x => x.IsCallForPricing)" Sortable="true" Filterable="true">
+                <Template>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" disabled checked="@context.IsCallForPricing">
+                    </div>
+                </Template>
+            </Column>
+            <Column TableItem="BasicProductResponse" Title="Is Published" Field="@(x => x.IsPublished)" Sortable="true" Filterable="true">
                 <Template>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" disabled checked="@context.IsPublished">
                     </div>
                 </Template>
             </Column>
-            <Column TableItem="CategoryResponse" Title="Actions" Width="150px">
+            <Column TableItem="BasicProductResponse" Title="Actions" Width="150px">
                 <Template>
                     <div class="button-group text-center">
-                        <a href="/categories/edit/@context.Id" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center">
+                        <a href="/products/edit/@context.Id" class="btn mb-0 bg-secondary-subtle btn-sm d-inline-flex align-items-center justify-content-center">
                             <i class="fs-5 ti ti-pencil"></i>
                         </a>
-                        <button type="button" class="btn mb-0 bg-danger-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenDeleteModal(context.Id, context.Name)">
+                        <button type="button" class="btn mb-0 bg-danger-subtle btn-sm d-inline-flex align-items-center justify-content-center" @onclick="() => OpenDeleteModal(context.Id.ToString(), context.Name)">
                             <i class="fs-5 ti ti-trash"></i>
                         </button>
                     </div>
@@ -58,5 +71,5 @@ else
             </Column>
             <Pager ShowPageNumber="true" ShowTotalCount="true" />
         </Table>
-    } *@
+    }
 }

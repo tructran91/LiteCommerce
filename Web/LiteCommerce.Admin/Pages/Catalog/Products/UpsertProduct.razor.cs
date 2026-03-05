@@ -1,10 +1,13 @@
 ﻿using Blazored.Toast.Services;
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
+using LiteCommerce.Admin.Helpers;
 using LiteCommerce.Admin.Models.Application;
 using LiteCommerce.Admin.Models.Business.Brand;
 using LiteCommerce.Admin.Models.Business.Category;
 using LiteCommerce.Admin.Models.Business.Product;
+using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
+using LiteCommerce.Admin.Models.Business.ProductTemplate;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
@@ -30,6 +33,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private IBrandApi BrandApi { get; set; }
 
         [Inject]
+        private IProductTemplateApi ProductTemplateApi { get; set; }
+
+        [Inject]
+        private IProductAttributeApi ProductAttributeApi { get; set; }
+
+        [Inject]
         private IToastService ToastService { get; set; }
 
         [Inject]
@@ -51,11 +60,40 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
         private List<BasicCategoryResponse> basicCategories = new();
 
+        private List<ProductTemplateResponse> productTemplates = new();
+
+        private List<ProductAttributeResponse> allAttributes = new();
+
+        private string? selectedTemplateId;
+
+        private string? selectedAvailableAttributeId;
+
+        private List<ProductAttributeResponse> availableAttributes = new();
+
         private string? thumbnailPreviewUrl;
 
         private List<string> productImagePreviewUrls = new();
 
         private bool quillInitialized;
+
+        // Formatted price properties - bỏ trailing .00
+        private string PriceFormatted
+        {
+            get => NumberFormatHelper.FormatDecimal(productForm.Price);
+            set => productForm.Price = NumberFormatHelper.ParseDecimal(value);
+        }
+
+        private string OldPriceFormatted
+        {
+            get => NumberFormatHelper.FormatDecimal(productForm.OldPrice);
+            set => productForm.OldPrice = NumberFormatHelper.ParseDecimal(value);
+        }
+
+        private string SpecialPriceFormatted
+        {
+            get => NumberFormatHelper.FormatDecimal(productForm.SpecialPrice);
+            set => productForm.SpecialPrice = NumberFormatHelper.ParseDecimal(value);
+        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -78,8 +116,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 IsActive = true
             });
 
-            await GetBrands();
-            await GetBasicCategories();
+            await Task.WhenAll(
+                GetBrands(),
+                GetBasicCategories(),
+                GetProductTemplates(),
+                GetAllAttributes()
+            );
 
             if (isEditMode)
             {
@@ -87,12 +129,66 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 if (!productResponse.IsSuccess)
                 {
                     ToastService.ShowError(productResponse.Message);
+                    return;
                 }
-                createProductForm.Product = productResponse.Data;
+
+                var data = productResponse.Data;
+
+                // Map data to productForm
+                productForm.Id = data.Id;
+                productForm.Name = data.Name;
+                productForm.BrandId = data.BrandId;
+                productForm.ShortDescription = data.ShortDescription;
+                productForm.Description = data.Description;
+                productForm.MetaTitle = data.MetaTitle;
+                productForm.MetaKeywords = data.MetaKeywords;
+                productForm.MetaDescription = data.MetaDescription;
+                productForm.IsPublished = data.IsPublished;
+                productForm.Price = data.Price;
+                productForm.OldPrice = data.OldPrice;
+                productForm.SpecialPrice = data.SpecialPrice;
+                productForm.SpecialPriceStart = data.SpecialPriceStart;
+                productForm.SpecialPriceEnd = data.SpecialPriceEnd;
+                productForm.IsFeatured = data.IsFeatured;
+                productForm.IsCallForPricing = data.IsCallForPricing;
+                productForm.IsAllowToOrder = data.IsAllowToOrder;
+                productForm.Sku = data.Sku;
+                productForm.Gtin = data.Gtin;
+                productForm.ThumbnailImageUrl = data.ThumbnailImageUrl;
+
+                // Map CategoryIds
+                productForm.CategoryIds.Clear();
+                if (data.CategoryIds != null && data.CategoryIds.Any())
+                {
+                    foreach (var catId in data.CategoryIds)
+                    {
+                        productForm.CategoryIds.Add(catId);
+                    }
+                }
+
+                // Map Attributes
+                if (data.Attributes != null)
+                {
+                    productForm.Attributes = data.Attributes.Select(a => new ProductAttributeFormItem
+                    {
+                        Id = a.Id,
+                        Name = a.Name,
+                        Value = a.Value,
+                        GroupName = a.GroupName
+                    }).ToList();
+                    RefreshAvailableAttributes();
+                }
 
                 if (!string.IsNullOrEmpty(productForm.ThumbnailImageUrl))
                 {
                     thumbnailPreviewUrl = productForm.ThumbnailImageUrl;
+                }
+
+                // Update Quill editors after data is loaded
+                if (quillInitialized)
+                {
+                    await JSRuntime.InvokeVoidAsync("externalLibs.setQuillHtml", "#short-description-editor", productForm.ShortDescription ?? string.Empty);
+                    await JSRuntime.InvokeVoidAsync("externalLibs.setQuillHtml", "#description-editor", productForm.Description ?? string.Empty);
                 }
             }
         }
@@ -112,6 +208,91 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             if (response.IsSuccess)
             {
                 basicCategories = response.Data;
+            }
+        }
+
+        private async Task GetProductTemplates()
+        {
+            var response = await ProductTemplateApi.GetProductTemplatesAsync(1, 100);
+            if (response.IsSuccess)
+            {
+                productTemplates = response.Data;
+            }
+        }
+
+        private async Task GetAllAttributes()
+        {
+            var response = await ProductAttributeApi.GetProductAttributesAsync(1, 100);
+            if (response.IsSuccess)
+            {
+                allAttributes = response.Data;
+                RefreshAvailableAttributes();
+            }
+        }
+
+        private void RefreshAvailableAttributes()
+        {
+            var usedIds = productForm.Attributes.Select(a => a.Id).ToHashSet();
+            availableAttributes = allAttributes.Where(a => !usedIds.Contains(a.Id)).ToList();
+        }
+
+        private void ApplyTemplate()
+        {
+            if (string.IsNullOrEmpty(selectedTemplateId))
+                return;
+
+            var template = productTemplates.FirstOrDefault(t => t.Id == selectedTemplateId);
+            if (template == null)
+                return;
+
+            productForm.Attributes.Clear();
+
+            foreach (var attr in template.ProductAttributes)
+            {
+                var fullAttr = allAttributes.FirstOrDefault(a => a.Id == attr.Id);
+                productForm.Attributes.Add(new ProductAttributeFormItem
+                {
+                    Id = attr.Id,
+                    Name = attr.Name,
+                    Value = string.Empty,
+                    GroupName = fullAttr?.GroupName ?? string.Empty
+                });
+            }
+
+            RefreshAvailableAttributes();
+        }
+
+        private void AddAvailableAttribute()
+        {
+            if (string.IsNullOrEmpty(selectedAvailableAttributeId))
+                return;
+
+            var attr = allAttributes.FirstOrDefault(a => a.Id == selectedAvailableAttributeId);
+            if (attr == null)
+                return;
+
+            if (productForm.Attributes.Any(a => a.Id == attr.Id))
+                return;
+
+            productForm.Attributes.Add(new ProductAttributeFormItem
+            {
+                Id = attr.Id,
+                Name = attr.Name,
+                Value = string.Empty,
+                GroupName = attr.GroupName ?? string.Empty
+            });
+
+            selectedAvailableAttributeId = null;
+            RefreshAvailableAttributes();
+        }
+
+        private void RemoveAttribute(string attributeId)
+        {
+            var item = productForm.Attributes.FirstOrDefault(a => a.Id == attributeId);
+            if (item != null)
+            {
+                productForm.Attributes.Remove(item);
+                RefreshAvailableAttributes();
             }
         }
 
@@ -275,6 +456,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 content.Add(new StringContent(productForm.CategoryIds[i]), $"Product.CategoryIds[{i}]");
             }
 
+            for (var i = 0; i < productForm.Attributes.Count; i++)
+            {
+                content.Add(new StringContent(productForm.Attributes[i].Id), $"Product.Attributes[{i}].Id");
+                content.Add(new StringContent(productForm.Attributes[i].Name ?? string.Empty), $"Product.Attributes[{i}].Name");
+                content.Add(new StringContent(productForm.Attributes[i].Value ?? string.Empty), $"Product.Attributes[{i}].Value");
+                content.Add(new StringContent(productForm.Attributes[i].GroupName ?? string.Empty), $"Product.Attributes[{i}].GroupName");
+            }
+
             // Thumbnail
             if (createProductForm.ThumbnailImage != null)
             {
@@ -313,23 +502,23 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 createProductForm.Product,
                 ThumbnailImageName = createProductForm.ThumbnailImage?.Name,
                 ThumbnailImageSize = createProductForm.ThumbnailImage?.Size,
-                ProductImages = createProductForm.ProductImages.Select(f => new { f.Name, f.Size }).ToList(),
-                ProductDocuments = createProductForm.ProductDocuments.Select(f => new { f.Name, f.Size }).ToList()
+                ProductImages = createProductForm.ProductImages?.Select(f => new { f.Name, f.Size }).ToList(),
+                ProductDocuments = createProductForm.ProductDocuments?.Select(f => new { f.Name, f.Size }).ToList()
             };
 
             var content = await CreateMultipartFormDataContent();
 
-            //var response = await ProductApi.CreateProductAsync(content);
+            var response = await ProductApi.CreateProductAsync(content);
 
-            //if (response.IsSuccess)
-            //{
-            //    NavigationManager.NavigateTo("/products");
-            //    ToastService.ShowSuccess(SystemMessages.AddDataSuccess);
-            //}
-            //else
-            //{
-            //    ToastService.ShowError(response.Message);
-            //}
+            if (response.IsSuccess)
+            {
+                NavigationManager.NavigateTo("/products");
+                ToastService.ShowSuccess(SystemMessages.AddDataSuccess);
+            }
+            else
+            {
+                ToastService.ShowError(response.Message);
+            }
         }
 
         public async ValueTask DisposeAsync()

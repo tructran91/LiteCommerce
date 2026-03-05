@@ -12,6 +12,7 @@
 
 <EditForm Model="productForm" OnValidSubmit="FormSubmitted">
     <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
     <div>
         <ul class="nav nav-underline" role="tablist">
             <li class="nav-item">
@@ -68,7 +69,7 @@
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
-                            <label for="brand" class="form-label col-sm-2 col-form-label">Brand</label>
+                            <label for="brand" class="form-label col-sm-2 col-form-label">Brand <span class="text-danger">*</span></label>
                             <div class="col-sm-10">
                                 <InputSelect id="brand" class="form-select" @bind-Value="productForm.BrandId">
                                     <option value="">None</option>
@@ -77,6 +78,7 @@
                                         <option value="@brand.Id">@brand.Name</option>
                                     }
                                 </InputSelect>
+                                <ValidationMessage For="@(() => productForm.BrandId)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
@@ -200,14 +202,24 @@
                         <div class="mb-3 row align-items-center">
                             <label for="price" class="form-label col-sm-2 col-form-label">Price</label>
                             <div class="col-sm-10">
-                                <InputNumber id="price" class="form-control" @bind-Value="productForm.Price" autocomplete="off" placeholder="0.00" />
+                                <input type="number" id="price" class="form-control" 
+                                       @bind="PriceFormatted" 
+                                       @bind:event="oninput"
+                                       step="0.01"
+                                       autocomplete="off" 
+                                       placeholder="0" />
                                 <ValidationMessage For="@(() => productForm.Price)" />
                             </div>
                         </div>
                         <div class="mb-3 row align-items-center">
                             <label for="old-price" class="form-label col-sm-2 col-form-label">Old Price</label>
                             <div class="col-sm-10">
-                                <InputNumber id="old-price" class="form-control" @bind-Value="productForm.OldPrice" autocomplete="off" placeholder="0.00" />
+                                <input type="number" id="old-price" class="form-control" 
+                                       @bind="OldPriceFormatted" 
+                                       @bind:event="oninput"
+                                       step="0.01"
+                                       autocomplete="off" 
+                                       placeholder="0" />
                                 <ValidationMessage For="@(() => productForm.OldPrice)" />
                             </div>
                         </div>
@@ -233,9 +245,14 @@
                                 <div class="tab-pane fade mt-7" id="fix-price" role="tabpanel" aria-labelledby="fix-price-tab" tabindex="0">
                                     <div class="mb-7">
                                         <div class="mb-3 row align-items-center">
-                                            <label for="special-price-end" class="form-label col-sm-2 col-form-label">Fixed Discounted Price</label>
+                                            <label for="special-price" class="form-label col-sm-2 col-form-label">Fixed Discounted Price</label>
                                             <div class="col-sm-10">
-                                                <InputNumber id="special-price" class="form-control" @bind-Value="productForm.SpecialPrice" autocomplete="off" placeholder="0.00" />
+                                                <input type="number" id="special-price" class="form-control" 
+                                                       @bind="SpecialPriceFormatted" 
+                                                       @bind:event="oninput"
+                                                       step="0.01"
+                                                       autocomplete="off" 
+                                                       placeholder="0" />
                                                 <ValidationMessage For="@(() => productForm.SpecialPrice)" />
                                             </div>
                                         </div>
@@ -289,6 +306,103 @@
             <div class="tab-pane" id="tab-product-attribute" role="tabpanel">
                 <div class="card mb-0">
                     <div class="card-body">
+                        <div class="mb-3 row align-items-center">
+                            <label class="form-label col-sm-2 col-form-label fw-semibold">Product Templates</label>
+                            <div class="col-sm-7">
+                                <select class="form-select" @bind="selectedTemplateId">
+                                    <option value="">-- Select a template --</option>
+                                    @foreach (var template in productTemplates)
+                                    {
+                                        <option value="@template.Id">@template.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <button type="button" class="btn btn-outline-secondary" @onclick="ApplyTemplate">Apply</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 row align-items-center">
+                            <label class="form-label col-sm-2 col-form-label fw-semibold">Available Attributes</label>
+                            <div class="col-sm-7">
+                                <select class="form-select" @bind="selectedAvailableAttributeId">
+                                    <option value="">-- Select an attribute --</option>
+                                    @foreach (var group in availableAttributes.GroupBy(a => a.GroupName ?? "Ungrouped").OrderBy(g => g.Key))
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var attr in group)
+                                            {
+                                                <option value="@attr.Id">@attr.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <button type="button" class="btn btn-outline-secondary" @onclick="AddAvailableAttribute">Add Attribute</button>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                            <i class="ti ti-list-details"></i>
+                            Product Attributes
+                            @if (productForm.Attributes.Count > 0)
+                            {
+                                <span class="badge bg-primary rounded-pill">@productForm.Attributes.Count</span>
+                            }
+                        </h6>
+
+                        @if (productForm.Attributes.Count == 0)
+                        {
+                            <p class="text-muted">No attributes added. Select a template or add attributes manually.</p>
+                        }
+                        else
+                        {
+                            @foreach (var group in productForm.Attributes
+                                .GroupBy(a => a.GroupName ?? "Ungrouped")
+                                .OrderBy(g => g.Key == "Ungrouped" ? 1 : 0)
+                                .ThenBy(g => g.Key))
+                            {
+                                <div class="mb-4">
+                                    <h6 class="bg-light p-2 mb-0 fw-semibold border">
+                                        <i class="ti ti-folder me-2"></i>
+                                        @group.Key
+                                        <span class="badge bg-secondary ms-2">@group.Count()</span>
+                                    </h6>
+                                    <table class="table table-bordered table-sm align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 35%;">Attribute Name</th>
+                                                <th>Value</th>
+                                                <th style="width: 60px;" class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var attr in group)
+                                            {
+                                                var index = productForm.Attributes.IndexOf(attr);
+                                                <tr>
+                                                    <td>
+                                                        <strong>@attr.Name</strong>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm" value="@attr.Value"
+                                                               @onchange="(e) => { productForm.Attributes[index].Value = e.Value?.ToString() ?? string.Empty; }" />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveAttribute(attr.Id)">
+                                                            <i class="ti ti-x"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
             </div>
@@ -304,10 +418,11 @@
                             <div class="row">
                                 @foreach (var category in basicCategories)
                                 {
+                                    var isChecked = productForm.CategoryIds.Contains(category.Id);
                                     <div class="col-md-4 mb-2">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="cat-@category.Id"
-                                                   checked="@productForm.CategoryIds.Contains(category.Id)"
+                                                   checked="@isChecked"
                                                    @onchange="(e) => OnCategoryCheckedChanged(category.Id, e.Value)" />
                                             <label class="form-check-label" for="cat-@category.Id">@category.DisplayName</label>
                                         </div>

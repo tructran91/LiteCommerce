@@ -39,10 +39,10 @@ namespace Catalog.Application.Products.Handlers
                 return BaseResponse<ProductResponse>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
-            _logger.LogInformation($"GetProductHandler: product data: {JsonSerializer.Serialize(product)}");
+            _logger.LogInformation("GetProductHandler: Loading product Id={ProductId}, Name={ProductName}", product.Id, product.Name);
 
             var productMapping = _mapper.Map<ProductResponse>(product);
-            productMapping.CategoryIds = product.Categories.Select(c => c.Id.ToString()).ToList();
+            productMapping.CategoryIds = product.Categories.Select(c => c.CategoryId.ToString()).ToList();
             productMapping.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage);
 
             productMapping.Options = product.OptionValues.OrderBy(x => x.SortIndex).Select(x =>
