@@ -10,7 +10,7 @@ namespace Catalog.API.Controllers
             if (string.IsNullOrEmpty(relativeUrl))
                 return relativeUrl;
 
-            return $"{Request.Scheme}://{Request.Host}/api/public/files/{relativeUrl}";
+            return $"{Request.Scheme}://{Request.Host}/api/public/files{relativeUrl}";
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Catalog.Application.Extensions;
 using Catalog.Application.Products.Queries;
 using Catalog.Application.Responses;
 using Catalog.Application.Services;
 using Catalog.Application.ViewModels;
 using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -43,7 +45,9 @@ namespace Catalog.Application.Products.Handlers
 
             var productMapping = _mapper.Map<ProductResponse>(product);
             productMapping.CategoryIds = product.Categories.Select(c => c.CategoryId.ToString()).ToList();
-            productMapping.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage);
+
+            var subFolder = product.Id.ToStoragePath(StorageFolder.Product);
+            productMapping.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage, subFolder);
 
             productMapping.Options = product.OptionValues.OrderBy(x => x.SortIndex).Select(x =>
                 new ProductOptionViewModel
@@ -68,7 +72,7 @@ namespace Catalog.Application.Products.Handlers
                 productMapping.ProductImages.Add(new ProductMediaViewModel
                 {
                     Id = productMedia.Id.ToString(),
-                    MediaUrl = _mediaService.GetThumbnailUrl(productMedia.Media)
+                    MediaUrl = _mediaService.GetThumbnailUrl(productMedia.Media, subFolder)
                 });
             }
 
@@ -78,7 +82,7 @@ namespace Catalog.Application.Products.Handlers
                 {
                     Id = productMedia.Id.ToString(),
                     Caption = productMedia.Media.Caption,
-                    MediaUrl = _mediaService.GetMediaUrl(productMedia.Media)
+                    MediaUrl = _mediaService.GetMediaUrl(productMedia.Media, subFolder)
                 });
             }
 

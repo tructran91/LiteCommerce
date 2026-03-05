@@ -20,7 +20,7 @@
 
         public bool IsPublished { get; set; } = true;
 
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; } = 0;
 
         public decimal? OldPrice { get; set; }
 

@@ -71,9 +71,14 @@ else
                             <ValidationMessage For="@(() => brandForm.Name)" />
                         </div>
                     </div>
-                    <div class="mb-6 form-check form-switch">
-                        <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="brandForm.IsPublished" />
-                        <label class="form-check-label" for="IsPublished">Brand is published</label>
+                    <div class="mb-6 row align-items-center">
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-9">
+                            <div class="form-check form-switch">
+                                <InputCheckbox class="form-check-input" id="IsPublished" @bind-Value="brandForm.IsPublished" />
+                                <label class="form-check-label" for="IsPublished">Is published</label>
+                            </div>
+                        </div>
                     </div>
                     <p class="mb-0">(<span class="text-danger">*</span>) Mandatory</p>
                 </div>

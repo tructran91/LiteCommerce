@@ -11,16 +11,25 @@ namespace Catalog.Application.Services
             _storagePath = configuration["Storage:LocalPath"];
         }
 
-        public string GetFileUrl(string fileName)
+        public string GetFileUrl(string fileName, string? subFolder = null)
         {
-            return $"/{fileName}";
+            if (string.IsNullOrEmpty(subFolder))
+            {
+                return $"/{fileName}";
+            }
+            return $"/{subFolder}/{fileName}".Replace("\\", "/");
         }
 
-        public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName)
+        public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName, string? subFolder = null)
         {
-            Directory.CreateDirectory(_storagePath);
-            
-            var filePath = Path.Combine(_storagePath, fileName);
+            var targetPath = _storagePath;
+            if (!string.IsNullOrEmpty(subFolder))
+            {
+                targetPath = Path.Combine(_storagePath, subFolder);
+            }
+            Directory.CreateDirectory(targetPath);
+
+            var filePath = Path.Combine(targetPath, fileName);
             using (var output = new FileStream(filePath, FileMode.Create))
             {
                 await mediaBinaryStream.CopyToAsync(output);

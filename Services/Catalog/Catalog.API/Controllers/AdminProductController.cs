@@ -8,7 +8,7 @@ namespace Catalog.API.Controllers
 {
     [Route("api/admin/product")]
     [ApiController]
-    public class AdminProductController : ControllerBase
+    public class AdminProductController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -29,6 +29,22 @@ namespace Catalog.API.Controllers
         {
             var query = new GetProductQuery(Guid.Parse(id));
             var result = await _mediator.Send(query);
+
+            if (result.Data != null && result.IsSuccess)
+            {
+                result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
+
+                foreach (var image in result.Data.ProductImages)
+                {
+                    image.MediaUrl = BuildImageUrl(image.MediaUrl);
+                }
+
+                foreach (var document in result.Data.ProductDocuments)
+                {
+                    document.MediaUrl = BuildImageUrl(document.MediaUrl);
+                }
+            }
+
             return Ok(result);
         }
 

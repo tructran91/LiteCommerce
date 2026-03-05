@@ -7,6 +7,7 @@ using Catalog.Application.Services;
 using Catalog.Core.Entities;
 using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,11 @@ namespace Catalog.Application.Products.Handlers
                 _logger.LogInformation("CreateProductHandler => Step 1: Map data");
                 var product = _mapper.Map<Product>(payload.Product);
                 product.Slug = product.Name.Slugify();
+
+                if (product.Id == Guid.Empty)
+                {
+                    product.Id = Guid.NewGuid();
+                }
 
                 var optionIndex = 0;
                 foreach (var option in payload.Product.Options)
@@ -105,9 +111,11 @@ namespace Catalog.Application.Products.Handlers
 
         private async Task SaveProductMediasAsync(CreateProductRequest request, Product product)
         {
+            var subFolder = product.Id.ToStoragePath(StorageFolder.Product);
+
             if (request.ThumbnailImage != null)
             {
-                var fileName = await _mediaService.SaveMediaAsync(request.ThumbnailImage);
+                var fileName = await _mediaService.SaveMediaAsync(request.ThumbnailImage, subFolder);
                 if (product.ThumbnailImage != null)
                 {
                     product.ThumbnailImage.FileName = fileName;
@@ -128,7 +136,7 @@ namespace Catalog.Application.Products.Handlers
 
             foreach (var file in request.ProductImages)
             {
-                var fileName = await _mediaService.SaveMediaAsync(file);
+                var fileName = await _mediaService.SaveMediaAsync(file, subFolder);
                 var productMedia = new ProductMedia
                 {
                     Product = product,
@@ -147,7 +155,7 @@ namespace Catalog.Application.Products.Handlers
 
             foreach (var file in request.ProductDocuments)
             {
-                var fileName = await _mediaService.SaveMediaAsync(file);
+                var fileName = await _mediaService.SaveMediaAsync(file, subFolder);
                 var productMedia = new ProductMedia
                 {
                     Product = product,

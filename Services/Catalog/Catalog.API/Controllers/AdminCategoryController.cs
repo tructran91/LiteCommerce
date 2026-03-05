@@ -40,7 +40,10 @@ namespace Catalog.API.Controllers
             var query = new GetCategoryQuery(id);
             var result = await _mediator.Send(query);
 
-            result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
+            if (result.Data != null && result.IsSuccess && !string.IsNullOrEmpty(result.Data.ThumbnailImageUrl))
+            {
+                result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
+            }
 
             return Ok(result);
         }
@@ -50,9 +53,6 @@ namespace Catalog.API.Controllers
         {
             var command = new CreateCategoryCommand(request);
             var result = await _mediator.Send(command);
-
-            result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
-
             return Ok(result);
         }
 

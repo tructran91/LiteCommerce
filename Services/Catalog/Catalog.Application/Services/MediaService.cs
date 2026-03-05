@@ -15,32 +15,32 @@ namespace Catalog.Application.Services
             _storageService = storageService;
         }
 
-        public string GetMediaUrl(Media media)
+        public string GetMediaUrl(Media media, string? subFolder = null)
         {
             if (media == null)
             {
                 return GetMediaUrl("no-image.png");
             }
 
-            return GetMediaUrl(media.FileName);
+            return GetMediaUrl(media.FileName, subFolder);
         }
 
-        public string GetMediaUrl(string fileName)
+        public string GetMediaUrl(string fileName, string? subFolder = null)
         {
-            return string.IsNullOrEmpty(fileName) ? string.Empty : _storageService.GetFileUrl(fileName);
+            return string.IsNullOrEmpty(fileName) ? string.Empty : _storageService.GetFileUrl(fileName, subFolder);
         }
 
-        public string GetThumbnailUrl(Media media)
+        public string GetThumbnailUrl(Media media, string? subFolder = null)
         {
-            return GetMediaUrl(media);
+            return GetMediaUrl(media, subFolder);
         }
 
-        public async Task<string> SaveMediaAsync(IFormFile file)
+        public async Task<string> SaveMediaAsync(IFormFile file, string? subFolder = null)
         {
             var ext = Path.GetExtension(file.FileName);
             var fileName = $"{Guid.NewGuid()}{ext}";
 
-            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName, subFolder);
 
             return fileName;
         }

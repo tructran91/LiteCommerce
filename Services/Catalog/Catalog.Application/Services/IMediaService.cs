@@ -5,13 +5,13 @@ namespace Catalog.Application.Services
 {
     public interface IMediaService
     {
-        string GetMediaUrl(Media media);
+        string GetMediaUrl(Media media, string? subFolder = null);
 
-        string GetMediaUrl(string fileName);
+        string GetMediaUrl(string fileName, string? subFolder = null);
 
-        string GetThumbnailUrl(Media media);
+        string GetThumbnailUrl(Media media, string? subFolder = null);
 
-        Task<string> SaveMediaAsync(IFormFile file);
+        Task<string> SaveMediaAsync(IFormFile file, string? subFolder = null);
 
         Task DeleteMediaAsync(Media media);
 

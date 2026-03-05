@@ -6,6 +6,7 @@ using Catalog.Application.Services;
 using Catalog.Core.Entities;
 using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ namespace Catalog.Application.Categories.Handlers
 
             if (payload.ThumbnailImage != null)
             {
-                var fileName = await _mediaService.SaveMediaAsync(payload.ThumbnailImage);
+                var fileName = await _mediaService.SaveMediaAsync(payload.ThumbnailImage, StorageFolder.Category);
                 category.ThumbnailImage = new Media
                 {
                     FileName = fileName,

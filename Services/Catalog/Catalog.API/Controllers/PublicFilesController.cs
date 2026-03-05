@@ -20,18 +20,25 @@ namespace Catalog.API.Controllers
             if (string.IsNullOrEmpty(fileName))
                 return BadRequest();
 
-            fileName = Path.GetFileName(fileName);
-
             var rootPath = _config["Storage:LocalPath"];
-            var fullPath = Path.Combine(rootPath, fileName);
 
-            if (!System.IO.File.Exists(fullPath))
+            // Remove leading slash và normalize path
+            fileName = fileName.TrimStart('/', '\\').Replace("/", Path.DirectorySeparatorChar.ToString());
+            var fullPath = Path.Combine(rootPath, fileName);
+            var normalizedFullPath = Path.GetFullPath(fullPath);
+            var normalizedRootPath = Path.GetFullPath(rootPath);
+
+            // Validate path không thoát khỏi rootPath (security)
+            if (!normalizedFullPath.StartsWith(normalizedRootPath, StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Invalid path");
+
+            if (!System.IO.File.Exists(normalizedFullPath))
                 return NotFound();
 
             var provider = new FileExtensionContentTypeProvider();
-            provider.TryGetContentType(fullPath, out var contentType);
+            provider.TryGetContentType(normalizedFullPath, out var contentType);
 
-            return PhysicalFile(fullPath,contentType ?? "application/octet-stream");
+            return PhysicalFile(normalizedFullPath, contentType ?? "application/octet-stream");
         }
     }
 }
