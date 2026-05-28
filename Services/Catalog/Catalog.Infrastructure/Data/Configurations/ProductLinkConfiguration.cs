@@ -12,7 +12,7 @@ namespace Catalog.Infrastructure.Data.Configurations
                 .HasOne(x => x.Product)
                 .WithMany(p => p.ProductLinks)
                 .HasForeignKey(x => x.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder
                 .HasOne(x => x.LinkedProduct)

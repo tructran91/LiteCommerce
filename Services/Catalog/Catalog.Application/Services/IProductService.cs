@@ -7,6 +7,12 @@ namespace Catalog.Application.Services
     {
         ProductPriceHistory CreatePriceHistory(Product product);
 
-        void MapProductLinkToProduct(ProductViewModel productSource, Product productTarget);
+        void AddOrDeleteProductLinks(ProductViewModel productSource, Product productTarget);
+
+        void AddOrDeleteOptions(ProductViewModel productSource, Product productTarget);
+
+        void AddOrDeleteAttributes(ProductViewModel productSource, Product productTarget);
+
+        void AddOrDeleteCategories(ProductViewModel productSource, Product productTarget);
     }
 }

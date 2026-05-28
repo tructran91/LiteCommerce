@@ -49,5 +49,15 @@ namespace LiteCommerce.Admin.Models.Business.Product
         public IList<string> CategoryIds { get; set; } = new List<string>();
 
         public IList<ProductAttributeFormItem> Attributes { get; set; } = new List<ProductAttributeFormItem>();
+
+        public IList<ProductMediaFormItem> ProductImages { get; set; } = new List<ProductMediaFormItem>();
+
+        public IList<ProductMediaFormItem> ProductDocuments { get; set; } = new List<ProductMediaFormItem>();
+
+        public IList<string> DeletedMediaIds { get; set; } = new List<string>();
+
+        public IList<ProductLinkFormItem> RelatedProducts { get; set; } = new List<ProductLinkFormItem>();
+
+        public IList<ProductLinkFormItem> CrossSellProducts { get; set; } = new List<ProductLinkFormItem>();
     }
 }

@@ -711,7 +711,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.HasOne("Catalog.Core.Entities.Product", "Product")
                         .WithMany("ProductLinks")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("LinkedProduct");

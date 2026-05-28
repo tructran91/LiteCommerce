@@ -8,6 +8,7 @@ using LiteCommerce.Admin.Models.Business.Category;
 using LiteCommerce.Admin.Models.Business.Product;
 using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
 using LiteCommerce.Admin.Models.Business.ProductTemplate;
+using LiteCommerce.Admin.Models.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
@@ -76,6 +77,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
         private bool quillInitialized;
 
+        private List<BasicProductResponse> allProducts = new();
+
         // Formatted price properties - bỏ trailing .00
         private string PriceFormatted
         {
@@ -120,7 +123,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 GetBrands(),
                 GetBasicCategories(),
                 GetProductTemplates(),
-                GetAllAttributes()
+                GetAllAttributes(),
+                GetAllProducts()
             );
 
             if (isEditMode)
@@ -182,6 +186,49 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 if (!string.IsNullOrEmpty(productForm.ThumbnailImageUrl))
                 {
                     thumbnailPreviewUrl = productForm.ThumbnailImageUrl;
+                }
+
+                // Map existing Product Images
+                if (data.ProductImages != null)
+                {
+                    productForm.ProductImages = data.ProductImages.Select(m => new ProductMediaFormItem
+                    {
+                        Id = m.Id,
+                        Caption = m.Caption,
+                        MediaUrl = m.MediaUrl
+                    }).ToList();
+                }
+
+                // Map existing Product Documents
+                if (data.ProductDocuments != null)
+                {
+                    productForm.ProductDocuments = data.ProductDocuments.Select(m => new ProductMediaFormItem
+                    {
+                        Id = m.Id,
+                        Caption = m.Caption,
+                        MediaUrl = m.MediaUrl
+                    }).ToList();
+                }
+
+                // Map Related & Cross-sell Products
+                if (data.RelatedProducts != null)
+                {
+                    productForm.RelatedProducts = data.RelatedProducts.Select(p => new ProductLinkFormItem
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        IsPublished = p.IsPublished
+                    }).ToList();
+                }
+
+                if (data.CrossSellProducts != null)
+                {
+                    productForm.CrossSellProducts = data.CrossSellProducts.Select(p => new ProductLinkFormItem
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        IsPublished = p.IsPublished
+                    }).ToList();
                 }
 
                 // Update Quill editors after data is loaded
@@ -390,6 +437,16 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             productImagePreviewUrls.RemoveAt(index);
         }
 
+        private void RemoveExistingProductImage(string mediaId)
+        {
+            var item = productForm.ProductImages.FirstOrDefault(x => x.Id == mediaId);
+            if (item != null)
+            {
+                productForm.ProductImages.Remove(item);
+                productForm.DeletedMediaIds.Add(mediaId);
+            }
+        }
+
         private void OnProductDocumentsSelected(InputFileChangeEventArgs e)
         {
             foreach (var file in e.GetMultipleFiles())
@@ -413,6 +470,16 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private void RemoveProductDocument(int index)
         {
             createProductForm.ProductDocuments.RemoveAt(index);
+        }
+
+        private void RemoveExistingProductDocument(string mediaId)
+        {
+            var item = productForm.ProductDocuments.FirstOrDefault(x => x.Id == mediaId);
+            if (item != null)
+            {
+                productForm.ProductDocuments.Remove(item);
+                productForm.DeletedMediaIds.Add(mediaId);
+            }
         }
 
         private async Task<MultipartFormDataContent> CreateMultipartFormDataContent()
@@ -456,12 +523,31 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 content.Add(new StringContent(productForm.CategoryIds[i]), $"Product.CategoryIds[{i}]");
             }
 
+            for (var i = 0; i < productForm.DeletedMediaIds.Count; i++)
+            {
+                content.Add(new StringContent(productForm.DeletedMediaIds[i]), $"Product.DeletedMediaIds[{i}]");
+            }
+
             for (var i = 0; i < productForm.Attributes.Count; i++)
             {
                 content.Add(new StringContent(productForm.Attributes[i].Id), $"Product.Attributes[{i}].Id");
                 content.Add(new StringContent(productForm.Attributes[i].Name ?? string.Empty), $"Product.Attributes[{i}].Name");
                 content.Add(new StringContent(productForm.Attributes[i].Value ?? string.Empty), $"Product.Attributes[{i}].Value");
                 content.Add(new StringContent(productForm.Attributes[i].GroupName ?? string.Empty), $"Product.Attributes[{i}].GroupName");
+            }
+
+            for (var i = 0; i < productForm.RelatedProducts.Count; i++)
+            {
+                content.Add(new StringContent(productForm.RelatedProducts[i].Id), $"Product.RelatedProducts[{i}].Id");
+                content.Add(new StringContent(productForm.RelatedProducts[i].Name ?? string.Empty), $"Product.RelatedProducts[{i}].Name");
+                content.Add(new StringContent(productForm.RelatedProducts[i].IsPublished.ToString()), $"Product.RelatedProducts[{i}].IsPublished");
+            }
+
+            for (var i = 0; i < productForm.CrossSellProducts.Count; i++)
+            {
+                content.Add(new StringContent(productForm.CrossSellProducts[i].Id), $"Product.CrossSellProducts[{i}].Id");
+                content.Add(new StringContent(productForm.CrossSellProducts[i].Name ?? string.Empty), $"Product.CrossSellProducts[{i}].Name");
+                content.Add(new StringContent(productForm.CrossSellProducts[i].IsPublished.ToString()), $"Product.CrossSellProducts[{i}].IsPublished");
             }
 
             // Thumbnail
@@ -496,28 +582,44 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             productForm.ShortDescription = await JSRuntime.InvokeAsync<string>("externalLibs.getQuillHtml", "#short-description-editor");
             productForm.Description = await JSRuntime.InvokeAsync<string>("externalLibs.getQuillHtml", "#description-editor");
 
-            // Debug: đặt breakpoint ở dòng dưới, hover vào createProductForm để xem toàn bộ data
-            var debugModel = new
-            {
-                createProductForm.Product,
-                ThumbnailImageName = createProductForm.ThumbnailImage?.Name,
-                ThumbnailImageSize = createProductForm.ThumbnailImage?.Size,
-                ProductImages = createProductForm.ProductImages?.Select(f => new { f.Name, f.Size }).ToList(),
-                ProductDocuments = createProductForm.ProductDocuments?.Select(f => new { f.Name, f.Size }).ToList()
-            };
-
             var content = await CreateMultipartFormDataContent();
 
-            var response = await ProductApi.CreateProductAsync(content);
+            BaseResponse<ProductFormModel> response;
 
-            if (response.IsSuccess)
+            if (isEditMode)
             {
-                NavigationManager.NavigateTo("/products");
-                ToastService.ShowSuccess(SystemMessages.AddDataSuccess);
+                response = await ProductApi.UpdateProductAsync(content);
+                if (response.IsSuccess)
+                {
+                    NavigationManager.NavigateTo("/products");
+                    ToastService.ShowSuccess(SystemMessages.UpdateDataSuccess);
+                }
+                else
+                {
+                    ToastService.ShowError(response.Message);
+                }
             }
             else
             {
-                ToastService.ShowError(response.Message);
+                response = await ProductApi.CreateProductAsync(content);
+                if (response.IsSuccess)
+                {
+                    NavigationManager.NavigateTo("/products");
+                    ToastService.ShowSuccess(SystemMessages.AddDataSuccess);
+                }
+                else
+                {
+                    ToastService.ShowError(response.Message);
+                }
+            }
+        }
+
+        private async Task GetAllProducts()
+        {
+            var response = await ProductApi.GetProductsAsync(1, 1000);
+            if (response.IsSuccess)
+            {
+                allProducts = response.Data;
             }
         }
 

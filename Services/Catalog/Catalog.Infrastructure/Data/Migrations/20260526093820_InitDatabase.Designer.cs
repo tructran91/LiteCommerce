@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Catalog.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20260227031021_InitDatabase")]
+    [Migration("20260526093820_InitDatabase")]
     partial class InitDatabase
     {
         /// <inheritdoc />
@@ -714,7 +714,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.HasOne("Catalog.Core.Entities.Product", "Product")
                         .WithMany("ProductLinks")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("LinkedProduct");

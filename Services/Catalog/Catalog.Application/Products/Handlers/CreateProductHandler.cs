@@ -52,43 +52,10 @@ namespace Catalog.Application.Products.Handlers
                     product.Id = Guid.NewGuid();
                 }
 
-                var optionIndex = 0;
-                foreach (var option in payload.Product.Options)
-                {
-                    var productOption = new ProductOptionValue
-                    {
-                        OptionId = Guid.Parse(option.Id),
-                        DisplayType = option.DisplayType,
-                        Value = JsonSerializer.Serialize(option.Values),
-                        SortIndex = optionIndex,
-                        CreatedDate = DateTime.UtcNow
-                    };
-                    product.AddOptionValue(productOption);
-
-                    optionIndex++;
-                }
-
-                foreach (var attribute in payload.Product.Attributes)
-                {
-                    var attributeValue = new ProductAttributeValue
-                    {
-                        AttributeId = Guid.Parse(attribute.Id),
-                        Value = attribute.Value
-                    };
-                    product.AddAttributeValue(attributeValue);
-                }
-
-                foreach (var categoryId in payload.Product.CategoryIds)
-                {
-                    var productCategory = new ProductCategory
-                    {
-                        CategoryId = Guid.Parse(categoryId),
-                        CreatedDate = DateTime.UtcNow
-                    };
-                    product.AddCategory(productCategory);
-                }
-
-                _productService.MapProductLinkToProduct(payload.Product, product);
+                _productService.AddOrDeleteOptions(payload.Product, product);
+                _productService.AddOrDeleteAttributes(payload.Product, product);
+                _productService.AddOrDeleteCategories(payload.Product, product);
+                _productService.AddOrDeleteProductLinks(payload.Product, product);
 
                 var productPriceHistory = _productService.CreatePriceHistory(product);
                 product.PriceHistories.Add(productPriceHistory);
