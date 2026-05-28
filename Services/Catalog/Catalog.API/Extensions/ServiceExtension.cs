@@ -27,11 +27,18 @@ namespace Catalog.API.Extensions
 
         public static void ConfigureSwagger(this IServiceCollection services)
         {
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen(c =>
+            services.AddOpenApi("v1", options =>
             {
-                c.SwaggerDoc("v1", new() { Title = "Catalog API", Version = "v1" });
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Info = new()
+                    {
+                        Title = "Catalog API",
+                        Version = "v1",
+                        Description = "LiteCommerce Catalog API for managing products, categories, brands, and attributes",
+                    };
+                    return Task.CompletedTask;
+                });
             });
         }
 
