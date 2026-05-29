@@ -49,5 +49,30 @@ namespace Catalog.Infrastructure.Repositories
 
             return (products, totalCount);
         }
+
+        public async Task<(List<ProductPricingDto> Products, int TotalCount)> GetProductPricingAsync(int currentPage, int pageSize)
+        {
+            var query = _dbContext.Products.AsNoTracking().Where(p => !p.IsDeleted);
+
+            var totalCount = await query.CountAsync();
+
+            var products = await query
+                .OrderBy(p => p.CreatedDate)
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductPricingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    OldPrice = p.OldPrice,
+                    SpecialPrice = p.SpecialPrice,
+                    SpecialPriceStart = p.SpecialPriceStart,
+                    SpecialPriceEnd = p.SpecialPriceEnd
+                })
+                .ToListAsync();
+
+            return (products, totalCount);
+        }
     }
 }

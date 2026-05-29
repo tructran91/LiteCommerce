@@ -68,6 +68,8 @@ namespace Catalog.Application
                 .ForMember(prop => prop.Id, opt => opt.Ignore())
                 .ForMember(prop => prop.CreatedDate, opt => opt.MapFrom(o => DateTime.UtcNow));
             CreateMap<Product, ProductViewModel>();
+
+            CreateMap<Product, ProductPricingResponse>();
         }
     }
 }

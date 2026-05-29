@@ -68,7 +68,7 @@ namespace Catalog.API.Extensions
 
         public static void AddThirdPartyServices(this IServiceCollection services, Assembly assembly)
         {
-            services.AddAutoMapper(assembly);
+            services.AddAutoMapper(cfg => cfg.AddMaps(assembly));
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
             services.AddValidatorsFromAssembly(assembly);
         }
