@@ -72,5 +72,12 @@
             public const string Update = $"{Base}/UpdateProduct";
             public const string Delete = $"{Base}/DeleteProduct/{{id}}";
         }
+
+        public static class ProductPrice
+        {
+            private const string Base = "/api/admin/product-price";
+            public const string GetProductPricing = $"{Base}/GetProductPricing";
+            public const string UpdateProductPricing = $"{Base}/UpdateProductPricing";
+        }
     }
 }
