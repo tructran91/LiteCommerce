@@ -1,6 +1,170 @@
 ﻿@page "/"
+@using MudBlazor
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Dashboard - CommerceAdmin</PageTitle>
 
-<h1>Hello, world!</h1>
+<!-- Breadcrumb -->
+<MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
+<MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Dashboard</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-5">Chào mừng trở lại! Đây là tổng quan hôm nay.</MudText>
+
+<!-- Stats Cards -->
+<MudGrid Spacing="3" Class="mb-6">
+    <MudItem xs="12" sm="6" md="3">
+        <StatCard Title="Doanh thu hôm nay"
+                  Value="₫24,680,000"
+                  Change="+12.5%"
+                  ChangePositive="true"
+                  Icon="@Icons.Material.Filled.TrendingUp"
+                  Color="Color.Primary"
+                  SubText="So với hôm qua" />
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <StatCard Title="Đơn hàng mới"
+                  Value="142"
+                  Change="+8.2%"
+                  ChangePositive="true"
+                  Icon="@Icons.Material.Filled.ShoppingBag"
+                  Color="Color.Success"
+                  SubText="So với hôm qua" />
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <StatCard Title="Khách hàng mới"
+                  Value="38"
+                  Change="-3.1%"
+                  ChangePositive="false"
+                  Icon="@Icons.Material.Filled.PersonAdd"
+                  Color="Color.Warning"
+                  SubText="So với hôm qua" />
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <StatCard Title="Tỷ lệ hoàn trả"
+                  Value="2.4%"
+                  Change="-0.8%"
+                  ChangePositive="true"
+                  Icon="@Icons.Material.Filled.AssignmentReturn"
+                  Color="Color.Error"
+                  SubText="So với tuần trước" />
+    </MudItem>
+</MudGrid>
+
+<!-- Charts Row -->
+<MudGrid Spacing="3" Class="mb-6">
+    <MudItem xs="12" md="8">
+        <MudPaper Elevation="0" Class="dashboard-card pa-4" Style="border:1px solid var(--mud-palette-divider)">
+            <div class="d-flex align-center justify-space-between mb-4">
+                <div>
+                    <MudText Typo="Typo.h6" Class="font-weight-bold">Doanh thu 7 ngày qua</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Cập nhật lúc 08:00 sáng nay</MudText>
+                </div>
+                <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
+                    <MudButton>Ngày</MudButton>
+                    <MudButton Color="Color.Primary">Tuần</MudButton>
+                    <MudButton>Tháng</MudButton>
+                </MudButtonGroup>
+            </div>
+            <!-- Fake chart placeholder -->
+            <div style="height:220px; background: linear-gradient(135deg, rgba(89,74,226,0.05) 0%, rgba(89,74,226,0.02) 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; border:2px dashed var(--mud-palette-divider)">
+                <div class="text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.BarChart" Size="Size.Large" Color="Color.Primary" Class="mb-2" />
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Chart sẽ được render ở đây</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">(Tích hợp ApexCharts hoặc ChartJs)</MudText>
+                </div>
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" md="4">
+        <MudPaper Elevation="0" Class="dashboard-card pa-4" Style="border:1px solid var(--mud-palette-divider); height:100%">
+            <MudText Typo="Typo.h6" Class="font-weight-bold mb-1">Danh mục bán chạy</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary mb-4">Tuần này</MudText>
+
+            @foreach (var cat in _topCategories)
+            {
+                <div class="mb-3">
+                    <div class="d-flex justify-space-between mb-1">
+                        <MudText Typo="Typo.body2">@cat.Name</MudText>
+                        <MudText Typo="Typo.body2" Class="font-weight-medium">@cat.Percent%</MudText>
+                    </div>
+                    <MudProgressLinear Value="@cat.Percent" Color="@cat.Color" Rounded="true" Size="Size.Small" />
+                </div>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<!-- Recent Orders Table -->
+<MudPaper Elevation="0" Class="dashboard-card pa-4" Style="border:1px solid var(--mud-palette-divider)">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h6" Class="font-weight-bold">Đơn hàng gần đây</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
+            Xem tất cả
+        </MudButton>
+    </div>
+
+    <MudTable Items="_recentOrders" Hover="true" Dense="true" Elevation="0" Striped="false">
+        <HeaderContent>
+            <MudTh>Mã đơn</MudTh>
+            <MudTh>Khách hàng</MudTh>
+            <MudTh>Sản phẩm</MudTh>
+            <MudTh>Tổng tiền</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Mã đơn">
+                <MudText Typo="Typo.body2" Class="font-weight-bold" Color="Color.Primary">@context.Id</MudText>
+            </MudTd>
+            <MudTd DataLabel="Khách hàng">
+                <div class="d-flex align-center gap-2">
+                    <MudAvatar Size="Size.Small" Color="Color.Primary">@context.Customer[0]</MudAvatar>
+                    <MudText Typo="Typo.body2">@context.Customer</MudText>
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Sản phẩm">
+                <MudText Typo="Typo.body2">@context.Product</MudText>
+            </MudTd>
+            <MudTd DataLabel="Tổng tiền">
+                <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Total</MudText>
+            </MudTd>
+            <MudTd DataLabel="Trạng thái">
+                <MudChip T="string" Size="Size.Small" Color="@context.StatusColor" Variant="Variant.Filled">
+                    @context.Status
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Default" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Default" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private List<BreadcrumbItem> _breadcrumbs = new()
+    {
+        new("Trang chủ", href: "/", icon: Icons.Material.Filled.Home),
+        new("Dashboard", href: null, disabled: true)
+    };
+
+    record CategoryItem(string Name, double Percent, Color Color);
+    record OrderItem(string Id, string Customer, string Product, string Total, string Status, Color StatusColor);
+
+    private List<CategoryItem> _topCategories = new()
+    {
+        new("Điện thoại & Phụ kiện", 42, Color.Primary),
+        new("Thời trang", 28, Color.Secondary),
+        new("Đồ gia dụng", 18, Color.Success),
+        new("Thực phẩm & Đồ uống", 12, Color.Warning),
+    };
+
+    private List<OrderItem> _recentOrders = new()
+    {
+        new("#DH-10234", "Nguyễn Văn An", "iPhone 15 Pro Max", "₫28,990,000", "Đang giao", Color.Info),
+        new("#DH-10233", "Trần Thị Bình", "MacBook Air M3", "₫32,500,000", "Chờ xử lý", Color.Warning),
+        new("#DH-10232", "Lê Hoàng Cường", "AirPods Pro 2", "₫6,290,000", "Hoàn thành", Color.Success),
+        new("#DH-10231", "Phạm Minh Đức", "Samsung Galaxy S24", "₫22,490,000", "Hoàn thành", Color.Success),
+        new("#DH-10230", "Võ Thị Em", "iPad Pro 12.9", "₫25,990,000", "Đã hủy", Color.Error),
+    };
+}

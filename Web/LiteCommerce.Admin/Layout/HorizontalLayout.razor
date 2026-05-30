@@ -1,0 +1,115 @@
+﻿@using LiteCommerce.Admin.Services
+@using LiteCommerce.Admin.Models
+@inject AppSettingsService SettingsService
+@implements IDisposable
+
+<MudLayout>
+    <!-- TOP APPBAR WITH NAVIGATION -->
+    <MudAppBar Elevation="1" Dense="false" Class="commerce-appbar-horizontal">
+
+        <!-- Brand -->
+        <MudText Typo="Typo.h6" Class="brand-text font-weight-bold mr-6">
+            <MudIcon Icon="Icons.Material.Filled.Store" Class="mr-1 mb-1" Style="vertical-align:middle" />
+            CommerceAdmin
+        </MudText>
+
+        <!-- Horizontal Nav Links -->
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <NavMenuHorizontal />
+        </MudHidden>
+
+        <MudSpacer />
+
+        <MudTextField T="string" Placeholder="Tìm kiếm..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Style="max-width:220px"
+                      Class="mr-2" />
+
+        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" />
+        <MudBadge Content="3" Color="Color.Error" Overlap="true" Class="mx-1">
+            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Default" />
+        </MudBadge>
+
+        <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                       Color="Color.Primary"
+                       OnClick="OnSettingsClick"
+                       Title="Cài đặt hệ thống" />
+
+        <MudMenu AnchorOrigin="Origin.BottomRight" 
+                 TransformOrigin="Origin.TopRight" 
+                 Class="ml-2"
+                 @ref="_userMenu">
+            <ActivatorContent>
+                <div class="d-flex align-center gap-2" style="cursor:pointer" @onclick="OpenUserMenuAsync">
+                    <MudAvatar Color="Color.Primary" Size="Size.Small">A</MudAvatar>
+                    <div class="d-none d-md-flex flex-column" style="line-height:1.2">
+                        <MudText Typo="Typo.body2" Class="font-weight-semibold" Style="font-size:0.8rem">Admin User</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="font-size:0.7rem">Super Admin</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Class="mud-text-secondary d-none d-md-flex" />
+                </div>
+            </ActivatorContent>
+            <ChildContent>
+                <div class="pa-2" style="min-width:210px">
+                    <div class="d-flex align-center gap-3 pa-2 mb-1">
+                        <MudAvatar Color="Color.Primary" Size="Size.Medium">A</MudAvatar>
+                        <div>
+                            <MudText Typo="Typo.body2" Class="font-weight-bold">Admin User</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">admin@commerce.vn</MudText>
+                        </div>
+                    </div>
+                    <MudDivider Class="mb-1" />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Person" IconColor="Color.Default" Href="/profile">
+                        Hồ sơ cá nhân
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Lock" IconColor="Color.Default" Href="/change-password">
+                        Đổi mật khẩu
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Notifications" IconColor="Color.Default" Href="/notifications">
+                        Thông báo
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.History" IconColor="Color.Default" Href="/activity">
+                        Lịch sử hoạt động
+                    </MudMenuItem>
+                    <MudDivider Class="my-1" />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error">
+                        <MudText Color="Color.Error">Đăng xuất</MudText>
+                    </MudMenuItem>
+                </div>
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+
+    <!-- MAIN CONTENT (no drawer for horizontal) -->
+    <MudMainContent Class="main-content-horizontal">
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pa-4 pa-md-6">
+            @ChildContent
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnSettingsClick { get; set; }
+
+    private MudMenu? _userMenu;
+
+    protected override void OnInitialized()
+    {
+        SettingsService.OnSettingsChanged += StateHasChanged;
+    }
+
+    private async Task OpenUserMenuAsync(MouseEventArgs e)
+    {
+        if (_userMenu != null)
+            await _userMenu.OpenMenuAsync(e);
+    }
+
+    public void Dispose()
+    {
+        SettingsService.OnSettingsChanged -= StateHasChanged;
+    }
+}

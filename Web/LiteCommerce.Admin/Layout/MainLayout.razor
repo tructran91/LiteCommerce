@@ -1,32 +1,118 @@
-﻿@using Blazored.Toast
-@using Blazored.Toast.Configuration
+﻿@using LiteCommerce.Admin.Models
+@using LiteCommerce.Admin.Models.Application
+@using LiteCommerce.Admin.Services
+@using LiteCommerce.Admin.Components
 @inherits LayoutComponentBase
+@inject AppSettingsService SettingsService
+@inject ISnackbar Snackbar
+@implements IAsyncDisposable
 
-<BlazoredToasts Position="ToastPosition.TopRight"
-                Timeout="5"
-                IconType="IconType.Blazored"
-                ShowProgressBar="@true"
-                ShowCloseButton="@true"
-                MaxToastCount="3">
-    <CloseButtonContent>
-        <i class="cursor-pointer fs-5 ti ti-x"></i>
-    </CloseButtonContent>
-</BlazoredToasts>
+<MudThemeProvider @ref="_mudThemeProvider" Theme="_currentTheme" IsDarkMode="@SettingsService.Settings.IsDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<SidebarMenu MenuItems="menuItems"></SidebarMenu>
+@if (SettingsService.Settings.LayoutDirection == LayoutDirection.Vertical)
+{
+    <VerticalLayout OnSettingsClick="OpenSettings">
+        @Body
+    </VerticalLayout>
+}
+else
+{
+    <HorizontalLayout OnSettingsClick="OpenSettings">
+        @Body
+    </HorizontalLayout>
+}
 
-<div class="page-wrapper">
-    <HeaderMenu></HeaderMenu>
+<SettingsDrawer @ref="_settingsDrawer" />
 
-    <SidebarMenuHorizontal MenuItems="menuItems"></SidebarMenuHorizontal>
+@code {
+    private MudThemeProvider _mudThemeProvider = null!;
+    private SettingsDrawer _settingsDrawer = null!;
+    private MudTheme _currentTheme = new();
 
-    <div class="body-wrapper">
-        <div class="container-fluid">
-            @Body
-        </div>
-    </div>
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsService.LoadAsync();
+        SettingsService.OnSettingsChanged += OnSettingsChanged;
+        BuildTheme();
+    }
 
-    <LayoutSettingPanel CurrentSettings="settings"></LayoutSettingPanel>
-</div>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await SettingsService.LoadAsync();
+            BuildTheme();
+            StateHasChanged();
+        }
+    }
 
-<div class="dark-transparent sidebartoggler"></div>
+    private void OnSettingsChanged()
+    {
+        BuildTheme();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void BuildTheme()
+    {
+        var primary = SettingsService.Settings.PrimaryColor;
+        var secondary = SettingsService.Settings.SecondaryColor;
+        var borderRadius = SettingsService.Settings.BorderRadius;
+        var fontFamily = SettingsService.Settings.FontFamily;
+
+        _currentTheme = new MudTheme
+        {
+            PaletteLight = new PaletteLight
+            {
+                Primary = primary,
+                Secondary = secondary,
+                AppbarBackground = "#FFFFFF",
+                AppbarText = "#1a1a2e",
+                DrawerBackground = "#FFFFFF",
+                DrawerText = "#1a1a2e",
+                Surface = "#FFFFFF",
+                Background = "#F4F6F8",
+            },
+            PaletteDark = new PaletteDark
+            {
+                Primary = primary,
+                Secondary = secondary,
+                AppbarBackground = "#1a1a2e",
+                DrawerBackground = "#16213e",
+                Surface = "#0f3460",
+                Background = "#0a0a1a",
+                DrawerText = "rgba(255,255,255,0.85)",
+            },
+            Typography = new Typography
+            {
+                Default = new DefaultTypography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H1 = new H1Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H2 = new H2Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H3 = new H3Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H4 = new H4Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H5 = new H5Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H6 = new H6Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                Button = new ButtonTypography { FontFamily = new[] { fontFamily, "sans-serif" } },
+            },
+            LayoutProperties = new LayoutProperties
+            {
+                DefaultBorderRadius = $"{borderRadius}px",
+                DrawerWidthLeft = "260px",
+                DrawerMiniWidthLeft = "72px",
+            }
+        };
+    }
+
+    private void OpenSettings()
+    {
+        _settingsDrawer.Open();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        SettingsService.OnSettingsChanged -= OnSettingsChanged;
+        await Task.CompletedTask;
+    }
+}

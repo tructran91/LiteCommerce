@@ -1,0 +1,31 @@
+﻿@using MudBlazor
+
+<div class="d-flex align-center">
+    <MudButton StartIcon="@Icons.Material.Filled.Dashboard" Color="Color.Inherit" Href="/" Class="nav-h-btn">
+        Dashboard
+    </MudButton>
+
+    <MudMenu Label="Đơn hàng" StartIcon="@Icons.Material.Filled.Receipt" EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+             Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Class="nav-h-btn">
+        <MudMenuItem Href="/orders">Tất cả đơn hàng</MudMenuItem>
+        <MudMenuItem Href="/orders/pending">Chờ xử lý</MudMenuItem>
+        <MudMenuItem Href="/orders/shipping">Đang giao</MudMenuItem>
+    </MudMenu>
+
+    <MudMenu Label="Sản phẩm" StartIcon="@Icons.Material.Filled.Inventory" EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+             Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Class="nav-h-btn">
+        <MudMenuItem Href="/products">Danh sách</MudMenuItem>
+        <MudMenuItem Href="/products/add">Thêm mới</MudMenuItem>
+        <MudMenuItem Href="/categories">Danh mục</MudMenuItem>
+    </MudMenu>
+
+    <MudButton StartIcon="@Icons.Material.Filled.People" Color="Color.Inherit" Href="/customers" Class="nav-h-btn">
+        Khách hàng
+    </MudButton>
+
+    <MudButton StartIcon="@Icons.Material.Filled.BarChart" Color="Color.Inherit" Href="/analytics" Class="nav-h-btn">
+        Thống kê
+    </MudButton>
+</div>
+
+@code { }

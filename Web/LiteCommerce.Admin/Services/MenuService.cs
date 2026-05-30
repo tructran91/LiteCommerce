@@ -1,251 +1,86 @@
 ﻿using LiteCommerce.Admin.Enums;
 using LiteCommerce.Admin.Models.Application;
+using Microsoft.AspNetCore.Components.Routing;
+using MudBlazor;
 
 namespace LiteCommerce.Admin.Services
 {
-    public interface IMenuService
+    public class MenuService
     {
-        List<MenuItem> GetMenuItems(PageType pageType);
-
-        List<MenuItem> GetHeaderMenu();
-
-        List<MenuItem> SetActiveMenuItems(List<MenuItem> menuItems, string currentUrl);
-    }
-
-    public class MenuService : IMenuService
-    {
-        public List<MenuItem> GetMenuItems(PageType pageType)
-        {
-            return pageType switch
-            {
-                PageType.Site => GetSiteMenu(),
-                PageType.Catalog => GetCatalogMenu(),
-                _ => new List<MenuItem>()
-            };
-        }
-
-        public List<MenuItem> GetHeaderMenu()
+        public List<MenuItem> GetMenuItems()
         {
             return new List<MenuItem>
             {
-                GetSiteMenu().First(),
-                GetCatalogMenu().First()
-            };
-        }
-
-        public List<MenuItem> SetActiveMenuItems(List<MenuItem> menuItems, string currentUrl)
-        {
-            foreach (var item in menuItems)
-            {
-                item.IsActive = IsUrlMatch(item.Url, currentUrl);
-
-                if (item.Children != null && item.Children.Any())
-                {
-                    foreach (var childItem in item.Children)
-                    {
-                        childItem.IsActive = IsUrlMatch(childItem.Url, currentUrl);
-                        if (childItem.IsActive)
-                        {
-                            item.IsActive = true;
-                        }
-                    }
-                }
-            }
-
-            return menuItems;
-        }
-
-        private bool IsUrlMatch(string menuUrl, string currentUrl)
-        {
-            var currentUrlWithoutParams = currentUrl.Split('?')[0];
-
-            menuUrl = menuUrl.Trim('/').ToLower();
-            currentUrlWithoutParams = currentUrlWithoutParams.Trim('/').ToLower();
-
-            if (menuUrl == currentUrlWithoutParams) return true;
-
-            return currentUrlWithoutParams.StartsWith(menuUrl + "/");
-        }
-
-        private List<MenuItem> GetSiteMenu()
-        {
-            return new List<MenuItem>
-            {
+                // Dashboard
                 new MenuItem
                 {
-                    SpecialMenu = @"
-                        <li class=""nav-small-cap"">
-                            <i class=""ti ti-dots nav-small-cap-icon fs-4""></i>
-                            <span class=""hide-menu"">Site</span>
-                        </li>",
-                    Url = string.Empty,
-                    Title = "Site",
-                    Children = new List<MenuItem>
-                    {
-                        new MenuItem
-                        {
-                            Title = "Users",
-                            Icon = "ti ti-users",
-                            Url = "/users",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Vendors",
-                            Icon = "ti ti-building-store",
-                            Url = "/vendors",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Customer Groups",
-                            Icon = "ti ti-user-circle",
-                            Url = "/customer-groups",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Reviews",
-                            Icon = "ti ti-star",
-                            Url = "/reviews",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Review Replies",
-                            Icon = "ti ti-message-chatbot",
-                            Url = "/review-replies",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Comments",
-                            Icon = "ti ti-category",
-                            Url = "/comments",
-                        }
-                    }
-                }
-            };
-        }
+                    Title = "Dashboard",
+                    Href = "/",
+                    Icon = Icons.Material.Filled.Dashboard,
+                    IconColor = Color.Primary,
+                    Match = NavLinkMatch.All,
+                    Type = MenuItemType.Link
+                },
 
-        private List<MenuItem> GetDivisionsMenu()
-        {
-            return new List<MenuItem>
-            {
+                new MenuItem { Title = "Catalog", Type = MenuItemType.Section },
+                new MenuItem { Title = "Categories", Href = "/categories", Icon = Icons.Material.Filled.Category, Type = MenuItemType.Link },
+                new MenuItem { Title = "Brands", Href = "/brands", Icon = Icons.Material.Filled.Star, Type = MenuItemType.Link },
+                new MenuItem { Title = "Products", Href = "/products", Icon = Icons.Material.Filled.Inventory, Type = MenuItemType.Link },
+                new MenuItem { Title = "Product Prices", Href = "/product-prices", Icon = Icons.Material.Filled.AttachMoney, Type = MenuItemType.Link },
+                new MenuItem { Title = "Product Options", Href = "/product-options", Icon = Icons.Material.Filled.Tune, Type = MenuItemType.Link },
+                new MenuItem { Title = "Product Attribute Groups", Href = "/product-attribute-groups", Icon = Icons.Material.Filled.ViewModule, Type = MenuItemType.Link },
+                new MenuItem { Title = "Product Attributes", Href = "/product-attributes", Icon = Icons.Material.Filled.Style, Type = MenuItemType.Link },
+                new MenuItem { Title = "Product Templates", Href = "/product-templates", Icon = Icons.Material.Filled.Description, Type = MenuItemType.Link },
+
+                // --- QUẢN LÝ BÁN HÀNG ---
+                new MenuItem { Title = "Quản lý bán hàng", Type = MenuItemType.Section },
+                
+                // Group: Đơn hàng
                 new MenuItem
                 {
-                    SpecialMenu = @"
-                        <li class=""nav-small-cap"">
-                            <i class=""ti ti-dots nav-small-cap-icon fs-4""></i>
-                            <span class=""hide-menu"">Divisions</span>
-                        </li>",
-                    Title = "Divisions",
-                    Url = string.Empty,
+                    Title = "Đơn hàng",
+                    Icon = Icons.Material.Filled.Receipt,
+                    Type = MenuItemType.Group,
+                    ExpandByDefault = true, // Tương đương Expanded="@DrawerOpen" trong code cũ
                     Children = new List<MenuItem>
                     {
-                        new MenuItem
-                        {
-                            Title = "Division Details",
-                            Url = "/divisions/division-details"
-                        },
-                        new MenuItem
-                        {
-                            Title = "Location",
-                            Url = "/divisions/location"
-                        },
-                        new MenuItem
-                        {
-                            Title = "Communities",
-                            Url = "/divisions/communities"
-                        }
+                        new MenuItem { Title = "Tất cả đơn hàng", Href = "/orders" },
+                        new MenuItem { Title = "Chờ xử lý", Href = "/orders/pending" },
+                        new MenuItem { Title = "Đang giao", Href = "/orders/shipping" },
+                        new MenuItem { Title = "Hoàn thành", Href = "/orders/completed" }
                     }
                 },
-                new MenuItem
-                {
-                    SpecialMenu = @"
-                        <li class=""nav-small-cap"">
-                            <i class=""ti ti-dots nav-small-cap-icon fs-4""></i>
-                            <span class=""hide-menu"">Costing</span>
-                        </li>",
-                    Title = "Costing",
-                    Url = string.Empty,
-                    Children = new List<MenuItem>
-                    {
-                        new MenuItem
-                        {
-                            Title = "Vendors",
-                            Url = "/divisions/vendors"
-                        },
-                        new MenuItem
-                        {
-                            Title = "Community Taxes",
-                            Url = "/divisions/community-taxes"
-                        }
-                    }
-                }
-            };
-        }
 
-        private List<MenuItem> GetCatalogMenu()
-        {
-            return new List<MenuItem>
-            {
+                // Group: Sản phẩm
                 new MenuItem
                 {
-                    SpecialMenu = @"
-                        <li class=""nav-small-cap"">
-                            <i class=""ti ti-dots nav-small-cap-icon fs-4""></i>
-                            <span class=""hide-menu"">Catalog</span>
-                        </li>",
-                    Title = "Catalog",
-                    Url = string.Empty,
+                    Title = "Sản phẩm",
+                    Icon = Icons.Material.Filled.Inventory,
+                    Type = MenuItemType.Group,
+                    ExpandByDefault = false, // Tương đương Expanded="false" trong code cũ
                     Children = new List<MenuItem>
                     {
-                        new MenuItem
-                        {
-                            Title = "Products",
-                            Icon = "ti ti-package",
-                            Url = "/products",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Product Prices",
-                            Icon = "ti ti-currency-dollar",
-                            Url = "/product-prices",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Categories",
-                            Icon = "ti ti-timeline-event",
-                            Url = "/categories",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Brands",
-                            Icon = "ti ti-badge",
-                            Url = "/brands",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Product Options",
-                            Icon = "ti ti-adjustments",
-                            Url = "/product-options",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Product Attribute Groups",
-                            Icon = "ti ti-category",
-                            Url = "/product-attribute-groups",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Product Attributes",
-                            Icon = "ti ti-tags",
-                            Url = "/product-attributes",
-                        },
-                        new MenuItem
-                        {
-                            Title = "Product Templates",
-                            Icon = "ti ti-template",
-                            Url = "/product-templates",
-                        }
+                        new MenuItem { Title = "Danh sách", Href = "/products" },
+                        new MenuItem { Title = "Thêm mới", Href = "/products/add" },
+                        new MenuItem { Title = "Danh mục", Href = "/categories" },
+                        new MenuItem { Title = "Tồn kho", Href = "/products/inventory" }
                     }
                 },
+
+                // Khách hàng
+                new MenuItem
+                {
+                    Title = "Khách hàng",
+                    Href = "/customers",
+                    Icon = Icons.Material.Filled.People,
+                    Type = MenuItemType.Link
+                },
+
+                // --- HỆ THỐNG ---
+                new MenuItem { Title = "Hệ thống", Type = MenuItemType.Section },
+
+                new MenuItem { Title = "Nhân viên", Href = "/staff", Icon = Icons.Material.Filled.ManageAccounts, Type = MenuItemType.Link },
+                new MenuItem { Title = "Cài đặt cửa hàng", Href = "/system-settings", Icon = Icons.Material.Filled.Tune, Type = MenuItemType.Link }
             };
         }
     }

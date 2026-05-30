@@ -1,19 +1,32 @@
-using Blazored.LocalStorage;
-using Blazored.Toast;
-using BlazorTable;
-using CurrieTechnologies.Razor.SweetAlert2;
-using LiteCommerce.Admin;
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor;
+using MudBlazor.Services;
 using Refit;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#main-wrapper");
+builder.RootComponents.Add<LiteCommerce.Admin.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"] 
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+// MudBlazor
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 4000;
+    config.SnackbarConfiguration.HideTransitionDuration = 300;
+    config.SnackbarConfiguration.ShowTransitionDuration = 300;
+    config.SnackbarConfiguration.SnackbarVariant = MudBlazor.Variant.Filled;
+});
+
+// API Clients
+var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"]
     ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(catalogUrl) });
@@ -26,13 +39,8 @@ builder.Services.AddRefitClient<IProductTemplateApi>().ConfigureHttpClient(c => 
 builder.Services.AddRefitClient<IProductApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 builder.Services.AddRefitClient<IProductPriceApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 
-// Register for internal service
-builder.Services.AddScoped<IMenuService, MenuService>();
-
-// Register for app
-builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddBlazoredToast();
-builder.Services.AddBlazorTable();
-builder.Services.AddSweetAlert2();
+// System Service
+builder.Services.AddScoped<AppSettingsService>();
+builder.Services.AddScoped<MenuService>();
 
 await builder.Build().RunAsync();

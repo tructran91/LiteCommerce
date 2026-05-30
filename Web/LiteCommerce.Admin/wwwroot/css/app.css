@@ -1,35 +1,287 @@
-﻿.float-right {
-    float: right;
+/* =============================================
+   CommerceAdmin - Custom Styles
+   ============================================= */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ---- Global ---- */
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
-.form-control.invalid {
-    border-color: var(--bs-form-invalid-border-color);
-    padding-right: calc(1.5em + 16px);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23fa896b'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23fa896b' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(.375em + 4px) center;
-    background-size: calc(.75em + 8px) calc(.75em + 8px)
+body {
+    margin: 0;
+    padding: 0;
 }
 
-.validation-message {
-    width: 100%;
-    margin-top: .25rem;
-    font-size: .875em;
-    color: var(--bs-form-invalid-color);
+/* ---- AppBar ---- */
+.commerce-appbar.mud-appbar {
+    border-bottom: 1px solid var(--mud-palette-divider) !important;
+    box-shadow: none !important;
 }
 
-.select2-results__options {
-    max-height: 380px !important;
+.commerce-appbar-horizontal.mud-appbar {
+    border-bottom: 1px solid var(--mud-palette-divider) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
 }
 
-#short-description-editor .ql-editor {
-    min-height: 80px;
-    max-height: 150px;
-    overflow-y: auto;
+.brand-text {
+    background: linear-gradient(135deg, var(--mud-palette-primary), var(--mud-palette-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    white-space: nowrap;
 }
 
-#description-editor .ql-editor {
-    min-height: 150px;
-    max-height: 200px;
-    overflow-y: auto;
+/* ---- Drawer / Sidebar ---- */
+.commerce-drawer .mud-drawer-content {
+    background-color: var(--mud-palette-drawer-background) !important;
+    border-right: 1px solid var(--mud-palette-divider) !important;
+}
+
+.drawer-header {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+}
+
+/* ---- Navigation ---- */
+.nav-menu .mud-nav-link {
+    border-radius: 10px !important;
+    margin: 2px 0 !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+    .nav-menu .mud-nav-link:hover {
+        background-color: var(--mud-palette-primary) !important;
+        color: white !important;
+        opacity: 0.85;
+    }
+
+    .nav-menu .mud-nav-link.active {
+        background-color: var(--mud-palette-primary) !important;
+        color: white !important;
+        font-weight: 600 !important;
+    }
+
+        .nav-menu .mud-nav-link.active .mud-icon-root {
+            color: white !important;
+        }
+
+.nav-section-label {
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+/* ---- Main Content ---- */
+.main-content {
+    transition: margin-left 0.3s ease;
+}
+
+.main-content-horizontal {
+    padding-top: 0;
+}
+
+/* ---- Dashboard Cards ---- */
+.dashboard-card {
+    border-radius: 12px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+    }
+
+.stat-card {
+    border-radius: 12px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+    }
+
+/* ---- Settings Drawer ---- */
+.settings-drawer .mud-drawer-content {
+    border-left: 1px solid var(--mud-palette-divider) !important;
+}
+
+.settings-section-title {
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+}
+
+/* Color Swatches */
+.color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 2px solid transparent;
+}
+
+    .color-swatch:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+.color-swatch--active {
+    border: 2px solid white !important;
+    box-shadow: 0 0 0 2px var(--mud-palette-primary), 0 4px 12px rgba(0,0,0,0.2) !important;
+    transform: scale(1.1);
+}
+
+/* Color Picker Input */
+.color-picker-input {
+    width: 36px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+    background: none;
+}
+
+/* Layout Preview */
+.layout-option {
+    border-radius: 10px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer;
+}
+
+.layout-option--active {
+    border: 2px solid var(--mud-palette-primary) !important;
+    background-color: rgba(var(--mud-palette-primary-rgb), 0.06) !important;
+}
+
+.layout-preview {
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--mud-palette-lines-default);
+    display: flex;
+}
+
+.layout-preview--vertical {
+    flex-direction: row;
+}
+
+    .layout-preview--vertical .lp-sidebar {
+        width: 30%;
+        background: var(--mud-palette-primary);
+        opacity: 0.7;
+    }
+
+    .layout-preview--vertical .lp-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 4px;
+    }
+
+    .layout-preview--vertical .lp-bar {
+        height: 10px;
+        background: var(--mud-palette-action-disabled);
+        border-radius: 3px;
+    }
+
+    .layout-preview--vertical .lp-content {
+        flex: 1;
+        background: var(--mud-palette-action-disabled);
+        opacity: 0.4;
+        border-radius: 3px;
+    }
+
+.layout-preview--horizontal {
+    flex-direction: column;
+}
+
+    .layout-preview--horizontal .lp-topbar {
+        height: 14px;
+        background: var(--mud-palette-primary);
+        opacity: 0.7;
+    }
+
+    .layout-preview--horizontal .lp-content-full {
+        flex: 1;
+        background: var(--mud-palette-action-disabled);
+        opacity: 0.3;
+        margin: 4px;
+        border-radius: 3px;
+    }
+
+/* Horizontal Nav buttons */
+.nav-h-btn {
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+
+
+/* Ensure MudMenu popover appears above AppBar */
+.mud-popover-provider {
+    position: relative;
+    z-index: 9999 !important;
+}
+
+.mud-popover {
+    z-index: 9999 !important;
+}
+
+/* Fix for AppBar overflow issues */
+.commerce-appbar.mud-appbar,
+.commerce-appbar-horizontal.mud-appbar {
+    overflow: visible !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--mud-palette-divider);
+    border-radius: 3px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--mud-palette-action-disabled);
+    }
+
+/* Animations toggle */
+.no-animations * {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .appbar-search {
+        display: none !important;
+    }
 }

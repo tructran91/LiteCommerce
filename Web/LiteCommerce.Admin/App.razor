@@ -1,12 +1,16 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(LiteCommerce.Admin.Layout.MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+        <PageTitle>Không tìm thấy trang</PageTitle>
+        <LayoutView Layout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
+            <MudContainer Class="mt-8 text-center">
+                <MudText Typo="Typo.h1" Color="Color.Primary" Class="font-weight-bold">404</MudText>
+                <MudText Typo="Typo.h5" Class="mb-4">Trang không tồn tại</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Về trang chủ</MudButton>
+            </MudContainer>
         </LayoutView>
     </NotFound>
 </Router>

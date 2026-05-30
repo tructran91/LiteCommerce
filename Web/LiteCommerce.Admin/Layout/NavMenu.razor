@@ -1,0 +1,62 @@
+﻿@using LiteCommerce.Admin.Enums
+@using LiteCommerce.Admin.Models.Application
+@using MudBlazor
+@inject MenuService MenuService
+
+<MudNavMenu Class="nav-menu pa-2">
+    @foreach (var item in menuItems)
+    {
+        @if (item.Type == MenuItemType.Section)
+        {
+            @if (DrawerOpen)
+            {
+                <MudText Typo="Typo.overline" Class="nav-section-label px-4 pt-3 pb-1 mud-text-secondary">
+                    @item.Title
+                </MudText>
+            }
+            else
+            {
+                <MudDivider Class="my-2" />
+            }
+        }
+        else if (item.Type == MenuItemType.Group)
+        {
+            <MudNavGroup Title="@(DrawerOpen? item.Title: "")"
+                         Icon="@item.Icon"
+                         IconColor="@item.IconColor"
+                         HideExpandIcon="@(!DrawerOpen)"
+                         Expanded="@(DrawerOpen && item.ExpandByDefault)">
+                @if (DrawerOpen && item.Children.Any())
+                {
+                    @foreach (var child in item.Children)
+                    {
+                        <MudNavLink Href="@child.Href" Match="@child.Match">@child.Title</MudNavLink>
+                    }
+                }
+            </MudNavGroup>
+        }
+        else if (item.Type == MenuItemType.Link)
+        {
+            <MudNavLink Href="@item.Href" Match="@item.Match"
+                        Icon="@item.Icon"
+                        IconColor="@item.IconColor">
+                @if (DrawerOpen)
+                {
+                    <span>@item.Title</span>
+                }
+            </MudNavLink>
+        }
+    }
+</MudNavMenu>
+
+@code {
+    [Parameter] public bool DrawerOpen { get; set; } = true;
+    
+    private List<MenuItem> menuItems = new();
+
+    protected override void OnInitialized()
+    {
+        // Gọi Service lấy dữ liệu menu khi component khởi tạo
+        menuItems = MenuService.GetMenuItems();
+    }
+}

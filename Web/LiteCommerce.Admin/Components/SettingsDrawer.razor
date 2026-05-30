@@ -1,0 +1,362 @@
+﻿@using LiteCommerce.Admin.Models
+@using LiteCommerce.Admin.Models.Application
+@using LiteCommerce.Admin.Services
+@inject AppSettingsService SettingsService
+@inject ISnackbar Snackbar
+
+<!-- Settings Overlay Drawer -->
+<MudDrawer @bind-Open="_open"
+           Anchor="Anchor.Right"
+           Variant="DrawerVariant.Temporary"
+           Elevation="4"
+           Width="340px"
+           Class="settings-drawer">
+
+    <MudDrawerHeader Class="pa-4 d-flex align-center justify-space-between">
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@Icons.Material.Filled.Tune" Color="Color.Primary" />
+            <MudText Typo="Typo.h6" Class="font-weight-bold">Cài đặt giao diện</MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close" Size="Size.Small" />
+    </MudDrawerHeader>
+
+    <MudDivider />
+
+    <div class="settings-content pa-4" style="overflow-y:auto; height:calc(100vh - 65px)">
+
+        <!-- ===== THEME MODE ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.Brightness4" Size="Size.Small" Class="mr-1" />
+                Chế độ màu
+            </MudText>
+
+            <div class="d-flex gap-2">
+                <MudButton Variant="@(!SettingsService.Settings.IsDarkMode ? Variant.Filled : Variant.Outlined)"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.LightMode"
+                           OnClick="() => SetDarkMode(false)"
+                           FullWidth="true"
+                           Size="Size.Medium">
+                    Sáng
+                </MudButton>
+                <MudButton Variant="@(SettingsService.Settings.IsDarkMode? Variant.Filled: Variant.Outlined)"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.DarkMode"
+                           OnClick="() => SetDarkMode(true)"
+                           FullWidth="true"
+                           Size="Size.Medium">
+                    Tối
+                </MudButton>
+            </div>
+        </div>
+
+        <MudDivider Class="mb-4" />
+
+        <!-- ===== LAYOUT DIRECTION ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.ViewSidebar" Size="Size.Small" Class="mr-1" />
+                Kiểu layout
+            </MudText>
+
+            <div class="d-flex gap-2">
+                <MudPaper @onclick="() => SetLayout(LayoutDirection.Vertical)"
+                          Elevation="@(SettingsService.Settings.LayoutDirection == LayoutDirection.Vertical ? 4 : 1)"
+                          Class="@("layout-option pa-3 flex-1 cursor-pointer " + (SettingsService.Settings.LayoutDirection == LayoutDirection.Vertical ? "layout-option--active" : ""))"
+                          Style="cursor:pointer">
+                    <div class="layout-preview layout-preview--vertical mb-2">
+                        <div class="lp-sidebar"></div>
+                        <div class="lp-main">
+                            <div class="lp-bar"></div>
+                            <div class="lp-content"></div>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.caption" Align="Align.Center">Dọc (Sidebar)</MudText>
+                </MudPaper>
+
+                <MudPaper @onclick="() => SetLayout(LayoutDirection.Horizontal)"
+                          Elevation="@(SettingsService.Settings.LayoutDirection == LayoutDirection.Horizontal ? 4 : 1)"
+                          Class="@("layout-option pa-3 flex-1 cursor-pointer " + (SettingsService.Settings.LayoutDirection == LayoutDirection.Horizontal ? "layout-option--active" : ""))"
+                          Style="cursor:pointer">
+                    <div class="layout-preview layout-preview--horizontal mb-2">
+                        <div class="lp-topbar"></div>
+                        <div class="lp-content-full"></div>
+                    </div>
+                    <MudText Typo="Typo.caption" Align="Align.Center">Ngang (Top Nav)</MudText>
+                </MudPaper>
+            </div>
+        </div>
+
+        <MudDivider Class="mb-4" />
+
+        <!-- ===== PRIMARY COLOR ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.Palette" Size="Size.Small" Class="mr-1" />
+                Màu chủ đạo (Primary)
+            </MudText>
+
+            <div class="color-swatches">
+                @foreach (var color in _primaryColors)
+                {
+                    <MudTooltip Text="@color.Name">
+                        <div class="color-swatch @(SettingsService.Settings.PrimaryColor == color.Value ? "color-swatch--active" : "")"
+                             style="background-color:@color.Value"
+                             @onclick="() => SetPrimaryColor(color.Value)">
+                            @if (SettingsService.Settings.PrimaryColor == color.Value)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Size="Size.Small" Style="color:white" />
+                            }
+                        </div>
+                    </MudTooltip>
+                }
+            </div>
+
+            <div class="mt-2 d-flex align-center gap-2">
+                <MudText Typo="Typo.caption">Custom:</MudText>
+                <input type="color"
+                       value="@SettingsService.Settings.PrimaryColor"
+                       @onchange="OnPrimaryColorChange"
+                       class="color-picker-input" />
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">@SettingsService.Settings.PrimaryColor</MudText>
+            </div>
+        </div>
+
+        <!-- ===== SECONDARY COLOR ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.ColorLens" Size="Size.Small" Class="mr-1" />
+                Màu phụ (Secondary)
+            </MudText>
+
+            <div class="color-swatches">
+                @foreach (var color in _secondaryColors)
+                {
+                    <MudTooltip Text="@color.Name">
+                        <div class="color-swatch @(SettingsService.Settings.SecondaryColor == color.Value ? "color-swatch--active" : "")"
+                             style="background-color:@color.Value"
+                             @onclick="() => SetSecondaryColor(color.Value)">
+                            @if (SettingsService.Settings.SecondaryColor == color.Value)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Size="Size.Small" Style="color:white" />
+                            }
+                        </div>
+                    </MudTooltip>
+                }
+            </div>
+        </div>
+
+        <MudDivider Class="mb-4" />
+
+        <!-- ===== FONT FAMILY ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.TextFields" Size="Size.Small" Class="mr-1" />
+                Font chữ
+            </MudText>
+
+            <MudSelect Value="@SettingsService.Settings.FontFamily"
+                       ValueChanged="@((string v) => SetFont(v))"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       Dense="true">
+                @foreach (var font in _fonts)
+                {
+                    <MudSelectItem Value="@font.Value">
+                        <span style="font-family:'@font.Value', sans-serif">@font.Name</span>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <!-- ===== BORDER RADIUS ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-2">
+                <MudIcon Icon="@Icons.Material.Filled.RoundedCorner" Size="Size.Small" Class="mr-1" />
+                Bo góc: @((int)SettingsService.Settings.BorderRadius)px
+            </MudText>
+
+            <MudSlider T="double"
+                       Value="@_borderRadius"
+                       Min="0" Max="20" Step="2"
+                       Color="Color.Primary"
+                       ValueLabel="true"
+                       Immediate="false"
+                       ValueChanged="@((double v) => SetBorderRadius(v))" />
+
+            <div class="d-flex gap-2 mt-2">
+                @foreach (var r in new[] { 0, 4, 8, 12, 16 })
+                {
+                    <MudButton Size="Size.Small"
+                               Variant="@((int)SettingsService.Settings.BorderRadius == r ? Variant.Filled : Variant.Outlined)"
+                               Color="Color.Primary"
+                               OnClick="() => SetBorderRadius(r)"
+                               Style="min-width:42px; padding:2px 6px">
+                        @r
+                    </MudButton>
+                }
+            </div>
+        </div>
+
+        <MudDivider Class="mb-4" />
+
+        <!-- ===== ANIMATIONS ===== -->
+        <div class="settings-section mb-5">
+            <div class="d-flex align-center justify-space-between">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Class="settings-section-title">
+                        <MudIcon Icon="@Icons.Material.Filled.Animation" Size="Size.Small" Class="mr-1" />
+                        Hiệu ứng chuyển động
+                    </MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Bật/tắt animation toàn hệ thống</MudText>
+                </div>
+                <MudSwitch T="bool"
+                           Value="@_animations"
+                           Color="Color.Primary"
+                           ValueChanged="@((bool v) => SetAnimations(v))" />
+            </div>
+        </div>
+
+        <MudDivider Class="mb-4" />
+
+        <!-- ===== RESET ===== -->
+        <div class="settings-section">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Error"
+                       StartIcon="@Icons.Material.Filled.RestartAlt"
+                       FullWidth="true"
+                       OnClick="ResetSettings">
+                Khôi phục mặc định
+            </MudButton>
+        </div>
+
+    </div>
+</MudDrawer>
+
+@code {
+    private bool _open = false;
+    private double _borderRadius;
+    private bool _animations;
+
+    private record ColorOption(string Name, string Value);
+    private record FontOption(string Name, string Value);
+
+    private readonly List<ColorOption> _primaryColors = new()
+    {
+        new("Indigo", "#594AE2"),
+        new("Blue", "#2196F3"),
+        new("Cyan", "#00BCD4"),
+        new("Teal", "#009688"),
+        new("Green", "#4CAF50"),
+        new("Orange", "#FF9800"),
+        new("Red", "#F44336"),
+        new("Pink", "#E91E63"),
+        new("Purple", "#9C27B0"),
+        new("Deep Purple", "#673AB7"),
+        new("Brown", "#795548"),
+        new("Blue Grey", "#607D8B"),
+    };
+
+    private readonly List<ColorOption> _secondaryColors = new()
+    {
+        new("Pink", "#FF4081"),
+        new("Red", "#FF5252"),
+        new("Orange", "#FF6D00"),
+        new("Amber", "#FFD740"),
+        new("Green", "#69F0AE"),
+        new("Teal", "#64FFDA"),
+        new("Cyan", "#18FFFF"),
+        new("Blue", "#448AFF"),
+        new("Purple", "#E040FB"),
+    };
+
+    private readonly List<FontOption> _fonts = new()
+    {
+        new("Nunito (Mặc định)", "Nunito"),
+        new("Inter", "Inter"),
+        new("Roboto", "Roboto"),
+        new("Poppins", "Poppins"),
+        new("Be Vietnam Pro", "Be Vietnam Pro"),
+        new("Source Sans 3", "Source Sans 3"),
+        new("DM Sans", "DM Sans"),
+        new("Outfit", "Outfit"),
+    };
+
+    protected override void OnInitialized()
+    {
+        _borderRadius = SettingsService.Settings.BorderRadius;
+        _animations = SettingsService.Settings.EnableAnimations;
+    }
+
+    public void Open()
+    {
+        _open = true;
+        _borderRadius = SettingsService.Settings.BorderRadius;
+        _animations = SettingsService.Settings.EnableAnimations;
+        StateHasChanged();
+    }
+
+    private void Close() => _open = false;
+
+    private async Task SetDarkMode(bool dark)
+    {
+        await SettingsService.UpdateSettingAsync(s => s.IsDarkMode = dark);
+    }
+
+    private async Task SetLayout(LayoutDirection direction)
+    {
+        await SettingsService.UpdateSettingAsync(s => s.LayoutDirection = direction);
+    }
+
+    private async Task SetPrimaryColor(string color)
+    {
+        await SettingsService.UpdateSettingAsync(s => s.PrimaryColor = color);
+    }
+
+    private async Task SetSecondaryColor(string color)
+    {
+        await SettingsService.UpdateSettingAsync(s => s.SecondaryColor = color);
+    }
+
+    private async Task OnPrimaryColorChange(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(val))
+            await SetPrimaryColor(val);
+    }
+
+    private async Task SetFont(string font)
+    {
+        await SettingsService.UpdateSettingAsync(s => s.FontFamily = font);
+    }
+
+    private async Task SetBorderRadius(double radius)
+    {
+        _borderRadius = radius;
+        await SettingsService.UpdateSettingAsync(s => s.BorderRadius = radius);
+    }
+
+    private async Task SetAnimations(bool value)
+    {
+        _animations = value;
+        await SettingsService.UpdateSettingAsync(s => s.EnableAnimations = value);
+    }
+
+    private async Task ResetSettings()
+    {
+        await SettingsService.UpdateSettingAsync(s =>
+        {
+            s.IsDarkMode = false;
+            s.PrimaryColor = "#594AE2";
+            s.SecondaryColor = "#FF4081";
+            s.LayoutDirection = LayoutDirection.Vertical;
+            s.FontFamily = "Nunito";
+            s.BorderRadius = 8;
+            s.EnableAnimations = true;
+        });
+        _borderRadius = 8;
+        _animations = true;
+        Snackbar.Add("Đã khôi phục cài đặt mặc định!", Severity.Success);
+    }
+}

@@ -1,0 +1,36 @@
+﻿@using MudBlazor
+
+<MudPaper Elevation="0" Class="stat-card pa-4" Style="border:1px solid var(--mud-palette-divider)">
+    <div class="d-flex align-center justify-space-between mb-3">
+        <MudText Typo="Typo.body2" Class="mud-text-secondary font-weight-medium">@Title</MudText>
+        <MudAvatar Color="@Color" Variant="Variant.Filled" Size="Size.Medium" Style="@($"background:var(--mud-palette-{ColorName.ToLower()});opacity:0.15; border-radius: 10px")">
+            <MudIcon Icon="@Icon" Color="@Color" />
+        </MudAvatar>
+    </div>
+
+    <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@Value</MudText>
+
+    <div class="d-flex align-center gap-1">
+        <MudIcon Icon="@(ChangePositive? Icons.Material.Filled.TrendingUp : Icons.Material.Filled.TrendingDown)"
+                 Size="Size.Small"
+                 Color="@(ChangePositive ? Color.Success : Color.Error)" />
+        <MudText Typo="Typo.caption"
+                 Color="@(ChangePositive ? Color.Success : Color.Error)"
+                 Class="font-weight-bold">
+            @Change
+        </MudText>
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">@SubText</MudText>
+    </div>
+</MudPaper>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string Change { get; set; } = "";
+    [Parameter] public bool ChangePositive { get; set; } = true;
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Info;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public string SubText { get; set; } = "";
+
+    private string ColorName => Color.ToString();
+}
