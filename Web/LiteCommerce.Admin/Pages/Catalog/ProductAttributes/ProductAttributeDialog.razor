@@ -1,12 +1,13 @@
 @using MudBlazor
+@using LiteCommerce.Admin.Models.Business.ProductAttributeGroup
 
 <MudDialog>
     <TitleContent>
         <div class="d-flex align-center gap-2">
-            <MudIcon Icon="@(IsEdit? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
+            <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
                      Color="Color.Primary" />
             <MudText Typo="Typo.h6">
-                @(IsEdit ? "Edit Option" : "Add New Option")
+                @(IsEdit ? "Edit Attribute" : "Add New Attribute")
             </MudText>
         </div>
     </TitleContent>
@@ -15,11 +16,11 @@
         <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
             <MudTextField T="string"
                           @bind-Value="_name"
-                          Label="Option Name"
+                          Label="Attribute Name"
                           Variant="Variant.Outlined"
                           Margin="Margin.Normal"
                           Required="true"
-                          RequiredError="Option name cannot be empty"
+                          RequiredError="Attribute name cannot be empty"
                           MaxLength="100"
                           Counter="100"
                           Immediate="true"
@@ -27,6 +28,24 @@
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Label"
                           FullWidth="true" />
+
+            <MudSelect T="string"
+                       @bind-Value="_groupId"
+                       Label="Attribute Group"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Required="true"
+                       RequiredError="Please select a group"
+                       Placeholder="Select a group"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Category"
+                       FullWidth="true">
+                @foreach (var group in Groups)
+                {
+                    <MudSelectItem Value="@group.Id">@group.Name</MudSelectItem>
+                }
+            </MudSelect>
+
         </MudForm>
     </DialogContent>
 
@@ -50,17 +69,21 @@
 
     [Parameter] public string? InitialId { get; set; } = null;
     [Parameter] public string InitialName { get; set; } = "";
+    [Parameter] public string InitialGroupId { get; set; } = "";
+    [Parameter] public List<ProductAttributeGroupResponse> Groups { get; set; } = new();
     [Parameter] public bool IsEdit { get; set; } = false;
 
     private MudForm _form = null!;
     private bool _formValid;
     private string? _id = null;
     private string _name = "";
+    private string _groupId = "";
 
     protected override void OnInitialized()
     {
         _id = InitialId;
         _name = InitialName;
+        _groupId = InitialGroupId;
     }
 
     private void Cancel() => MudDialog.Cancel();
@@ -70,18 +93,20 @@
         await _form.Validate();
         if (!_formValid) return;
 
-        MudDialog.Close(DialogResult.Ok(new ProductOptionDialogResult
+        MudDialog.Close(DialogResult.Ok(new ProductAttributeDialogResult
         {
             Id = _id,
             Name = _name.Trim(),
+            GroupId = _groupId,
             IsEdit = IsEdit
         }));
     }
 
-    public class ProductOptionDialogResult
+    public class ProductAttributeDialogResult
     {
         public string? Id { get; set; }
         public string Name { get; set; } = "";
+        public string GroupId { get; set; } = "";
         public bool IsEdit { get; set; }
     }
 }

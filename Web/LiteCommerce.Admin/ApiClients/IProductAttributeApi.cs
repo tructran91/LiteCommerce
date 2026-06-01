@@ -1,5 +1,5 @@
 ﻿using LiteCommerce.Admin.Constants;
-using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
+using LiteCommerce.Admin.Models.Business.ProductAttribute;
 using LiteCommerce.Admin.Models.Common;
 using Refit;
 

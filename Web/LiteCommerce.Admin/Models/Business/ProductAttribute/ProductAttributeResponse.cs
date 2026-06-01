@@ -1,4 +1,4 @@
-﻿namespace LiteCommerce.Admin.Models.Business.ProductAttributeGroup
+﻿namespace LiteCommerce.Admin.Models.Business.ProductAttribute
 {
     public class ProductAttributeResponse
     {
