@@ -5,5 +5,6 @@
         public const string NoData = "No data found.";
         public const string AddDataSuccess = "Data was added successfully.";
         public const string UpdateDataSuccess = "Data was updated successfully.";
+        public const string ErrorOccurred = "An error occurred.";
     }
 }

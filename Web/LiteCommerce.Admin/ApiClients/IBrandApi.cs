@@ -8,16 +8,16 @@ namespace LiteCommerce.Admin.ApiClients
     public interface IBrandApi
     {
         [Get(ApiRoutes.Brand.GetAll)]
-        Task<BaseResponse<List<BrandModel>>> GetBrandsAsync(int currentPage, int pageSize);
+        Task<BaseResponse<List<BrandResponse>>> GetBrandsAsync(int currentPage, int pageSize);
 
         [Get(ApiRoutes.Brand.GetById)]
-        Task<BaseResponse<BrandModel>> GetBrandAsync(string id);
+        Task<BaseResponse<BrandResponse>> GetBrandAsync(string id);
 
         [Post(ApiRoutes.Brand.Create)]
-        Task<BaseResponse<BrandModel>> CreateBrandAsync([Body] BrandModel brand);
+        Task<BaseResponse<BrandResponse>> CreateBrandAsync([Body] BrandFormModel brand);
 
         [Put(ApiRoutes.Brand.Update)]
-        Task<BaseResponse<BrandModel>> UpdateBrandAsync([Body] BrandModel brand);
+        Task<BaseResponse<BrandResponse>> UpdateBrandAsync([Body] BrandFormModel brand);
 
         [Delete(ApiRoutes.Brand.Delete)]
         Task<BaseResponse<bool>> DeleteBrandAsync(string id);

@@ -1,0 +1,112 @@
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
+                     Color="Color.Primary" />
+            <MudText Typo="Typo.h6">
+                @(IsEdit ? "Edit Brand" : "Add New Brand")
+            </MudText>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
+            <MudTextField T="string"
+                          @bind-Value="_name"
+                          Label="Brand Name"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Normal"
+                          Required="true"
+                          RequiredError="Brand name cannot be empty"
+                          MaxLength="100"
+                          Counter="100"
+                          Immediate="true"
+                          Placeholder="Ex: Apple, Samsung, Nike, Adidas..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Label"
+                          FullWidth="true" />
+
+            <div class="mt-4 mb-2">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">Trạng thái xuất bản</MudText>
+                <MudPaper Elevation="0" Class="pa-3 rounded-lg d-flex align-center justify-space-between"
+                          Style="border:1px solid var(--mud-palette-divider)">
+                    <div>
+                        <MudText Typo="Typo.body2" Class="font-weight-medium">
+                            @(_isPublished ? "Đang xuất bản" : "Chưa xuất bản")
+                        </MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @(_isPublished
+                                ? "The brand will be visible in the store"
+                                : "The brand will be hidden from the store")
+                        </MudText>
+                    </div>
+                    <MudSwitch T="bool"
+                               @bind-Value="_isPublished"
+                               Color="Color.Success" />
+                </MudPaper>
+            </div>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined"
+                   OnClick="Cancel"
+                   StartIcon="@Icons.Material.Filled.Close">
+            Hủy
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Submit"
+                   StartIcon="@Icons.Material.Filled.Save">
+            @(IsEdit ? "Save Changes" : "Add New")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter] public string? InitialId { get; set; } = null;
+    [Parameter] public string InitialName { get; set; } = "";
+    [Parameter] public bool InitialIsPublished { get; set; } = true;
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    private MudForm _form = null!;
+    private bool _formValid;
+    private string? _id = null;
+    private string _name = "";
+    private bool _isPublished = true;
+
+    protected override void OnInitialized()
+    {
+        _id = InitialId;
+        _name = InitialName;
+        _isPublished = InitialIsPublished;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (!_formValid) return;
+
+        MudDialog.Close(DialogResult.Ok(new BrandDialogResult
+        {
+            Id = _id,
+            Name = _name.Trim(),
+            IsPublished = _isPublished,
+            IsEdit = IsEdit
+        }));
+    }
+
+    public class BrandDialogResult
+    {
+        public string? Id { get; set; }
+        public string Name { get; set; } = "";
+        public bool IsPublished { get; set; }
+        public bool IsEdit { get; set; }
+    }
+}
