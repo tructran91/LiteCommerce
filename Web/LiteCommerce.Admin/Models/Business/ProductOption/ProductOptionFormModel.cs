@@ -6,7 +6,6 @@ namespace LiteCommerce.Admin.Models.Business.ProductOption
     {
         public string? Id { get; set; }
 
-        [Required]
         public string Name { get; set; }
     }
 }
