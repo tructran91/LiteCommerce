@@ -1,0 +1,88 @@
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
+                     Color="Color.Primary" />
+            <MudText Typo="Typo.h6">
+                @(IsEdit ? "Edit Attribute Group" : "Add New Attribute Group")
+            </MudText>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
+            <MudTextField T="string"
+                          @bind-Value="_name"
+                          Label="Attribute Group Name"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Normal"
+                          Required="true"
+                          RequiredError="Attribute group name cannot be empty"
+                          MaxLength="100"
+                          Counter="100"
+                          Immediate="true"
+                          Placeholder="Ex: Specifications, Features, Dimensions..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Label"
+                          FullWidth="true" />
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined"
+                   OnClick="Cancel"
+                   StartIcon="@Icons.Material.Filled.Close">
+            Hủy
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Submit"
+                   StartIcon="@Icons.Material.Filled.Save">
+            @(IsEdit ? "Save Changes" : "Add New")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter] public string? InitialId { get; set; } = null;
+    [Parameter] public string InitialName { get; set; } = "";
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    private MudForm _form = null!;
+    private bool _formValid;
+    private string? _id = null;
+    private string _name = "";
+    private bool _isPublished = true;
+
+    protected override void OnInitialized()
+    {
+        _id = InitialId;
+        _name = InitialName;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (!_formValid) return;
+
+        MudDialog.Close(DialogResult.Ok(new ProductAttributeGroupDialogResult
+        {
+            Id = _id,
+            Name = _name.Trim(),
+            IsEdit = IsEdit
+        }));
+    }
+
+    public class ProductAttributeGroupDialogResult
+    {
+        public string? Id { get; set; }
+        public string Name { get; set; } = "";
+        public bool IsEdit { get; set; }
+    }
+}
