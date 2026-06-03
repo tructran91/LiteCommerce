@@ -74,11 +74,8 @@ namespace Catalog.Application.ProductPrices.Handlers
                     SpecialPriceEnd = product.SpecialPriceEnd
                 };
 
-                if (item.NewOldPrice.HasValue)
-                {
-                    product.OldPrice = item.NewOldPrice.Value;
-                    productPriceHistory.OldPrice = item.NewOldPrice.Value;
-                }
+                product.OldPrice = item.NewOldPrice;
+                productPriceHistory.OldPrice = item.NewOldPrice;
 
                 if (item.NewPrice.HasValue)
                 {
