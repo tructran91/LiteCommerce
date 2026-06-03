@@ -1,0 +1,152 @@
+@using MudBlazor
+@using LiteCommerce.Admin.Models.Business.ProductAttribute
+@using LiteCommerce.Admin.Models.Business.ProductTemplate
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
+                     Color="Color.Primary" />
+            <MudText Typo="Typo.h6">
+                @(IsEdit ? "Edit Template" : "Add New Template")
+            </MudText>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
+            <MudTextField @bind-Value="_name"
+                          Label="Template Name"
+                          Required="true"
+                          RequiredError="Template name cannot be empty"
+                          MaxLength="100"
+                          Counter="100"
+                          Immediate="true"
+                          Placeholder="Ex: Mobile, Tablet..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Label" />
+
+            <MudSelect T="string"
+                       MultiSelection="true"
+                       @bind-SelectedValues="_selectedAttributeIds"
+                       MultiSelectionTextFunc="@(ids => string.Join(", ", ids.Select(id => AllAttributes.FirstOrDefault(a => a.Id == id)?.Name ?? id)))"
+                       Label="Attributes"
+                       Placeholder="Select attributes..."
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Category">
+                @foreach (var group in _groupedAttributes)
+                {
+                    <MudSelectItem Disabled="true" Value="@string.Empty">
+                        <MudText Typo="Typo.subtitle2" Class="font-weight-bold mud-text-secondary pl-2">
+                            @group.GroupName
+                        </MudText>
+                    </MudSelectItem>
+                    @foreach (var attr in group.Attributes)
+                    {
+                        <MudSelectItem T="string" Value="@attr.Id">
+                            <div class="pl-4">@attr.Name</div>
+                        </MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined"
+                   OnClick="Cancel"
+                   StartIcon="@Icons.Material.Filled.Close">
+            Hủy
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Submit"
+                   StartIcon="@Icons.Material.Filled.Save">
+            @(IsEdit ? "Save Changes" : "Add New")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter] public string? InitialId { get; set; } = null;
+    [Parameter] public string InitialName { get; set; } = "";
+    [Parameter] public List<ProductAttributeResponse> AllAttributes { get; set; } = new();
+    [Parameter] public List<ProductAttributeItem>? InitialSelectedAttributes { get; set; } = null;
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    private MudForm _form = null!;
+    private bool _formValid;
+    private string? _id = null;
+    private string _name = "";
+    private IReadOnlyCollection<string> _selectedAttributeIds = new HashSet<string>();
+    private List<AttributeGroup> _groupedAttributes = new();
+
+    protected override void OnInitialized()
+    {
+        _id = InitialId;
+        _name = InitialName;
+
+        // Group attributes by GroupName
+        _groupedAttributes = AllAttributes
+            .GroupBy(x => new { x.GroupId, x.GroupName })
+            .Select(g => new AttributeGroup
+            {
+                GroupId = g.Key.GroupId,
+                GroupName = g.Key.GroupName,
+                Attributes = g.ToList()
+            })
+            .OrderBy(g => g.GroupName)
+            .ToList();
+
+        // Set initial selected attributes
+        if (InitialSelectedAttributes != null && InitialSelectedAttributes.Any())
+        {
+            _selectedAttributeIds = InitialSelectedAttributes.Select(x => x.Id).ToHashSet();
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (!_formValid) return;
+
+        var selectedAttributes = _selectedAttributeIds
+            .Select(id =>
+            {
+                var attr = AllAttributes.FirstOrDefault(a => a.Id == id);
+                return attr != null
+                    ? new ProductAttributeItem { Id = id, Name = attr.Name }
+                    : null;
+            })
+            .Where(x => x != null)
+            .Cast<ProductAttributeItem>()
+            .ToList();
+
+        MudDialog.Close(DialogResult.Ok(new TemplateDialogResult
+        {
+            Id = _id,
+            Name = _name.Trim(),
+            ProductAttributes = selectedAttributes,
+            IsEdit = IsEdit
+        }));
+    }
+
+    public class TemplateDialogResult
+    {
+        public string? Id { get; set; }
+        public string Name { get; set; } = "";
+        public List<ProductAttributeItem> ProductAttributes { get; set; } = new();
+        public bool IsEdit { get; set; }
+    }
+
+    private class AttributeGroup
+    {
+        public string GroupId { get; set; } = "";
+        public string GroupName { get; set; } = "";
+        public List<ProductAttributeResponse> Attributes { get; set; } = new();
+    }
+}

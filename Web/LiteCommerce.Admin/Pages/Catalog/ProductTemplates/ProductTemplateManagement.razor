@@ -1,0 +1,120 @@
+@page "/product-templates"
+@using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Models.Business.ProductTemplate
+
+<PageTitle>Product Templates</PageTitle>
+
+<MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
+
+<!-- Page Header -->
+<div class="d-flex align-center justify-space-between mb-5">
+    <div>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Product Templates</MudText>
+    </div>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="@(() => OpenTemplateDialog(false))"
+               Disabled="_loading">
+        Add Template
+    </MudButton>
+</div>
+
+<!-- Error Banner -->
+@if (_errorMessage != null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
+        <strong>@SystemMessages.ErrorOccurred</strong> @_errorMessage
+        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                   OnClick="LoadData" Class="ml-2">
+            Try again
+        </MudButton>
+    </MudAlert>
+}
+
+<!-- Data Grid -->
+<MudPaper Elevation="0" Class="rounded-lg overflow-hidden" Style="border:1px solid var(--mud-palette-divider)">
+    <MudTable Items="@(_pagedResult?.Data ?? new())"
+              Hover="true"
+              Dense="false"
+              Elevation="0"
+              Loading="@_loading"
+              LoadingProgressColor="Color.Primary"
+              SortLabel="Sort by"
+              ServerData="ServerReload"
+              RowsPerPage="@_query.PageSize"
+              @ref="_table">
+
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortLabel="name" T="ProductTemplateResponse">Template Name</MudTableSortLabel>
+            </MudTh>
+            <MudTh Style="width:120px; text-align:center">Action</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Template Name">
+                <div class="d-flex align-center gap-3">
+                    <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small"
+                               Style="font-size:0.75rem; font-weight:700">
+                        @context.Name[0]
+                    </MudAvatar>
+                    <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Name</MudText>
+                </div>
+            </MudTd>
+            <MudTd Style="text-align:center">
+                <MudTooltip Text="Edit">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => OpenTemplateDialog(true, context))" />
+                </MudTooltip>
+                <MudTooltip Text="Delete">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="() => OpenDeleteConfirm(context)" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+
+        <NoRecordsContent>
+            <div class="pa-8 text-center">
+                <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3" Style="opacity:0.3" />
+                <MudText Typo="Typo.body1" Class="mud-text-secondary">@SystemMessages.NoData</MudText>
+            </div>
+        </NoRecordsContent>
+
+        <PagerContent>
+            <div class="d-flex align-center justify-space-between px-4 py-2 flex-wrap gap-2">
+                <div class="d-flex align-center gap-2">
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Hiển thị:</MudText>
+                    <MudSelect T="int"
+                               Value="_query.PageSize"
+                               ValueChanged="OnPageSizeChanged"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Dense="true"
+                               Style="width:80px">
+                        <MudSelectItem Value="5">5</MudSelectItem>
+                        <MudSelectItem Value="10">10</MudSelectItem>
+                        <MudSelectItem Value="20">20</MudSelectItem>
+                        <MudSelectItem Value="50">50</MudSelectItem>
+                        <MudSelectItem Value="100">100</MudSelectItem>
+                    </MudSelect>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                        / @(_pagedResult?.Pagination?.TotalRecords ?? 0) items
+                    </MudText>
+                </div>
+                <MudPagination Count="@(_pagedResult?.Pagination?.TotalPages ?? 1)"
+                               Selected="_query.Page"
+                               SelectedChanged="OnPageChanged"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               ShowFirstButton="true"
+                               ShowLastButton="true" />
+            </div>
+        </PagerContent>
+    </MudTable>
+</MudPaper>
