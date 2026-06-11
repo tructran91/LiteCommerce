@@ -29,7 +29,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductOptions
         };
 
         private MudTable<ProductOptionResponse> _table = null!;
-        private BaseResponse<List<ProductOptionResponse>>? _pagedResult;
+        private List<ProductOptionResponse> _allOptions = new();
         private bool _loading = false;
         private string? _errorMessage;
         private ProductOptionQuery _query = new();
@@ -42,15 +42,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductOptions
             BackdropClick = false,
         };
 
-        private async Task<TableData<ProductOptionResponse>> ServerReload(TableState state, CancellationToken ct)
+        protected override async Task OnInitializedAsync()
         {
             await LoadData();
-
-            return new TableData<ProductOptionResponse>
-            {
-                Items = _pagedResult?.Data ?? new(),
-                TotalItems = _pagedResult?.Pagination.TotalRecords ?? 0,
-            };
         }
 
         private async Task LoadData()
@@ -58,34 +52,36 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductOptions
             _loading = true;
             _errorMessage = null;
 
-            var result = await ProductOptionApi.GetProductOptionsAsync(_query.Page, _query.PageSize);
-            if (result.IsSuccess)
+            try
             {
-                _pagedResult = result;
+                var result = await ProductOptionApi.GetProductOptionsAsync(_query.Page, _query.PageSize);
+                if (result.IsSuccess)
+                {
+                    _allOptions = result.Data ?? new();
+                }
+                else
+                {
+                    var errorDetails = result.Errors != null && result.Errors.Any()
+                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
+                        : result.Message ?? SystemMessages.ErrorOccurred;
+
+                    _errorMessage = errorDetails;
+                    Snackbar.Add(errorDetails, Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _errorMessage = result.Message;
-                Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                _errorMessage = ex.Message;
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
             _loading = false;
             StateHasChanged();
         }
 
-        private async Task ReloadTable() => await _table.ReloadServerData();
-
-        private async Task OnPageChanged(int page)
+        private void OnSortChanged(SortDirection direction)
         {
-            _query.Page = page;
-            await ReloadTable();
-        }
-
-        private async Task OnPageSizeChanged(int size)
-        {
-            _query.PageSize = size;
-            _query.Page = 1;
-            await ReloadTable();
+            _table.NavigateTo(Page.First);
         }
 
         private async Task OpenOptionDialog(bool isEdit, ProductOptionResponse? option = null)
@@ -129,7 +125,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductOptions
                 Snackbar.Add(msg, Severity.Error);
             }
 
-            await ReloadTable();
+            await LoadData();
             _loading = false;
             StateHasChanged();
         }
@@ -142,7 +138,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductOptions
                 option.Id,
                 option.Name,
                 ProductOptionApi.DeleteProductOptionAsync,
-                ReloadTable
+                async () => await LoadData()
             );
 
             _loading = false;

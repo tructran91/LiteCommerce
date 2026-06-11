@@ -33,7 +33,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
         };
 
         private MudTable<ProductTemplateResponse> _table = null!;
-        private BaseResponse<List<ProductTemplateResponse>>? _pagedResult;
+        private List<ProductTemplateResponse> _allTemplates = new();
         private List<ProductAttributeResponse> _productAttributes = new();
         private bool _loading = false;
         private string? _errorMessage;
@@ -51,6 +51,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
         {
             await base.OnInitializedAsync();
             await LoadProductAttributes();
+            await LoadData();
         }
 
         private async Task LoadProductAttributes()
@@ -62,50 +63,41 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
             }
         }
 
-        private async Task<TableData<ProductTemplateResponse>> ServerReload(TableState state, CancellationToken ct)
-        {
-            await LoadData();
-
-            return new TableData<ProductTemplateResponse>
-            {
-                Items = _pagedResult?.Data ?? new(),
-                TotalItems = _pagedResult?.Pagination.TotalRecords ?? 0,
-            };
-        }
-
         private async Task LoadData()
         {
             _loading = true;
             _errorMessage = null;
 
-            var result = await ProductTemplateApi.GetProductTemplatesAsync(_query.Page, _query.PageSize);
-            if (result.IsSuccess)
+            try
             {
-                _pagedResult = result;
+                var result = await ProductTemplateApi.GetProductTemplatesAsync(_query.Page, _query.PageSize);
+                if (result.IsSuccess)
+                {
+                    _allTemplates = result.Data ?? new();
+                }
+                else
+                {
+                    var errorDetails = result.Errors != null && result.Errors.Any()
+                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
+                        : result.Message ?? SystemMessages.ErrorOccurred;
+
+                    _errorMessage = errorDetails;
+                    Snackbar.Add(errorDetails, Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _errorMessage = result.Message;
-                Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                _errorMessage = ex.Message;
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
             _loading = false;
             StateHasChanged();
         }
 
-        private async Task ReloadTable() => await _table.ReloadServerData();
-
-        private async Task OnPageChanged(int page)
+        private void OnSortChanged(SortDirection direction)
         {
-            _query.Page = page;
-            await ReloadTable();
-        }
-
-        private async Task OnPageSizeChanged(int size)
-        {
-            _query.PageSize = size;
-            _query.Page = 1;
-            await ReloadTable();
+            _table.NavigateTo(Page.First);
         }
 
         private async Task OpenTemplateDialog(bool isEdit, ProductTemplateResponse? productTemplate = null)
@@ -152,7 +144,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
                 Snackbar.Add(msg, Severity.Error);
             }
 
-            await ReloadTable();
+            await LoadData();
             _loading = false;
             StateHasChanged();
         }
@@ -165,7 +157,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
                 productTemplate.Id,
                 productTemplate.Name,
                 ProductTemplateApi.DeleteProductTemplateAsync,
-                ReloadTable
+                async () => await LoadData()
             );
 
             _loading = false;

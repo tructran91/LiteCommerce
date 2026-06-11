@@ -32,20 +32,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         };
 
         private MudTable<CategoryResponse> _table = null!;
-        private BaseResponse<List<CategoryResponse>>? _pagedResult;
+        private List<CategoryResponse> _allCategories = new();
         private bool _loading = false;
         private string? _errorMessage;
         private CategoryQuery _query = new();
 
-        private async Task<TableData<CategoryResponse>> ServerReload(TableState state, CancellationToken ct)
+        protected override async Task OnInitializedAsync()
         {
             await LoadData();
-
-            return new TableData<CategoryResponse>
-            {
-                Items = _pagedResult?.Data ?? new(),
-                TotalItems = _pagedResult?.Pagination.TotalRecords ?? 0,
-            };
         }
 
         private async Task LoadData()
@@ -53,34 +47,36 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             _loading = true;
             _errorMessage = null;
 
-            var result = await CategoryApi.GetCategoriesAsync(_query.Page, _query.PageSize);
-            if (result.IsSuccess)
+            try
             {
-                _pagedResult = result;
+                var result = await CategoryApi.GetCategoriesAsync(_query.Page, _query.PageSize);
+                if (result.IsSuccess)
+                {
+                    _allCategories = result.Data ?? new();
+                }
+                else
+                {
+                    var errorDetails = result.Errors != null && result.Errors.Any()
+                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
+                        : result.Message ?? SystemMessages.ErrorOccurred;
+
+                    _errorMessage = errorDetails;
+                    Snackbar.Add(errorDetails, Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _errorMessage = result.Message;
-                Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                _errorMessage = ex.Message;
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
             _loading = false;
             StateHasChanged();
         }
 
-        private async Task ReloadTable() => await _table.ReloadServerData();
-
-        private async Task OnPageChanged(int page)
+        private void OnSortChanged(SortDirection direction)
         {
-            _query.Page = page;
-            await ReloadTable();
-        }
-
-        private async Task OnPageSizeChanged(int size)
-        {
-            _query.PageSize = size;
-            _query.Page = 1;
-            await ReloadTable();
+            _table.NavigateTo(Page.First);
         }
 
         private void NavigateToAdd()
@@ -101,7 +97,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 category.Id,
                 category.Name,
                 CategoryApi.DeleteCategoryAsync,
-                ReloadTable
+                async () => await LoadData()
             );
 
             _loading = false;

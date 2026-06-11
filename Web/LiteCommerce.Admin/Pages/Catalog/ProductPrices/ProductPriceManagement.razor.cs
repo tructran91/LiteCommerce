@@ -23,24 +23,18 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
         };
 
         private MudTable<ProductPricingResponse> _table = null!;
-        private BaseResponse<List<ProductPricingResponse>>? _pagedResult;
+        private List<ProductPricingResponse> _allPrices = new();
         private bool _loading = false;
         private bool _saving = false;
         private string? _errorMessage;
         private ProductPriceQuery _query = new();
 
-        private bool HasAnyChanges => _pagedResult?.Data?.Any(p => p.HasAnyChange) ?? false;
-        private int ChangedProductsCount => _pagedResult?.Data?.Count(p => p.HasAnyChange) ?? 0;
+        private bool HasAnyChanges => _allPrices?.Any(p => p.HasAnyChange) ?? false;
+        private int ChangedProductsCount => _allPrices?.Count(p => p.HasAnyChange) ?? 0;
 
-        private async Task<TableData<ProductPricingResponse>> ServerReload(TableState state, CancellationToken ct)
+        protected override async Task OnInitializedAsync()
         {
             await LoadData();
-
-            return new TableData<ProductPricingResponse>
-            {
-                Items = _pagedResult?.Data ?? new(),
-                TotalItems = _pagedResult?.Pagination.TotalRecords ?? 0,
-            };
         }
 
         private async Task LoadData()
@@ -48,41 +42,43 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
             _loading = true;
             _errorMessage = null;
 
-            var result = await ProductPriceApi.GetProductPricingAsync(_query.Page, _query.PageSize);
-            if (result.IsSuccess && result.Data != null)
+            try
             {
-                _pagedResult = result;
-
-                // Initialize original values for change tracking
-                foreach (var product in _pagedResult.Data)
+                var result = await ProductPriceApi.GetProductPricingAsync(_query.Page, _query.PageSize);
+                if (result.IsSuccess && result.Data != null)
                 {
-                    product.OriginalPrice = product.Price;
-                    product.OriginalOldPrice = product.OldPrice;
+                    _allPrices = result.Data;
+
+                    // Initialize original values for change tracking
+                    foreach (var product in _allPrices)
+                    {
+                        product.OriginalPrice = product.Price;
+                        product.OriginalOldPrice = product.OldPrice;
+                    }
+                }
+                else
+                {
+                    var errorDetails = result.Errors != null && result.Errors.Any()
+                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
+                        : result.Message ?? SystemMessages.ErrorOccurred;
+
+                    _errorMessage = errorDetails;
+                    Snackbar.Add(errorDetails, Severity.Error);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                _errorMessage = result.Message;
-                Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                _errorMessage = ex.Message;
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
             _loading = false;
             StateHasChanged();
         }
 
-        private async Task ReloadTable() => await _table.ReloadServerData();
-
-        private async Task OnPageChanged(int page)
+        private void OnSortChanged(SortDirection direction)
         {
-            _query.Page = page;
-            await ReloadTable();
-        }
-
-        private async Task OnPageSizeChanged(int size)
-        {
-            _query.PageSize = size;
-            _query.Page = 1;
-            await ReloadTable();
+            _table.NavigateTo(Page.First);
         }
 
         private void OnPriceChanged(ProductPricingResponse product, decimal newPrice)
@@ -102,7 +98,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
             _saving = true;
             try
             {
-                var requests = _pagedResult?.Data?
+                var requests = _allPrices?
                     .Where(p => p.HasAnyChange)
                     .Select(p => new UpdateProductPricingRequest
                     {
@@ -122,7 +118,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
                 if (response.IsSuccess)
                 {
                     Snackbar.Add($"Updated prices for {requests.Count} product(s) successfully", Severity.Success);
-                    await ReloadTable();
+                    await LoadData();
                 }
                 else
                 {

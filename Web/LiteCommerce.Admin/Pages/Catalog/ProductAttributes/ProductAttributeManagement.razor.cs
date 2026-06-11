@@ -33,7 +33,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
         };
 
         private MudTable<ProductAttributeResponse> _table = null!;
-        private BaseResponse<List<ProductAttributeResponse>>? _pagedResult;
+        private List<ProductAttributeResponse> _allAttributes = new();
         private List<ProductAttributeGroupResponse> _productAttributeGroups = new();
         private bool _loading = false;
         private string? _errorMessage;
@@ -50,17 +50,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
         protected override async Task OnInitializedAsync()
         {
             await LoadProductAttributeGroups();
-        }
-
-        private async Task<TableData<ProductAttributeResponse>> ServerReload(TableState state, CancellationToken ct)
-        {
             await LoadData();
-
-            return new TableData<ProductAttributeResponse>
-            {
-                Items = _pagedResult?.Data ?? new(),
-                TotalItems = _pagedResult?.Pagination.TotalRecords ?? 0,
-            };
         }
 
         private async Task LoadData()
@@ -68,19 +58,36 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
             _loading = true;
             _errorMessage = null;
 
-            var result = await ProductAttributeApi.GetProductAttributesAsync(_query.Page, _query.PageSize);
-            if (result.IsSuccess)
+            try
             {
-                _pagedResult = result;
+                var result = await ProductAttributeApi.GetProductAttributesAsync(_query.Page, _query.PageSize);
+                if (result.IsSuccess)
+                {
+                    _allAttributes = result.Data ?? new();
+                }
+                else
+                {
+                    var errorDetails = result.Errors != null && result.Errors.Any()
+                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
+                        : result.Message ?? SystemMessages.ErrorOccurred;
+
+                    _errorMessage = errorDetails;
+                    Snackbar.Add(errorDetails, Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _errorMessage = result.Message;
-                Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                _errorMessage = ex.Message;
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
             _loading = false;
             StateHasChanged();
+        }
+
+        private void OnSortChanged(SortDirection direction)
+        {
+            _table.NavigateTo(Page.First);
         }
 
         private async Task LoadProductAttributeGroups()
@@ -90,21 +97,6 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
             {
                 _productAttributeGroups = response.Data;
             }
-        }
-
-        private async Task ReloadTable() => await _table.ReloadServerData();
-
-        private async Task OnPageChanged(int page)
-        {
-            _query.Page = page;
-            await ReloadTable();
-        }
-
-        private async Task OnPageSizeChanged(int size)
-        {
-            _query.PageSize = size;
-            _query.Page = 1;
-            await ReloadTable();
         }
 
         private async Task OpenAttributeDialog(bool isEdit, ProductAttributeResponse? productAttribute = null)
@@ -151,7 +143,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
                 Snackbar.Add(msg, Severity.Error);
             }
 
-            await ReloadTable();
+            await LoadData();
             _loading = false;
             StateHasChanged();
         }
@@ -164,7 +156,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
                 attribute.Id,
                 attribute.Name,
                 ProductAttributeApi.DeleteProductAttributeAsync,
-                ReloadTable
+                async () => await LoadData()
             );
 
             _loading = false;

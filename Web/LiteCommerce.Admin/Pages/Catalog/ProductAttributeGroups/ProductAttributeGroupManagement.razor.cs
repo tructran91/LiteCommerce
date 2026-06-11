@@ -1,5 +1,6 @@
 ﻿using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
+using LiteCommerce.Admin.Models.Business.Brand;
 using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
 using LiteCommerce.Admin.Models.Common;
 using LiteCommerce.Admin.Pages.Base;
@@ -29,7 +30,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributeGroups
         };
 
         private MudTable<ProductAttributeGroupResponse> _table = null!;
-        private BaseResponse<List<ProductAttributeGroupResponse>>? _pagedResult;
+        private List<ProductAttributeGroupResponse> _allGroups = new();
         private bool _loading = false;
         private string? _errorMessage;
         private ProductAttributeGroupQuery _query = new();
@@ -42,15 +43,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributeGroups
             BackdropClick = false,
         };
 
-        private async Task<TableData<ProductAttributeGroupResponse>> ServerReload(TableState state, CancellationToken ct)
+        protected override async Task OnInitializedAsync()
         {
             await LoadData();
-
-            return new TableData<ProductAttributeGroupResponse>
-            {
-                Items = _pagedResult?.Data ?? new(),
-                TotalItems = _pagedResult?.Pagination.TotalRecords ?? 0,
-            };
         }
 
         private async Task LoadData()
@@ -58,34 +53,36 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributeGroups
             _loading = true;
             _errorMessage = null;
 
-            var result = await ProductAttributeGroupApi.GetProductAttributeGroupsAsync(_query.Page, _query.PageSize);
-            if (result.IsSuccess)
+            try
             {
-                _pagedResult = result;
+                var result = await ProductAttributeGroupApi.GetProductAttributeGroupsAsync(_query.Page, _query.PageSize);
+                if (result.IsSuccess)
+                {
+                    _allGroups = result.Data ?? new();
+                }
+                else
+                {
+                    var errorDetails = result.Errors != null && result.Errors.Any()
+                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
+                        : result.Message ?? SystemMessages.ErrorOccurred;
+
+                    _errorMessage = errorDetails;
+                    Snackbar.Add(errorDetails, Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _errorMessage = result.Message;
-                Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                _errorMessage = ex.Message;
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
             _loading = false;
             StateHasChanged();
         }
 
-        private async Task ReloadTable() => await _table.ReloadServerData();
-
-        private async Task OnPageChanged(int page)
+        private void OnSortChanged(SortDirection direction)
         {
-            _query.Page = page;
-            await ReloadTable();
-        }
-
-        private async Task OnPageSizeChanged(int size)
-        {
-            _query.PageSize = size;
-            _query.Page = 1;
-            await ReloadTable();
+            _table.NavigateTo(Page.First);
         }
 
         private async Task OpenAttributeGroupDialog(bool isEdit, ProductAttributeGroupResponse? attributeGroup = null)
@@ -129,7 +126,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributeGroups
                 Snackbar.Add(msg, Severity.Error);
             }
 
-            await ReloadTable();
+            await LoadData();
             _loading = false;
             StateHasChanged();
         }
@@ -142,7 +139,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributeGroups
                 attributeGroup.Id,
                 attributeGroup.Name,
                 ProductAttributeGroupApi.DeleteProductAttributeGroupAsync,
-                ReloadTable
+                async () => await LoadData()
             );
 
             _loading = false;

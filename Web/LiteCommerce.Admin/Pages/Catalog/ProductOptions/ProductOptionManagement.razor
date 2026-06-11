@@ -35,20 +35,18 @@
 
 <!-- Data Grid -->
 <MudPaper Elevation="0" Class="rounded-lg overflow-hidden" Style="border:1px solid var(--mud-palette-divider)">
-    <MudTable Items="@(_pagedResult?.Data ?? new())"
+    <MudTable Items="@_allOptions"
               Hover="true"
               Dense="false"
               Elevation="0"
               Loading="@_loading"
               LoadingProgressColor="Color.Primary"
               SortLabel="Sort by"
-              ServerData="ServerReload"
-              RowsPerPage="@_query.PageSize"
               @ref="_table">
 
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel SortLabel="name" T="ProductOptionResponse">Option Name</MudTableSortLabel>
+                <MudTableSortLabel T="ProductOptionResponse" SortBy="@(new Func<ProductOptionResponse, object>(x => x.Name))" SortDirectionChanged="OnSortChanged">Option Name</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:120px; text-align:center">Action</MudTh>
         </HeaderContent>
@@ -87,34 +85,7 @@
         </NoRecordsContent>
 
         <PagerContent>
-            <div class="d-flex align-center justify-space-between px-4 py-2 flex-wrap gap-2">
-                <div class="d-flex align-center gap-2">
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Hiển thị:</MudText>
-                    <MudSelect T="int"
-                               Value="_query.PageSize"
-                               ValueChanged="OnPageSizeChanged"
-                               Variant="Variant.Outlined"
-                               Margin="Margin.Dense"
-                               Dense="true"
-                               Style="width:80px">
-                        <MudSelectItem Value="5">5</MudSelectItem>
-                        <MudSelectItem Value="10">10</MudSelectItem>
-                        <MudSelectItem Value="20">20</MudSelectItem>
-                        <MudSelectItem Value="50">50</MudSelectItem>
-                        <MudSelectItem Value="100">100</MudSelectItem>
-                    </MudSelect>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                        / @(_pagedResult?.Pagination?.TotalRecords ?? 0) items
-                    </MudText>
-                </div>
-                <MudPagination Count="@(_pagedResult?.Pagination?.TotalPages ?? 1)"
-                               Selected="_query.Page"
-                               SelectedChanged="OnPageChanged"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               ShowFirstButton="true"
-                               ShowLastButton="true" />
-            </div>
+            <MudTablePager />
         </PagerContent>
     </MudTable>
 </MudPaper>
