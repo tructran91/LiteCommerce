@@ -12,11 +12,16 @@ namespace Catalog.Application.ProductAttributes.Handlers
     public class DeleteProductAttributeHandler : IRequestHandler<DeleteProductAttributeCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<ProductAttribute> _productAttributeRepository;
+        private readonly IBaseRepository<ProductTemplateProductAttribute> _templateAttributeRepository;
         private readonly ILogger<DeleteProductAttributeHandler> _logger;
 
-        public DeleteProductAttributeHandler(IBaseRepository<ProductAttribute> productAttributeRepository, ILogger<DeleteProductAttributeHandler> logger)
+        public DeleteProductAttributeHandler(
+            IBaseRepository<ProductAttribute> productAttributeRepository,
+            IBaseRepository<ProductTemplateProductAttribute> templateAttributeRepository,
+            ILogger<DeleteProductAttributeHandler> logger)
         {
             _productAttributeRepository = productAttributeRepository;
+            _templateAttributeRepository = templateAttributeRepository;
             _logger = logger;
         }
 
@@ -29,6 +34,15 @@ namespace Catalog.Application.ProductAttributes.Handlers
             if (existingProductAttribute == null)
             {
                 return BaseResponse<bool>.Failure("Product Attribute does not exist.", statusCode: HttpStatusCode.NotFound);
+            }
+
+            var isUsedInTemplates = await _templateAttributeRepository
+                .AnyAsync(ta => ta.ProductAttributeId == existingProductAttribute.Id);
+            if (isUsedInTemplates)
+            {
+                return BaseResponse<bool>.Failure(
+                    "Cannot delete Product Attribute because it is being used by one or more Product Templates.",
+                    statusCode: HttpStatusCode.BadRequest);
             }
 
             existingProductAttribute.IsDeleted = true;

@@ -1,31 +1,74 @@
-﻿@using MudBlazor
+﻿@using LiteCommerce.Admin.Enums
+@using LiteCommerce.Admin.Models.Application
+@using MudBlazor
+@inject MenuService MenuService
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
 <div class="d-flex align-center">
-    <MudButton StartIcon="@Icons.Material.Filled.Dashboard" Color="Color.Inherit" Href="/" Class="nav-h-btn">
-        Dashboard
-    </MudButton>
-
-    <MudMenu Label="Đơn hàng" StartIcon="@Icons.Material.Filled.Receipt" EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
-             Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Class="nav-h-btn">
-        <MudMenuItem Href="/orders">Tất cả đơn hàng</MudMenuItem>
-        <MudMenuItem Href="/orders/pending">Chờ xử lý</MudMenuItem>
-        <MudMenuItem Href="/orders/shipping">Đang giao</MudMenuItem>
-    </MudMenu>
-
-    <MudMenu Label="Sản phẩm" StartIcon="@Icons.Material.Filled.Inventory" EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
-             Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Class="nav-h-btn">
-        <MudMenuItem Href="/products">Danh sách</MudMenuItem>
-        <MudMenuItem Href="/products/add">Thêm mới</MudMenuItem>
-        <MudMenuItem Href="/categories">Danh mục</MudMenuItem>
-    </MudMenu>
-
-    <MudButton StartIcon="@Icons.Material.Filled.People" Color="Color.Inherit" Href="/customers" Class="nav-h-btn">
-        Khách hàng
-    </MudButton>
-
-    <MudButton StartIcon="@Icons.Material.Filled.BarChart" Color="Color.Inherit" Href="/analytics" Class="nav-h-btn">
-        Thống kê
-    </MudButton>
+    @foreach (var item in menuItems)
+    {
+        @if (item.Type == MenuItemType.Group)
+        {
+            <MudMenu Label="@item.Title" StartIcon="@item.Icon"
+                     Color="@(IsGroupActive(item) ? Color.Primary : Color.Inherit)"
+                     AnchorOrigin="Origin.BottomLeft" Class="nav-h-btn">
+                @foreach (var child in item.Children)
+                {
+                    <MudNavLink Href="@child.Href" Match="@child.Match">@child.Title</MudNavLink>
+                }
+            </MudMenu>
+        }
+        else if (item.Type == MenuItemType.Link)
+        {
+            <MudButton StartIcon="@item.Icon"
+                       Color="@(IsLinkActive(item) ? Color.Primary : Color.Inherit)"
+                       Href="@item.Href" Class="nav-h-btn">
+                @item.Title
+            </MudButton>
+        }
+    }
 </div>
 
-@code { }
+@code {
+    [Parameter] public bool DrawerOpen { get; set; } = true;
+
+    private List<MenuItem> menuItems = new();
+
+    protected override void OnInitialized()
+    {
+        menuItems = MenuService.GetMenuHorizontalItems();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private bool IsGroupActive(MenuItem item)
+    {
+        var uri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        return item.Children.Any(c =>
+            !string.IsNullOrEmpty(c.Href) &&
+            uri.StartsWith(c.Href.TrimStart('/'), StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool IsLinkActive(MenuItem item)
+    {
+        if (string.IsNullOrEmpty(item.Href))
+            return false;
+
+        var uri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        var href = item.Href.TrimStart('/');
+
+        return item.Match == NavLinkMatch.All
+            ? string.Equals(uri, href, StringComparison.OrdinalIgnoreCase)
+            : uri.StartsWith(href, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

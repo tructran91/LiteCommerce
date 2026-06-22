@@ -11,7 +11,6 @@ namespace LiteCommerce.Admin.Services
         {
             return new List<MenuItem>
             {
-                // Dashboard
                 new MenuItem
                 {
                     Title = "Dashboard",
@@ -81,6 +80,40 @@ namespace LiteCommerce.Admin.Services
 
                 new MenuItem { Title = "Nhân viên", Href = "/staff", Icon = Icons.Material.Filled.ManageAccounts, Type = MenuItemType.Link },
                 new MenuItem { Title = "Cài đặt cửa hàng", Href = "/system-settings", Icon = Icons.Material.Filled.Tune, Type = MenuItemType.Link }
+            };
+        }
+
+        public List<MenuItem> GetMenuHorizontalItems()
+        {
+            return new List<MenuItem>
+            {
+                new MenuItem
+                {
+                    Title = "Dashboard",
+                    Href = "/",
+                    Icon = Icons.Material.Filled.Dashboard,
+                    IconColor = Color.Primary,
+                    Match = NavLinkMatch.All,
+                    Type = MenuItemType.Link
+                },
+                                
+                new MenuItem
+                {
+                    Title = "Catalog",
+                    Icon = Icons.Material.Filled.Storefront,
+                    Type = MenuItemType.Group,
+                    Children = new List<MenuItem>
+                    {
+                        new MenuItem { Title = "Categories", Href = "/categories" },
+                        new MenuItem { Title = "Brands", Href = "/brands" },
+                        new MenuItem { Title = "Products", Href = "/products" },
+                        new MenuItem { Title = "Product Prices", Href = "/product-prices" },
+                        new MenuItem { Title = "Product Options", Href = "/product-options" },
+                        new MenuItem { Title = "Product Attribute Groups", Href = "/product-attribute-groups" },
+                        new MenuItem { Title = "Product Attributes", Href = "/product-attributes" },
+                        new MenuItem { Title = "Product Templates", Href = "/product-templates" },
+                    }
+                }
             };
         }
     }

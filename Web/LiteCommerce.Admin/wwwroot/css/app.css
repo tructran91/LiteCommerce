@@ -236,7 +236,12 @@ body {
     letter-spacing: 0 !important;
 }
 
-
+/* Active state for MudNavLink inside MudMenu popover */
+.mud-popover .mud-nav-link.active {
+    background-color: var(--mud-palette-primary) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
 
 /* Ensure MudMenu popover appears above AppBar */
 .mud-popover-provider {
@@ -278,6 +283,10 @@ body {
     transition: none !important;
     animation: none !important;
 }
+
+/* Rich Text Editor */
+.short-desc .ql-container { height:80px; max-height:100px; overflow-y:auto; font-size:14px }
+.long-desc .ql-container { height:240px; overflow-y:auto; font-size:14px }
 
 /* Responsive */
 @media (max-width: 600px) {
