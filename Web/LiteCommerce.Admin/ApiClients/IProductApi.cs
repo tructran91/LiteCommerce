@@ -21,5 +21,8 @@ namespace LiteCommerce.Admin.ApiClients
 
         [Delete(ApiRoutes.Product.Delete)]
         Task<BaseResponse<bool>> DeleteProductAsync(string id);
+
+        [Post(ApiRoutes.Product.UploadContentImage)]
+        Task<ContentImageUploadResponse> UploadContentImageAsync([Body] MultipartFormDataContent content);
     }
 }

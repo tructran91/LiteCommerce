@@ -25,7 +25,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("GetProductById/{id}")]
-        public async Task<ActionResult> GetBrandById(string id)
+        public async Task<ActionResult> GetProductById(string id)
         {
             var query = new GetProductQuery(Guid.Parse(id));
             var result = await _mediator.Send(query);
@@ -91,6 +91,24 @@ namespace Catalog.API.Controllers
                 {
                     document.MediaUrl = BuildImageUrl(document.MediaUrl);
                 }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("UploadContentImage")]
+        public async Task<IActionResult> UploadContentImage([FromForm] UploadContentImageRequest request)
+        {
+            if (request.File == null || request.File.Length == 0)
+                return BadRequest("No file provided");
+
+            var command = new UploadContentImageCommand(request);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess)
+            {
+                var fullUrl = BuildImageUrl(result.Data);
+                return Ok(new { url = fullUrl });
             }
 
             return Ok(result);

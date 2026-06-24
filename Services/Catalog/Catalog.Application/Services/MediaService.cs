@@ -15,6 +15,11 @@ namespace Catalog.Application.Services
             _storageService = storageService;
         }
 
+        public string GetMediaUrl(string fileName, string? subFolder = null)
+        {
+            return string.IsNullOrEmpty(fileName) ? string.Empty : _storageService.GetFileUrl(fileName, subFolder);
+        }
+
         public string GetMediaUrl(Media media, string? subFolder = null)
         {
             if (media == null)
@@ -23,11 +28,6 @@ namespace Catalog.Application.Services
             }
 
             return GetMediaUrl(media.FileName, subFolder);
-        }
-
-        public string GetMediaUrl(string fileName, string? subFolder = null)
-        {
-            return string.IsNullOrEmpty(fileName) ? string.Empty : _storageService.GetFileUrl(fileName, subFolder);
         }
 
         public string GetThumbnailUrl(Media media, string? subFolder = null)
@@ -45,15 +45,20 @@ namespace Catalog.Application.Services
             return fileName;
         }
 
-        public Task DeleteMediaAsync(Media media)
+        public Task MoveContentImagesAsync(string tempFolderPath, string destFolderPath)
         {
-            _mediaRepository.DeleteAsync(media);
-            return DeleteMediaAsync(media.FileName);
+            return _storageService.MoveFolderContentAsync(tempFolderPath, destFolderPath);
         }
 
         public Task DeleteMediaAsync(string fileName)
         {
             return _storageService.DeleteFileAsync(fileName);
+        }
+
+        public Task DeleteMediaAsync(Media media)
+        {
+            _mediaRepository.DeleteAsync(media);
+            return DeleteMediaAsync(media.FileName);
         }
     }
 }

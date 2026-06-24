@@ -71,6 +71,7 @@
             public const string Create = $"{Base}/CreateProduct";
             public const string Update = $"{Base}/UpdateProduct";
             public const string Delete = $"{Base}/DeleteProduct/{{id}}";
+            public const string UploadContentImage = $"{Base}/UploadContentImage";
         }
 
         public static class ProductPrice

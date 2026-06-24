@@ -33,7 +33,7 @@ namespace Catalog.Infrastructure.Repositories
             var totalCount = await query.CountAsync();
 
             var products = await query
-                .OrderBy(p => p.CreatedDate)
+                .OrderByDescending(p => p.CreatedDate)
                 .Skip((currentPage - 1) * pageSize)
                 .Take(pageSize)
                 .Select(p => new ProductListItemDto

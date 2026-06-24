@@ -8,12 +8,13 @@ using LiteCommerce.Admin.Models.Business.ProductAttribute;
 using LiteCommerce.Admin.Models.Business.ProductTemplate;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using MudBlazor;
 using System.Net.Http.Headers;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Products
 {
-    public partial class UpsertProduct
+    public partial class UpsertProduct : IDisposable
     {
         [Parameter]
         public string? Id { get; set; }
@@ -39,6 +40,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
+        [Inject]
+        private IJSRuntime JSRuntime { get; set; }
+
         private List<BreadcrumbItem> _breadcrumbs = new();
         private bool _isEditMode => !string.IsNullOrEmpty(Id);
         private bool _loading = false;
@@ -62,6 +66,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private BlazoredTextEditor _shortDescriptionEditor = null!;
         private BlazoredTextEditor _descriptionEditor = null!;
         private bool _editorsLoaded = false;
+        private DotNetObjectReference<UpsertProduct>? _dotNetRef;
+        private bool _imageHandlerRegistered = false;
+        private string? _contentTempId;
 
         protected override async Task OnInitializedAsync()
         {
@@ -89,6 +96,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            if (firstRender)
+            {
+                _dotNetRef = DotNetObjectReference.Create(this);
+                // Delay to ensure Quill is fully initialized
+                await Task.Delay(500);
+                await RegisterDescriptionImageHandler();
+            }
+
             if (_isEditMode && !_editorsLoaded && !_loading && _productForm.ShortDescription != null)
             {
                 _editorsLoaded = true;
@@ -96,6 +111,64 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                     await _shortDescriptionEditor.LoadContent(_productForm.ShortDescription);
                 if (!string.IsNullOrEmpty(_productForm.Description))
                     await _descriptionEditor.LoadContent(_productForm.Description);
+            }
+        }
+
+        private async Task RegisterDescriptionImageHandler()
+        {
+            if (_imageHandlerRegistered) return;
+
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("QuillImageUpload.registerImageHandler", ".long-desc-container", _dotNetRef);
+                _imageHandlerRegistered = true;
+            }
+            catch
+            {
+                // Quill may not be ready yet, will retry on next render if needed
+            }
+        }
+
+        [JSInvokable]
+        public async Task<string?> UploadContentImage(string fileName, string contentType, string base64Data)
+        {
+            try
+            {
+                var bytes = Convert.FromBase64String(base64Data);
+                var content = new MultipartFormDataContent();
+
+                var fileContent = new ByteArrayContent(bytes);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                content.Add(fileContent, "file", fileName);
+
+                string productId;
+                bool isNewProduct;
+
+                if (_isEditMode)
+                {
+                    productId = _productForm.Id;
+                    isNewProduct = false;
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(_contentTempId))
+                    {
+                        _contentTempId = Guid.NewGuid().ToString();
+                    }
+                    productId = _contentTempId;
+                    isNewProduct = true;
+                }
+
+                content.Add(new StringContent(productId), "productId");
+                content.Add(new StringContent(isNewProduct.ToString()), "isNewProduct");
+
+                var response = await ProductApi.UploadContentImageAsync(content);
+                return response?.Url;
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Upload image failed: {ex.Message}", Severity.Error);
+                return null;
             }
         }
 
@@ -620,6 +693,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 content.Add(fileContent, "ProductDocuments", docFile.Name);
             }
 
+            if (!_isEditMode && !string.IsNullOrEmpty(_contentTempId))
+            {
+                content.Add(new StringContent(_contentTempId), "ContentTempId");
+            }
+
             return content;
         }
 
@@ -661,5 +739,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            _dotNetRef?.Dispose();
+        }
     }
 }

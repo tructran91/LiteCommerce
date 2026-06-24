@@ -12,6 +12,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Catalog.Application.Products.Handlers
 {
@@ -63,6 +64,9 @@ namespace Catalog.Application.Products.Handlers
                 _logger.LogInformation("CreateProductHandler => Step 2: Upload media and map media data");
                 await SaveProductMediasAsync(payload, product);
 
+                _logger.LogInformation("CreateProductHandler => Step 2.1: Move content images from temp to product folder");
+                await MoveContentImagesFromTempAsync(payload, product);
+
                 _logger.LogInformation("CreateProductHandler => Step 3: Save data");
                 var createdProduct = await _productRepository.AddAsync(product);
                 var response = _mapper.Map<ProductResponse>(createdProduct);
@@ -73,6 +77,39 @@ namespace Catalog.Application.Products.Handlers
             {
                 _logger.LogError(ex, $"CreateProductHandler => Error: {ex.Message}");
                 return BaseResponse<ProductResponse>.Failure(ex.Message);
+            }
+        }
+
+        private async Task MoveContentImagesFromTempAsync(CreateProductRequest request, Product product)
+        {
+            if (string.IsNullOrEmpty(request.ContentTempId))
+                return;
+
+            var tempFolder = Path.Combine(StorageFolder.Product, StorageFolder.TempContent, request.ContentTempId);
+            var productFolder = product.Id.ToStoragePath(StorageFolder.Product);
+
+            await _mediaService.MoveContentImagesAsync(tempFolder, productFolder);
+
+            // Replace temp URLs with product URLs in description
+            if (!string.IsNullOrEmpty(product.Description))
+            {
+                var tempPathSegment = $"{StorageFolder.Product}/{StorageFolder.TempContent}/{request.ContentTempId}/";
+
+                // Match URLs containing the temp path, capturing domain prefix, filename, and optional SAS query string
+                var pattern = $@"(?<prefix>[^""\s]*?){Regex.Escape(tempPathSegment)}(?<fileName>[^""\s?]+)(?<suffix>\?[^""\s]*)?";
+
+                product.Description = Regex.Replace(product.Description, pattern, match =>
+                {
+                    var fileName = match.Groups["fileName"].Value;
+                    var prefix = match.Groups["prefix"].Value;
+                    var productPath = $"{StorageFolder.Product}/{product.Id}/";
+
+                    // Azure URLs have SAS tokens — regenerate entirely
+                    // Local URLs are relative or have a domain prefix — preserve the prefix
+                    return match.Groups["suffix"].Success
+                        ? _mediaService.GetMediaUrl(fileName, productFolder)
+                        : $"{prefix}{productPath}{fileName}";
+                });
             }
         }
 

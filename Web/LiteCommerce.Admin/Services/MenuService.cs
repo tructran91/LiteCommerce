@@ -31,10 +31,7 @@ namespace LiteCommerce.Admin.Services
                 new MenuItem { Title = "Product Attributes", Href = "/product-attributes", Icon = Icons.Material.Filled.Style, Type = MenuItemType.Link },
                 new MenuItem { Title = "Product Templates", Href = "/product-templates", Icon = Icons.Material.Filled.Description, Type = MenuItemType.Link },
 
-                // --- QUẢN LÝ BÁN HÀNG ---
                 new MenuItem { Title = "Quản lý bán hàng", Type = MenuItemType.Section },
-                
-                // Group: Đơn hàng
                 new MenuItem
                 {
                     Title = "Đơn hàng",
@@ -50,34 +47,7 @@ namespace LiteCommerce.Admin.Services
                     }
                 },
 
-                // Group: Sản phẩm
-                new MenuItem
-                {
-                    Title = "Sản phẩm",
-                    Icon = Icons.Material.Filled.Inventory,
-                    Type = MenuItemType.Group,
-                    ExpandByDefault = false, // Tương đương Expanded="false" trong code cũ
-                    Children = new List<MenuItem>
-                    {
-                        new MenuItem { Title = "Danh sách", Href = "/products" },
-                        new MenuItem { Title = "Thêm mới", Href = "/products/add" },
-                        new MenuItem { Title = "Danh mục", Href = "/categories" },
-                        new MenuItem { Title = "Tồn kho", Href = "/products/inventory" }
-                    }
-                },
-
-                // Khách hàng
-                new MenuItem
-                {
-                    Title = "Khách hàng",
-                    Href = "/customers",
-                    Icon = Icons.Material.Filled.People,
-                    Type = MenuItemType.Link
-                },
-
-                // --- HỆ THỐNG ---
                 new MenuItem { Title = "Hệ thống", Type = MenuItemType.Section },
-
                 new MenuItem { Title = "Nhân viên", Href = "/staff", Icon = Icons.Material.Filled.ManageAccounts, Type = MenuItemType.Link },
                 new MenuItem { Title = "Cài đặt cửa hàng", Href = "/system-settings", Icon = Icons.Material.Filled.Tune, Type = MenuItemType.Link }
             };

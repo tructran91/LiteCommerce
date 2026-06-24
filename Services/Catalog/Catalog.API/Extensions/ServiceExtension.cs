@@ -44,15 +44,25 @@ namespace Catalog.API.Extensions
 
         public static void RegisterApplicationLayers(this WebApplicationBuilder builder)
         {
-            builder.Services.AddApplicationServices();
+            builder.Services.AddApplicationServices(builder.Configuration);
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddThirdPartyServices(typeof(AssemblyReference).Assembly);
         }
 
-        public static void AddApplicationServices(this IServiceCollection services)
+        public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IMediaService, MediaService>();
-            services.AddScoped<IStorageService, LocalStorageService>();
+
+            var storageProvider = configuration["Storage:Provider"];
+            if (storageProvider == "Azure")
+            {
+                services.AddScoped<IStorageService, AzureBlobStorageService>();
+            }
+            else
+            {
+                services.AddScoped<IStorageService, LocalStorageService>();
+            }
+
             services.AddScoped<IProductService, ProductService>();
         }
 

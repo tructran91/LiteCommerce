@@ -98,7 +98,7 @@
 
                     <MudItem xs="12">
                         <MudText Typo="Typo.subtitle2" Class="mb-2">Description</MudText>
-                        <div style="border:1px solid var(--mud-palette-divider); border-radius:4px">
+                        <div class="long-desc-container" style="border:1px solid var(--mud-palette-divider); border-radius:4px">
                             <div class="long-desc">
                                 <BlazoredTextEditor @ref="_descriptionEditor" Placeholder="Enter full description...">
                                 <ToolbarContent>
@@ -118,6 +118,7 @@
                                     <button class="ql-indent" value="-1"></button>
                                     <button class="ql-indent" value="+1"></button>
                                     <button class="ql-link"></button>
+                                    <button class="ql-image"></button>
                                     <button class="ql-clean"></button>
                                 </ToolbarContent>
                                 <EditorContent></EditorContent>

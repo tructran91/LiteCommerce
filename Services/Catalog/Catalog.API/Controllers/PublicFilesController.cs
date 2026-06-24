@@ -20,7 +20,11 @@ namespace Catalog.API.Controllers
             if (string.IsNullOrEmpty(fileName))
                 return BadRequest();
 
-            var rootPath = _config["Storage:LocalPath"];
+            var provider = _config["Storage:Provider"];
+            if (provider != "Local")
+                return BadRequest("File serving is not available for the current storage provider.");
+
+            var rootPath = _config["Storage:Local:Path"];
 
             // Remove leading slash và normalize path
             fileName = fileName.TrimStart('/', '\\').Replace("/", Path.DirectorySeparatorChar.ToString());
@@ -35,8 +39,8 @@ namespace Catalog.API.Controllers
             if (!System.IO.File.Exists(normalizedFullPath))
                 return NotFound();
 
-            var provider = new FileExtensionContentTypeProvider();
-            provider.TryGetContentType(normalizedFullPath, out var contentType);
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            contentTypeProvider.TryGetContentType(normalizedFullPath, out var contentType);
 
             return PhysicalFile(normalizedFullPath, contentType ?? "application/octet-stream");
         }

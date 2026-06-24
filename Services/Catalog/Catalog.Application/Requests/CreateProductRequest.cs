@@ -12,5 +12,7 @@ namespace Catalog.Application.Requests
         public List<IFormFile>? ProductImages { get; set; } = new List<IFormFile>();
 
         public List<IFormFile>? ProductDocuments { get; set; } = new List<IFormFile>();
+
+        public string? ContentTempId { get; set; }
     }
 }
