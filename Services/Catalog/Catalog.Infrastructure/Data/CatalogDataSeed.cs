@@ -1,5 +1,6 @@
 ﻿using Catalog.Core.Entities;
 using Catalog.Core.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Data
 {
@@ -8,7 +9,7 @@ namespace Catalog.Infrastructure.Data
         public static async Task SeedAsync(CatalogContext context)
         {
             // Check if database already has data
-            if (context.Brands.Any())
+            if (await context.Brands.AnyAsync())
             {
                 return;
             }

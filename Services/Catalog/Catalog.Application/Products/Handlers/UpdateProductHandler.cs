@@ -51,22 +51,23 @@ namespace Catalog.Application.Products.Handlers
                     return BaseResponse<ProductResponse>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);
                 }
 
+                // Capture original prices BEFORE mapping
+                var originalPrice = existingProduct.Price;
+                var originalOldPrice = existingProduct.OldPrice;
+                var originalSpecialPrice = existingProduct.SpecialPrice;
+                var originalSpecialPriceStart = existingProduct.SpecialPriceStart;
+                var originalSpecialPriceEnd = existingProduct.SpecialPriceEnd;
+
                 _logger.LogInformation("UpdateProductHandler => Step 1: Update basic info");
                 _mapper.Map(payload.Product, existingProduct);
                 existingProduct.Slug = existingProduct.Name.Slugify();
 
-                // Update pricing
-                var hasPriceChanged = existingProduct.Price != (payload.Product.Price ?? 0)
-                    || existingProduct.OldPrice != payload.Product.OldPrice
-                    || existingProduct.SpecialPrice != payload.Product.SpecialPrice
-                    || existingProduct.SpecialPriceStart != payload.Product.SpecialPriceStart
-                    || existingProduct.SpecialPriceEnd != payload.Product.SpecialPriceEnd;
-
-                existingProduct.Price = payload.Product.Price ?? 0;
-                existingProduct.OldPrice = payload.Product.OldPrice;
-                existingProduct.SpecialPrice = payload.Product.SpecialPrice;
-                existingProduct.SpecialPriceStart = payload.Product.SpecialPriceStart;
-                existingProduct.SpecialPriceEnd = payload.Product.SpecialPriceEnd;
+                // Compare with original values (before mapping overwrote them)
+                var hasPriceChanged = originalPrice != existingProduct.Price
+                    || originalOldPrice != existingProduct.OldPrice
+                    || originalSpecialPrice != existingProduct.SpecialPrice
+                    || originalSpecialPriceStart != existingProduct.SpecialPriceStart
+                    || originalSpecialPriceEnd != existingProduct.SpecialPriceEnd;
 
                 if (hasPriceChanged)
                 {

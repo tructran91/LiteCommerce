@@ -22,7 +22,7 @@ namespace Catalog.Infrastructure.Repositories
         {
             IQueryable<T> query = _dbSet;
             if (disableTracking) query = query.AsNoTracking();
-            if (!isDeletedIncluded) query = query.Where(t => !t.IsDeleted);
+            if (isDeletedIncluded) query = query.IgnoreQueryFilters();
 
             return await query.ToListAsync();
         }
@@ -74,14 +74,14 @@ namespace Catalog.Infrastructure.Repositories
             query = query.AsNoTracking();
 
             if (predicate != null) query = query.Where(predicate);
-            if (!isDeletedIncluded) query = query.Where(t => !t.IsDeleted);
+            if (isDeletedIncluded) query = query.IgnoreQueryFilters();
 
             return await query.AnyAsync();
         }
 
         public async Task<T> GetByIdAsync(Guid id)
         {
-            return await _dbSet.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<T> AddAsync(T entity)

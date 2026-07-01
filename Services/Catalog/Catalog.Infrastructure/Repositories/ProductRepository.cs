@@ -28,7 +28,7 @@ namespace Catalog.Infrastructure.Repositories
 
         public async Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(int currentPage, int pageSize)
         {
-            var query = _dbContext.Products.AsNoTracking().Where(p => !p.IsDeleted);
+            var query = _dbContext.Products.AsNoTracking();
 
             var totalCount = await query.CountAsync();
 
@@ -52,7 +52,7 @@ namespace Catalog.Infrastructure.Repositories
 
         public async Task<(List<ProductPricingDto> Products, int TotalCount)> GetProductPricingAsync(int currentPage, int pageSize)
         {
-            var query = _dbContext.Products.AsNoTracking().Where(p => !p.IsDeleted);
+            var query = _dbContext.Products.AsNoTracking();
 
             var totalCount = await query.CountAsync();
 

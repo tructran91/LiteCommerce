@@ -1,5 +1,6 @@
 ﻿using Catalog.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Catalog.Infrastructure.Data
 {
@@ -42,6 +43,18 @@ namespace Catalog.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogContext).Assembly);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    var parameter = Expression.Parameter(entityType.ClrType, "e");
+                    var property = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
+                    var condition = Expression.Equal(property, Expression.Constant(false));
+                    var lambda = Expression.Lambda(condition, parameter);
+                    entityType.SetQueryFilter(lambda);
+                }
+            }
 
             base.OnModelCreating(modelBuilder);
         }
