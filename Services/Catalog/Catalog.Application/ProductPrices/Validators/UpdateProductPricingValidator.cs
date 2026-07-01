@@ -9,7 +9,7 @@ namespace Catalog.Application.ProductPrices.Validators
     {
         public UpdateProductPricingValidator()
         {
-            RuleForEach(x => x.Payload).ChildRules(item =>
+            RuleForEach(x => x.Payload.Items).ChildRules(item =>
             {
                 item.RuleFor(x => x.Id)
                     .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))

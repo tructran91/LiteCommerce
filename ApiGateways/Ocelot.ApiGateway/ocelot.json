@@ -15,7 +15,7 @@
     //  "FileCacheOptions": { "TtlSeconds": 30 }
     //},
     {
-      "DownstreamPathTemplate": "/api/Brand/GetAllBrands",
+      "DownstreamPathTemplate": "/api/admin/brand",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -23,7 +23,7 @@
           "Port": "5125"
         }
       ],
-      "UpstreamPathTemplate": "/Brand/GetAllBrands",
+      "UpstreamPathTemplate": "/Brand",
       "UpstreamHttpMethod": [ "GET" ]
     }
   ],

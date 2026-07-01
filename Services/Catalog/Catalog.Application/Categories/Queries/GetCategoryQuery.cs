@@ -2,7 +2,7 @@
 using LiteCommerce.Shared.Models;
 using MediatR;
 
-namespace Catalog.Application.Brands.Queries
+namespace Catalog.Application.Categories.Queries
 {
     public class GetCategoryQuery : IRequest<BaseResponse<CategoryResponse>>
     {

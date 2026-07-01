@@ -28,7 +28,7 @@ namespace Catalog.Application.ProductPrices.Handlers
         {
             _logger.LogInformation($"UpdateProductPricingHandler: {JsonSerializer.Serialize(request.Payload)}");
 
-            var requestedIds = request.Payload
+            var requestedIds = request.Payload.Items
                 .Select(x => Guid.Parse(x.Id))
                 .Distinct()
                 .ToList();
@@ -55,7 +55,7 @@ namespace Catalog.Application.ProductPrices.Handlers
 
             var productDict = existingProducts.ToDictionary(p => p.Id);
 
-            foreach (var item in request.Payload)
+            foreach (var item in request.Payload.Items)
             {
                 if (!item.NewOldPrice.HasValue && !item.NewPrice.HasValue)
                 {

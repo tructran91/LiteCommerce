@@ -7,9 +7,9 @@ namespace Catalog.Application.ProductPrices.Commands
 {
     public class UpdateProductPricingCommand : IRequest<BaseResponse<List<ProductPricingResponse>>>
     {
-        public List<UpdateProductPricingRequest> Payload { get; set; }
+        public UpdateProductPricingListRequest Payload { get; set; }
 
-        public UpdateProductPricingCommand(List<UpdateProductPricingRequest> payload)
+        public UpdateProductPricingCommand(UpdateProductPricingListRequest payload)
         {
             Payload = payload;
         }

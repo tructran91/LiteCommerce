@@ -11,6 +11,6 @@ namespace LiteCommerce.Admin.ApiClients
         Task<BaseResponse<List<ProductPricingResponse>>> GetProductPricingAsync(int currentPage, int pageSize);
 
         [Put(ApiRoutes.ProductPrice.UpdateProductPricing)]
-        Task<BaseResponse<List<ProductPricingResponse>>> UpdateProductPricingAsync([Body] List<UpdateProductPricingRequest> requests);
+        Task<BaseResponse<List<ProductPricingResponse>>> UpdateProductPricingAsync([Body] UpdateProductPricingListRequest requests);
     }
 }

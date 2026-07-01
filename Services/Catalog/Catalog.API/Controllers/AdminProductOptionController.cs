@@ -17,14 +17,14 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetAllProductOptions")]
+        [HttpGet]
         public async Task<ActionResult> GetAllProductOptions([FromQuery] GetAllProductOptionsQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        [HttpGet("GetProductOptionById/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult> GetProductOptionById(string id)
         {
             var query = new GetProductOptionQuery(id);
@@ -32,7 +32,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("CreateProductOption")]
+        [HttpPost]
         public async Task<ActionResult> CreateProductOption([FromBody] CreateProductOptionRequest request)
         {
             var command = new CreateProductOptionCommand(request);
@@ -40,7 +40,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateProductOption")]
+        [HttpPut]
         public async Task<ActionResult> UpdateProductOption([FromBody] UpdateProductOptionRequest request)
         {
             var command = new UpdateProductOptionCommand(request);
@@ -48,7 +48,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("DeleteProductOption/{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProductOption(string id)
         {
             var command = new DeleteProductOptionCommand(id);

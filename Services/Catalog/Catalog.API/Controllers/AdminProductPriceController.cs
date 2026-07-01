@@ -17,15 +17,15 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetProductPricing")]
+        [HttpGet]
         public async Task<IActionResult> GetProductPricing([FromQuery] GetProductPricingQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        [HttpPut("UpdateProductPricing")]
-        public async Task<IActionResult> UpdateProductPricing([FromBody] List<UpdateProductPricingRequest> request)
+        [HttpPut]
+        public async Task<IActionResult> UpdateProductPricing([FromBody] UpdateProductPricingListRequest request)
         {
             var command = new UpdateProductPricingCommand(request);
             var result = await _mediator.Send(command);

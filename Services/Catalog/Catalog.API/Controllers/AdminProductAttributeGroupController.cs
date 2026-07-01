@@ -17,14 +17,14 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetAllProductAttributeGroups")]
+        [HttpGet]
         public async Task<ActionResult> GetAllProductAttributeGroups([FromQuery] GetAllProductAttributeGroupsQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        [HttpGet("GetProductAttributeGroupById/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult> GetProductAttributeGroupById(string id)
         {
             var query = new GetProductAttributeGroupQuery(id);
@@ -32,7 +32,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("CreateProductAttributeGroup")]
+        [HttpPost]
         public async Task<ActionResult> CreateProductAttributeGroup([FromBody] CreateProductAttributeGroupRequest request)
         {
             var command = new CreateProductAttributeGroupCommand(request);
@@ -40,7 +40,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateProductAttributeGroup")]
+        [HttpPut]
         public async Task<ActionResult> UpdateProductAttributeGroup([FromBody] UpdateProductAttributeGroupRequest request)
         {
             var command = new UpdateProductAttributeGroupCommand(request);
@@ -48,7 +48,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("DeleteProductAttributeGroup/{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProductAttributeGroup(string id)
         {
             var command = new DeleteProductAttributeGroupCommand(id);

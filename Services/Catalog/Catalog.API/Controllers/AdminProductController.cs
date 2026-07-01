@@ -17,17 +17,17 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetAllProducts")]
+        [HttpGet]
         public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        [HttpGet("GetProductById/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult> GetProductById(string id)
         {
-            var query = new GetProductQuery(Guid.Parse(id));
+            var query = new GetProductQuery(id);
             var result = await _mediator.Send(query);
 
             if (result.Data != null && result.IsSuccess)
@@ -48,7 +48,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("CreateProduct")]
+        [HttpPost]
         public async Task<ActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
             var command = new CreateProductCommand(request);
@@ -72,7 +72,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateProduct")]
+        [HttpPut]
         public async Task<ActionResult> UpdateProduct([FromForm] UpdateProductRequest request)
         {
             var command = new UpdateProductCommand(request);
@@ -96,7 +96,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("UploadContentImage")]
+        [HttpPost("upload-content-image")]
         public async Task<IActionResult> UploadContentImage([FromForm] UploadContentImageRequest request)
         {
             if (request.File == null || request.File.Length == 0)

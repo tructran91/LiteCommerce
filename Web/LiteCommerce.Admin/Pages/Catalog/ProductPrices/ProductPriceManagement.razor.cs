@@ -114,7 +114,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
                     return;
                 }
 
-                var response = await ProductPriceApi.UpdateProductPricingAsync(requests);
+                var response = await ProductPriceApi.UpdateProductPricingAsync(new UpdateProductPricingListRequest { Items = requests });
                 if (response.IsSuccess)
                 {
                     Snackbar.Add($"Updated prices for {requests.Count} product(s) successfully", Severity.Success);

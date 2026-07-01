@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Catalog.Application.Brands.Queries;
+using Catalog.Application.Categories.Queries;
 using Catalog.Application.Responses;
 using Catalog.Application.Services;
 using Catalog.Core.Entities;

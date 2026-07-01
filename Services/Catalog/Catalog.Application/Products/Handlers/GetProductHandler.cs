@@ -35,7 +35,7 @@ namespace Catalog.Application.Products.Handlers
 
         public async Task<BaseResponse<ProductResponse>> Handle(GetProductQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetProductAsync(request.Id);
+            var product = await _productRepository.GetProductAsync(Guid.Parse(request.Id));
             if (product is null)
             {
                 return BaseResponse<ProductResponse>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);

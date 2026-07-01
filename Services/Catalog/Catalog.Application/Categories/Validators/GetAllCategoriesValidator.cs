@@ -1,4 +1,4 @@
-﻿using Catalog.Application.Brands.Queries;
+﻿using Catalog.Application.Categories.Queries;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 

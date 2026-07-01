@@ -17,14 +17,14 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetAllBrands")]
+        [HttpGet]
         public async Task<IActionResult> GetAllBrands([FromQuery] GetAllBrandsQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        [HttpGet("GetBrandById/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult> GetBrandById(string id)
         {
             var query = new GetBrandQuery(id);
@@ -32,7 +32,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("CreateBrand")]
+        [HttpPost]
         public async Task<ActionResult> CreateBrand([FromBody] CreateBrandRequest request)
         {
             var command = new CreateBrandCommand(request);
@@ -40,7 +40,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateBrand")]
+        [HttpPut]
         public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
         {
             var command = new UpdateBrandCommand(request);
@@ -48,7 +48,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("DeleteBrand/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBrand(string id)
         {
             var command = new DeleteBrandCommand(id);

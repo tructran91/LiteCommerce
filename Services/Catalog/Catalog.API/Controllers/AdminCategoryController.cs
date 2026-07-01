@@ -1,6 +1,4 @@
-﻿using Catalog.Application.Brands.Commands;
-using Catalog.Application.Brands.Queries;
-using Catalog.Application.Categories.Commands;
+﻿using Catalog.Application.Categories.Commands;
 using Catalog.Application.Categories.Queries;
 using Catalog.Application.Requests;
 using MediatR;
@@ -19,14 +17,14 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("GetAllCategories")]
+        [HttpGet]
         public async Task<IActionResult> GetAllCategories([FromQuery] GetAllCategoriesQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
-        [HttpGet("GetAllBasicCategories")]
+        [HttpGet("basic")]
         public async Task<IActionResult> GetAllBasicCategories()
         {
             var query = new GetAllBasicCategoriesQuery();
@@ -34,7 +32,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetCategoryById/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult> GetCategoryById(string id)
         {
             var query = new GetCategoryQuery(id);
@@ -48,7 +46,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("CreateCategory")]
+        [HttpPost]
         public async Task<ActionResult> CreateCategory([FromForm] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand(request);
@@ -56,7 +54,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateCategory")]
+        [HttpPut]
         public async Task<IActionResult> UpdateCategory([FromForm] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand(request);
@@ -64,7 +62,7 @@ namespace Catalog.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("DeleteCategory/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
             var command = new DeleteCategoryCommand(id);

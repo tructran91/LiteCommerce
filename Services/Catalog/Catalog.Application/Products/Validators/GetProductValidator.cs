@@ -1,13 +1,13 @@
-﻿using Catalog.Application.Categories.Queries;
+using Catalog.Application.Products.Queries;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Validators;
 
-namespace Catalog.Application.Categories.Validators
+namespace Catalog.Application.Products.Validators
 {
-    public class GetCategoryValidator : AbstractValidator<GetCategoryQuery>
+    public class GetProductValidator : AbstractValidator<GetProductQuery>
     {
-        public GetCategoryValidator()
+        public GetProductValidator()
         {
             RuleFor(x => x.Id)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
