@@ -52,21 +52,8 @@ namespace Catalog.Application.Products.Handlers
                 }
 
                 _logger.LogInformation("UpdateProductHandler => Step 1: Update basic info");
-                existingProduct.Name = payload.Product.Name;
-                existingProduct.Slug = payload.Product.Name.Slugify();
-                existingProduct.ShortDescription = payload.Product.ShortDescription;
-                existingProduct.Description = payload.Product.Description;
-                existingProduct.MetaTitle = payload.Product.MetaTitle;
-                existingProduct.MetaKeywords = payload.Product.MetaKeywords;
-                existingProduct.MetaDescription = payload.Product.MetaDescription;
-                existingProduct.IsPublished = payload.Product.IsPublished;
-                existingProduct.IsFeatured = payload.Product.IsFeatured;
-                existingProduct.IsCallForPricing = payload.Product.IsCallForPricing;
-                existingProduct.IsAllowToOrder = payload.Product.IsAllowToOrder;
-                existingProduct.Sku = payload.Product.Sku;
-                existingProduct.Gtin = payload.Product.Gtin;
-                existingProduct.BrandId = Guid.Parse(payload.Product.BrandId);
-                existingProduct.LastModifiedDate = DateTime.UtcNow;
+                _mapper.Map(payload.Product, existingProduct);
+                existingProduct.Slug = existingProduct.Name.Slugify();
 
                 // Update pricing
                 var hasPriceChanged = existingProduct.Price != (payload.Product.Price ?? 0)

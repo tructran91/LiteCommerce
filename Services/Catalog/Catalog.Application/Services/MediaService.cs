@@ -55,10 +55,10 @@ namespace Catalog.Application.Services
             return _storageService.DeleteFileAsync(fileName);
         }
 
-        public Task DeleteMediaAsync(Media media)
+        public async Task DeleteMediaAsync(Media media)
         {
-            _mediaRepository.DeleteAsync(media);
-            return DeleteMediaAsync(media.FileName);
+            await _mediaRepository.DeleteAsync(media);
+            await DeleteMediaAsync(media.FileName);
         }
     }
 }

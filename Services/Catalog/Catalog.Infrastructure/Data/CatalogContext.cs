@@ -45,5 +45,30 @@ namespace Catalog.Infrastructure.Data
 
             base.OnModelCreating(modelBuilder);
         }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is BaseEntity &&
+                            (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entry in entries)
+            {
+                var entity = (BaseEntity)entry.Entity;
+
+                if (entry.State == EntityState.Added && entity.CreatedDate == default)
+                {
+                    entity.CreatedDate = DateTime.UtcNow;
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entity.LastModifiedDate = DateTime.UtcNow;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
     }
 }
