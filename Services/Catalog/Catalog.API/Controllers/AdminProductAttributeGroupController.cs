@@ -1,6 +1,8 @@
 ﻿using Catalog.Application.ProductAttributeGroups.Commands;
 using Catalog.Application.ProductAttributeGroups.Queries;
 using Catalog.Application.Requests;
+using Catalog.Application.Responses;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +20,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(BaseResponse<List<ProductAttributeGroupResponse>>), 200)]
         public async Task<ActionResult> GetAllProductAttributeGroups([FromQuery] GetAllProductAttributeGroupsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -25,6 +28,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), 200)]
         public async Task<ActionResult> GetProductAttributeGroupById(string id)
         {
             var query = new GetProductAttributeGroupQuery(id);
@@ -33,6 +37,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), 200)]
         public async Task<ActionResult> CreateProductAttributeGroup([FromBody] CreateProductAttributeGroupRequest request)
         {
             var command = new CreateProductAttributeGroupCommand(request);
@@ -41,6 +46,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), 200)]
         public async Task<ActionResult> UpdateProductAttributeGroup([FromBody] UpdateProductAttributeGroupRequest request)
         {
             var command = new UpdateProductAttributeGroupCommand(request);
@@ -49,6 +55,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         public async Task<ActionResult> DeleteProductAttributeGroup(string id)
         {
             var command = new DeleteProductAttributeGroupCommand(id);

@@ -1,6 +1,8 @@
 ﻿using Catalog.Application.ProductTemplates.Commands;
 using Catalog.Application.ProductTemplates.Queries;
 using Catalog.Application.Requests;
+using Catalog.Application.Responses;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +20,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(BaseResponse<List<ProductTemplateResponse>>), 200)]
         public async Task<ActionResult> GetAllProductTemplates([FromQuery] GetAllProductTemplatesQuery query)
         {
             var result = await _mediator.Send(query);
@@ -25,6 +28,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), 200)]
         public async Task<ActionResult> GetProductTemplateById(string id)
         {
             var query = new GetProductTemplateQuery(id);
@@ -33,6 +37,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), 200)]
         public async Task<ActionResult> CreateProductTemplate([FromBody] CreateProductTemplateRequest request)
         {
             var command = new CreateProductTemplateCommand(request);
@@ -41,6 +46,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), 200)]
         public async Task<ActionResult> UpdateProductTemplate([FromBody] UpdateProductTemplateRequest request)
         {
             var command = new UpdateProductTemplateCommand(request);
@@ -49,6 +55,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         public async Task<ActionResult> DeleteProductTemplate(string id)
         {
             var command = new DeleteProductTemplateCommand(id);

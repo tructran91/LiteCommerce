@@ -1,6 +1,8 @@
 ﻿using Catalog.Application.Products.Commands;
 using Catalog.Application.Products.Queries;
 using Catalog.Application.Requests;
+using Catalog.Application.Responses;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +20,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(BaseResponse<List<BasicProductResponse>>), 200)]
         public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -25,6 +28,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<ProductResponse>), 200)]
         public async Task<ActionResult> GetProductById(string id)
         {
             var query = new GetProductQuery(id);
@@ -49,6 +53,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(BaseResponse<ProductResponse>), 200)]
         public async Task<ActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
             var command = new CreateProductCommand(request);
@@ -73,6 +78,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(BaseResponse<ProductResponse>), 200)]
         public async Task<ActionResult> UpdateProduct([FromForm] UpdateProductRequest request)
         {
             var command = new UpdateProductCommand(request);
@@ -97,6 +103,9 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost("upload-content-image")]
+        [ProducesResponseType(typeof(BaseResponse<string>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<object>), 400)]
+        [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> UploadContentImage([FromForm] UploadContentImageRequest request)
         {
             if (request.File == null || request.File.Length == 0)

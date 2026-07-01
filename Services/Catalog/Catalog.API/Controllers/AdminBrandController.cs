@@ -1,6 +1,8 @@
 ﻿using Catalog.Application.Brands.Commands;
 using Catalog.Application.Brands.Queries;
 using Catalog.Application.Requests;
+using Catalog.Application.Responses;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +20,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(BaseResponse<List<BrandResponse>>), 200)]
         public async Task<IActionResult> GetAllBrands([FromQuery] GetAllBrandsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -25,6 +28,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<BrandResponse>), 200)]
         public async Task<ActionResult> GetBrandById(string id)
         {
             var query = new GetBrandQuery(id);
@@ -33,6 +37,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(BaseResponse<BrandResponse>), 200)]
         public async Task<ActionResult> CreateBrand([FromBody] CreateBrandRequest request)
         {
             var command = new CreateBrandCommand(request);
@@ -41,6 +46,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(BaseResponse<BrandResponse>), 200)]
         public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
         {
             var command = new UpdateBrandCommand(request);
@@ -49,6 +55,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         public async Task<IActionResult> DeleteBrand(string id)
         {
             var command = new DeleteBrandCommand(id);

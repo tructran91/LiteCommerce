@@ -1,6 +1,6 @@
 ﻿namespace Catalog.Application.Requests
 {
-    public class UpdateProductAttributeRequest : CreateProductAttributeRequest
+    public record UpdateProductAttributeRequest : CreateProductAttributeRequest
     {
         public string Id { get; set; }
     }

@@ -1,6 +1,8 @@
 ﻿using Catalog.Application.Categories.Commands;
 using Catalog.Application.Categories.Queries;
 using Catalog.Application.Requests;
+using Catalog.Application.Responses;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +20,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(BaseResponse<List<CategoryResponse>>), 200)]
         public async Task<IActionResult> GetAllCategories([FromQuery] GetAllCategoriesQuery query)
         {
             var result = await _mediator.Send(query);
@@ -25,6 +28,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("basic")]
+        [ProducesResponseType(typeof(BaseResponse<List<BasicCategoryResponse>>), 200)]
         public async Task<IActionResult> GetAllBasicCategories()
         {
             var query = new GetAllBasicCategoriesQuery();
@@ -33,6 +37,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), 200)]
         public async Task<ActionResult> GetCategoryById(string id)
         {
             var query = new GetCategoryQuery(id);
@@ -47,6 +52,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), 200)]
         public async Task<ActionResult> CreateCategory([FromForm] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand(request);
@@ -55,6 +61,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), 200)]
         public async Task<IActionResult> UpdateCategory([FromForm] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand(request);
@@ -63,6 +70,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         public async Task<IActionResult> DeleteCategory(string id)
         {
             var command = new DeleteCategoryCommand(id);

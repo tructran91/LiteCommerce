@@ -1,6 +1,8 @@
 ﻿using Catalog.Application.ProductOptions.Commands;
 using Catalog.Application.ProductOptions.Queries;
 using Catalog.Application.Requests;
+using Catalog.Application.Responses;
+using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +20,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(BaseResponse<List<ProductOptionResponse>>), 200)]
         public async Task<ActionResult> GetAllProductOptions([FromQuery] GetAllProductOptionsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -25,6 +28,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), 200)]
         public async Task<ActionResult> GetProductOptionById(string id)
         {
             var query = new GetProductOptionQuery(id);
@@ -33,6 +37,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), 200)]
         public async Task<ActionResult> CreateProductOption([FromBody] CreateProductOptionRequest request)
         {
             var command = new CreateProductOptionCommand(request);
@@ -41,6 +46,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), 200)]
         public async Task<ActionResult> UpdateProductOption([FromBody] UpdateProductOptionRequest request)
         {
             var command = new UpdateProductOptionCommand(request);
@@ -49,6 +55,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         public async Task<ActionResult> DeleteProductOption(string id)
         {
             var command = new DeleteProductOptionCommand(id);

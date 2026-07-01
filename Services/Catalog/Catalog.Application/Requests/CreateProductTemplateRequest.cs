@@ -2,7 +2,7 @@
 
 namespace Catalog.Application.Requests
 {
-    public class CreateProductTemplateRequest
+    public record CreateProductTemplateRequest
     {
         public string Name { get; set; }
 

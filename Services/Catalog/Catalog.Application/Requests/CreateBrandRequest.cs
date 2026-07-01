@@ -1,6 +1,6 @@
 ﻿namespace Catalog.Application.Requests
 {
-    public class CreateBrandRequest
+    public record CreateBrandRequest
     {
         public string Name { get; set; }
 
