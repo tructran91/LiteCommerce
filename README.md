@@ -14,9 +14,12 @@ The frontend is built using **Blazor**, providing an interactive and modern sing
 The system consists of the following microservices:
 
 ### 1. **Catalog Service** (In Progress)
-Manages product information including categories, brands, and attributes.
-- Product CRUD operations
-- Search and filter functionality
+Manages the product catalog through an admin API used by the Blazor admin app.
+- Brands, categories (hierarchical), product options, attributes, and templates
+- Products with pricing, images and documents, SEO fields, and related products
+- Bulk price updates with price history
+- Audit log (row-level data changes) and activity log (admin actions)
+- Clean Architecture with CQRS (MediatR)
 
 ### 2. **User Service** (Not Yet Implemented)
 Handles user registration, authentication, and profile management.
@@ -54,10 +57,11 @@ Manages promotional offers and discounts.
 - Discount application rules
 
 ## Technology Stack
-- **Frontend:** Blazor
-- **Backend:** .NET 8
-- **Database:** SQL Server databases for each service
-- **Communication:** REST APIs and message brokers for inter-service communication
+- **Frontend:** Blazor WebAssembly with MudBlazor
+- **Backend:** .NET 10 (the Ocelot API Gateway runs on .NET 8)
+- **Database:** SQL Server per service, accessed through Entity Framework Core
+- **Libraries:** MediatR, FluentValidation, AutoMapper, Refit, Serilog
+- **Communication:** REST APIs (message brokers planned for inter-service events)
 
 ## Future Improvements
 - Implement advanced search with Elasticsearch.
