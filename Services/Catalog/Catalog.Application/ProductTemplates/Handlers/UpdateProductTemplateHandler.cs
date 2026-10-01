@@ -29,7 +29,7 @@ namespace Catalog.Application.ProductTemplates.Handlers
             _logger.LogInformation($"UpdateProductTemplateHandler: {JsonSerializer.Serialize(payload)}");
 
             var existingTemplates = await _productTemplateRepository.GetAsync(
-                predicate: t => t.Id == Guid.Parse(payload.Id) && !t.IsDeleted,
+                predicate: t => t.Id == Guid.Parse(request.Id) && !t.IsDeleted,
                 includeString: "ProductAttributes.ProductAttribute",
                 disableTracking: false);
             var existingTemplate = existingTemplates.FirstOrDefault();
@@ -39,7 +39,7 @@ namespace Catalog.Application.ProductTemplates.Handlers
             }
 
             var existingTemplateByName = await _productTemplateRepository
-                .AnyAsync(t => t.Name.ToLower() == payload.Name.ToLower() && t.Id.ToString() != payload.Id);
+                .AnyAsync(t => t.Name.ToLower() == payload.Name.ToLower() && t.Id != Guid.Parse(request.Id));
             if (existingTemplateByName)
             {
                 return BaseResponse<ProductTemplateResponse>.Failure("Product Template already exists.", statusCode: HttpStatusCode.Conflict);

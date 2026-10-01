@@ -7,10 +7,13 @@ namespace Catalog.Application.ProductAttributeGroups.Commands
 {
     public class UpdateProductAttributeGroupCommand : IRequest<BaseResponse<ProductAttributeGroupResponse>>
     {
+        public string Id { get; set; }
+
         public UpdateProductAttributeGroupRequest Payload { get; set; }
 
-        public UpdateProductAttributeGroupCommand(UpdateProductAttributeGroupRequest payload)
+        public UpdateProductAttributeGroupCommand(string id, UpdateProductAttributeGroupRequest payload)
         {
+            Id = id;
             Payload = payload;
         }
     }

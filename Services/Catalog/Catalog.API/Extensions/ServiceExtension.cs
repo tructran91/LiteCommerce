@@ -6,8 +6,12 @@ using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
 using FluentValidation;
+using LiteCommerce.Shared.Models;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Reflection;
 
 namespace Catalog.API.Extensions
@@ -39,6 +43,42 @@ namespace Catalog.API.Extensions
                     };
                     return Task.CompletedTask;
                 });
+            });
+        }
+
+        // Model-binding errors never reach MediatR; return them as BaseResponse instead of ProblemDetails.
+        public static void ConfigureBaseResponseErrors(this IMvcBuilder builder)
+        {
+            builder.ConfigureApiBehaviorOptions(options =>
+            {
+                // Leave 404/405/415 bodies empty so UseBaseResponseStatusCodePages writes them.
+                options.SuppressMapClientErrors = true;
+
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState
+                        .Where(x => x.Value?.Errors.Count > 0)
+                        .ToDictionary(
+                            x => string.Join('.', x.Key.Split('.').Select(s => s.Length == 0 ? s : char.ToLowerInvariant(s[0]) + s[1..])),
+                            x => x.Value!.Errors.Select(e => e.ErrorMessage).ToList());
+
+                    var response = BaseResponse<object>.Failure("One or more validation errors occurred", errors);
+                    return new JsonResult(response, ErrorJson.Options) { StatusCode = StatusCodes.Status400BadRequest };
+                };
+            });
+        }
+
+        // Framework-generated errors (unknown route, wrong method/media type) get a BaseResponse body too.
+        public static void UseBaseResponseStatusCodePages(this WebApplication app)
+        {
+            app.UseStatusCodePages(async context =>
+            {
+                var statusCode = context.HttpContext.Response.StatusCode;
+                var response = BaseResponse<object>.Failure(
+                    ReasonPhrases.GetReasonPhrase(statusCode),
+                    statusCode: (HttpStatusCode)statusCode);
+
+                await context.HttpContext.Response.WriteAsJsonAsync(response, ErrorJson.Options);
             });
         }
 

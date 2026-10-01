@@ -17,7 +17,7 @@ namespace LiteCommerce.Admin.ApiClients
         Task<BaseResponse<ProductAttributeResponse>> CreateProductAttributeAsync([Body] ProductAttributeFormModel productAttribute);
 
         [Put(ApiRoutes.ProductAttribute.Update)]
-        Task<BaseResponse<ProductAttributeResponse>> UpdateProductAttributeAsync([Body] ProductAttributeFormModel productAttribute);
+        Task<BaseResponse<ProductAttributeResponse>> UpdateProductAttributeAsync(string id, [Body] ProductAttributeFormModel productAttribute);
 
         [Delete(ApiRoutes.ProductAttribute.Delete)]
         Task<BaseResponse<bool>> DeleteProductAttributeAsync(string id);

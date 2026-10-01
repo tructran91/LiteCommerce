@@ -68,9 +68,9 @@ namespace Catalog.Application.Services
             await DeleteFolderAsync(sourceSubFolder);
         }
 
-        public Task DeleteFileAsync(string fileName)
+        public Task DeleteFileAsync(string fileName, string? subFolder = null)
         {
-            var filePath = Path.Combine(GetFullPath(), fileName);
+            var filePath = Path.Combine(GetFullPath(subFolder), fileName);
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);

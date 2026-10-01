@@ -11,7 +11,6 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
 {
@@ -37,41 +36,55 @@ namespace Catalog.Application.Categories.Handlers
         public async Task<BaseResponse<CategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation($"CreateCategoryHandler: {JsonSerializer.Serialize(payload)}");
+            _logger.LogInformation("CreateCategoryHandler: {CategoryName} {ParentId}", payload.Name, payload.ParentId);
 
-            var isExistingCategory = await _categoryRepository.AnyAsync(t => t.Name.ToLower() == payload.Name.ToLower());
-            if (isExistingCategory)
-            {
-                return BaseResponse<CategoryResponse>.Failure("Category already exists.", statusCode: HttpStatusCode.Conflict);
-            }
+            Guid? parentId = string.IsNullOrEmpty(payload.ParentId) ? null : Guid.Parse(payload.ParentId);
 
-            if (!string.IsNullOrEmpty(payload.ParentId))
+            if (parentId.HasValue)
             {
-                var isExistingParentCategory = await _categoryRepository.GetByIdAsync(Guid.Parse(payload.ParentId));
+                var isExistingParentCategory = await _categoryRepository.GetByIdAsync(parentId.Value);
                 if (isExistingParentCategory is null)
                 {
                     return BaseResponse<CategoryResponse>.Failure("Parent Category does not exist.", statusCode: HttpStatusCode.NotFound);
                 }
             }
 
+            var isExistingCategory = await _categoryRepository
+                .AnyAsync(t => t.ParentId == parentId && t.Name.ToLower() == payload.Name.ToLower());
+            if (isExistingCategory)
+            {
+                return BaseResponse<CategoryResponse>.Failure("Category already exists.", statusCode: HttpStatusCode.Conflict);
+            }
+
             var category = _mapper.Map<Category>(payload);
             category.Slug = category.Name.Slugify();
 
+            string? newFileName = null;
             if (payload.ThumbnailImage != null)
             {
-                var fileName = await _mediaService.SaveMediaAsync(payload.ThumbnailImage, StorageFolder.Category);
+                newFileName = await _mediaService.SaveMediaAsync(payload.ThumbnailImage, StorageFolder.Category);
                 category.ThumbnailImage = new Media
                 {
-                    FileName = fileName,
-                    MediaType = MediaType.Image,
-                    CreatedDate = DateTime.UtcNow
+                    FileName = newFileName,
+                    MediaType = MediaType.Image
                 };
             }
 
-            var createdCategory = await _categoryRepository.AddAsync(category);
+            Category createdCategory;
+            try
+            {
+                createdCategory = await _categoryRepository.AddAsync(category);
+            }
+            catch
+            {
+                if (newFileName != null)
+                    await _mediaService.DeleteMediaAsync(newFileName, StorageFolder.Category);
+                throw;
+            }
+
             var response = _mapper.Map<CategoryResponse>(createdCategory);
 
-            return BaseResponse<CategoryResponse>.Success(response);
+            return BaseResponse<CategoryResponse>.Success(response, statusCode: HttpStatusCode.Created);
         }
     }
 }

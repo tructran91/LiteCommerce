@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Products.Commands;
+using Catalog.Core.Constants;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Validators;
@@ -12,7 +13,8 @@ namespace Catalog.Application.Products.Validators
 
             RuleFor(x => x.Payload.Product.Name)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
-                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"));
+                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
+                .MaximumLength(FieldLength.ProductName).WithMessage(ValidationMessages.MaximumLength("Name", FieldLength.ProductName));
 
             RuleFor(x => x.Payload.Product.BrandId)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Brand"))

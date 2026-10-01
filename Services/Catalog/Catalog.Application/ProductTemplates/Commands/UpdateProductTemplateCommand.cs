@@ -7,10 +7,13 @@ namespace Catalog.Application.ProductTemplates.Commands
 {
     public class UpdateProductTemplateCommand : IRequest<BaseResponse<ProductTemplateResponse>>
     {
+        public string Id { get; set; }
+
         public UpdateProductTemplateRequest Payload { get; set; }
 
-        public UpdateProductTemplateCommand(UpdateProductTemplateRequest payload)
+        public UpdateProductTemplateCommand(string id, UpdateProductTemplateRequest payload)
         {
+            Id = id;
             Payload = payload;
         }
     }

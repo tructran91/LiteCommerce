@@ -14,14 +14,16 @@ namespace Catalog.Infrastructure.Repositories
 
         public async Task<Product> GetProductAsync(Guid id)
         {
-            var product = _dbContext.Products
+            // Avoids cartesian explosion from the collection includes.
+            var product = await _dbContext.Products
+                .AsSplitQuery()
                 .Include(t => t.ThumbnailImage)
                 .Include(t => t.Medias).ThenInclude(t => t.Media)
                 .Include(t => t.ProductLinks).ThenInclude(p => p.LinkedProduct).ThenInclude(m => m.ThumbnailImage)
                 .Include(x => x.OptionValues).ThenInclude(o => o.Option)
                 .Include(x => x.AttributeValues).ThenInclude(a => a.Attribute).ThenInclude(g => g.Group)
                 .Include(x => x.Categories)
-                .FirstOrDefault(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             return product;
         }
@@ -73,6 +75,13 @@ namespace Catalog.Infrastructure.Repositories
                 .ToListAsync();
 
             return (products, totalCount);
+        }
+
+        public async Task<List<ProductLink>> GetLinksInvolvingAsync(Guid productId)
+        {
+            return await _dbContext.ProductLinks
+                .Where(l => l.ProductId == productId || l.LinkedProductId == productId)
+                .ToListAsync();
         }
     }
 }

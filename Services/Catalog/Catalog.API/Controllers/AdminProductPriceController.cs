@@ -10,7 +10,7 @@ namespace Catalog.API.Controllers
 {
     [Route("api/admin/product-price")]
     [ApiController]
-    public class AdminProductPriceController : ControllerBase
+    public class AdminProductPriceController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -20,20 +20,24 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetProductPricing([FromQuery] GetProductPricingQuery query)
         {
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
-        [HttpPut]
-        [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), 200)]
+        // PATCH, not PUT: only the listed products' prices change; the rest of the collection is untouched.
+        [HttpPatch]
+        [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProductPricing([FromBody] UpdateProductPricingListRequest request)
         {
             var command = new UpdateProductPricingCommand(request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
     }
 }

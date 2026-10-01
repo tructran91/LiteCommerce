@@ -55,7 +55,7 @@ namespace Catalog.Application.ProductTemplates.Handlers
                 ProductAttributes = payload.ProductAttributes
             };
 
-            return BaseResponse<ProductTemplateResponse>.Success(responseTemplate);
+            return BaseResponse<ProductTemplateResponse>.Success(responseTemplate, statusCode: HttpStatusCode.Created);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
             var createdProductAttributeGroup = await _ProductAttributeGroupRepository.AddAsync(newProductAttributeGroup);
             var responseMapping = _mapper.Map<ProductAttributeGroupResponse>(createdProductAttributeGroup);
 
-            return BaseResponse<ProductAttributeGroupResponse>.Success(responseMapping);
+            return BaseResponse<ProductAttributeGroupResponse>.Success(responseMapping, statusCode: HttpStatusCode.Created);
         }
     }
 }

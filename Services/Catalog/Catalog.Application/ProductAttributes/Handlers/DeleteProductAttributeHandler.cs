@@ -13,15 +13,18 @@ namespace Catalog.Application.ProductAttributes.Handlers
     {
         private readonly IBaseRepository<ProductAttribute> _productAttributeRepository;
         private readonly IBaseRepository<ProductTemplateProductAttribute> _templateAttributeRepository;
+        private readonly IBaseRepository<Product> _productRepository;
         private readonly ILogger<DeleteProductAttributeHandler> _logger;
 
         public DeleteProductAttributeHandler(
             IBaseRepository<ProductAttribute> productAttributeRepository,
             IBaseRepository<ProductTemplateProductAttribute> templateAttributeRepository,
+            IBaseRepository<Product> productRepository,
             ILogger<DeleteProductAttributeHandler> logger)
         {
             _productAttributeRepository = productAttributeRepository;
             _templateAttributeRepository = templateAttributeRepository;
+            _productRepository = productRepository;
             _logger = logger;
         }
 
@@ -36,13 +39,22 @@ namespace Catalog.Application.ProductAttributes.Handlers
                 return BaseResponse<bool>.Failure("Product Attribute does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
+            var isUsedByProducts = await _productRepository
+                .AnyAsync(p => p.AttributeValues.Any(av => av.AttributeId == existingProductAttribute.Id));
+            if (isUsedByProducts)
+            {
+                return BaseResponse<bool>.Failure(
+                    "Cannot delete Product Attribute because it is being used by one or more Products.",
+                    statusCode: HttpStatusCode.Conflict);
+            }
+
             var isUsedInTemplates = await _templateAttributeRepository
                 .AnyAsync(ta => ta.ProductAttributeId == existingProductAttribute.Id);
             if (isUsedInTemplates)
             {
                 return BaseResponse<bool>.Failure(
                     "Cannot delete Product Attribute because it is being used by one or more Product Templates.",
-                    statusCode: HttpStatusCode.BadRequest);
+                    statusCode: HttpStatusCode.Conflict);
             }
 
             existingProductAttribute.IsDeleted = true;

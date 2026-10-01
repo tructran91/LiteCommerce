@@ -30,14 +30,15 @@ var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"]
     ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(catalogUrl) });
-builder.Services.AddRefitClient<IBrandApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<ICategoryApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductOptionApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductAttributeGroupApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductAttributeApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductTemplateApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductPriceApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+var refitSettings = ApiClientSettings.Create();
+builder.Services.AddRefitClient<IBrandApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<ICategoryApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductOptionApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductAttributeGroupApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductAttributeApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductTemplateApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IProductPriceApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 
 // System Service
 builder.Services.AddScoped<AppSettingsService>();

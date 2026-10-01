@@ -2,6 +2,5 @@
 {
     public class UpdateCategoryRequest : CreateCategoryRequest
     {
-        public string Id { get; set; }
     }
 }

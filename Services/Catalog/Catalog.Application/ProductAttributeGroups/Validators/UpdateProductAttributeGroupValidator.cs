@@ -9,7 +9,7 @@ namespace Catalog.Application.ProductAttributeGroups.Validators
     {
         public UpdateProductAttributeGroupValidator()
         {
-            RuleFor(x => x.Payload.Id)
+            RuleFor(x => x.Id)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
                 .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
                 .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("Id"));

@@ -39,7 +39,7 @@ namespace Catalog.Application.ProductOptions.Handlers
             var createdProductOption = await _productOptionRepository.AddAsync(newProductOption);
             var responseMapping = _mapper.Map<ProductOptionResponse>(createdProductOption);
 
-            return BaseResponse<ProductOptionResponse>.Success(responseMapping);
+            return BaseResponse<ProductOptionResponse>.Success(responseMapping, statusCode: HttpStatusCode.Created);
         }
     }
 }

@@ -58,10 +58,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
                 }
                 else
                 {
-                    var errorDetails = result.Errors != null && result.Errors.Any()
-                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
-                        : result.Message ?? SystemMessages.ErrorOccurred;
-
+                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -71,9 +68,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
                 _errorMessage = ex.Message;
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private void OnSortChanged(SortDirection direction)
@@ -122,14 +121,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductPrices
                 }
                 else
                 {
-                    if (response.Errors != null && response.Errors.ContainsKey("NotFoundProductIds"))
+                    if (response.Errors != null && response.Errors.TryGetValue("notFoundProductIds", out var notFoundIds))
                     {
-                        var notFoundIds = string.Join(", ", response.Errors["NotFoundProductIds"]);
-                        Snackbar.Add($"Products not found: {notFoundIds}", Severity.Error);
+                        Snackbar.Add($"Products not found: {string.Join(", ", notFoundIds)}", Severity.Error);
                     }
                     else
                     {
-                        Snackbar.Add(response.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                        Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
                     }
                 }
             }

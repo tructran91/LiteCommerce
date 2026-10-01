@@ -56,10 +56,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 }
                 else
                 {
-                    var errorDetails = result.Errors != null && result.Errors.Any()
-                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
-                        : result.Message ?? SystemMessages.ErrorOccurred;
-
+                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -69,9 +66,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 _errorMessage = ex.Message;
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private void OnSortChanged(SortDirection direction)
@@ -93,15 +92,24 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         {
             _loading = true;
 
-            await _deleteHelper.ExecuteDeleteOperation(
-                category.Id,
-                category.Name,
-                CategoryApi.DeleteCategoryAsync,
-                async () => await LoadData()
-            );
-
-            _loading = false;
-            StateHasChanged();
+            try
+            {
+                await _deleteHelper.ExecuteDeleteOperation(
+                    category.Id,
+                    category.Name,
+                    CategoryApi.DeleteCategoryAsync,
+                    async () => await LoadData()
+                );
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Categories.Commands;
+using Catalog.Core.Constants;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Validators;
@@ -12,7 +13,8 @@ namespace Catalog.Application.Categories.Validators
 
             RuleFor(x => x.Payload.Name)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
-                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"));
+                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
+                .MaximumLength(FieldLength.CategoryName).WithMessage(ValidationMessages.MaximumLength("Name", FieldLength.CategoryName));
 
             RuleFor(x => x.Payload.DisplayOrder)
                 .GreaterThanOrEqualTo(0).WithMessage(ValidationMessages.MustBeGreaterThanOrEqual("DisplayOrder", 0));

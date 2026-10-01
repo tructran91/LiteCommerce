@@ -42,7 +42,7 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
             {
                 return BaseResponse<bool>.Failure(
                     "Cannot delete Attribute Group because it is being used by one or more Attributes.",
-                    statusCode: HttpStatusCode.BadRequest);
+                    statusCode: HttpStatusCode.Conflict);
             }
 
             existingProductAttributeGroup.IsDeleted = true;

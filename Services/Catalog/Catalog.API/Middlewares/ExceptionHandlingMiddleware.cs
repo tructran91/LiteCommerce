@@ -1,11 +1,18 @@
-﻿using Catalog.Application.Exceptions;
+﻿using Catalog.API.Extensions;
+using Catalog.Application.Exceptions;
 using Catalog.Core.Exceptions;
-using System.Text.Json;
+using LiteCommerce.Shared.Models;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Catalog.API.Middlewares
 {
     internal sealed class ExceptionHandlingMiddleware : IMiddleware
     {
+        private const int SqlUniqueIndexViolation = 2601;
+        private const int SqlUniqueConstraintViolation = 2627;
+
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
         public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger) => _logger = logger;
@@ -18,57 +25,53 @@ namespace Catalog.API.Middlewares
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                var statusCode = GetStatusCode(e);
 
-                await HandleExceptionAsync(context, e);
+                if (statusCode == HttpStatusCode.InternalServerError)
+                    _logger.LogError(e, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+                else
+                    _logger.LogWarning("Request {Method} {Path} failed with {StatusCode}: {Message}",
+                        context.Request.Method, context.Request.Path, (int)statusCode, e.Message);
+
+                await HandleExceptionAsync(context, e, statusCode);
             }
         }
 
-        private static async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+        private static async Task HandleExceptionAsync(HttpContext httpContext, Exception exception, HttpStatusCode statusCode)
         {
-            var statusCode = GetStatusCode(exception);
+            var response = BaseResponse<object>.Failure(
+                GetMessage(exception, statusCode),
+                errors: GetErrors(exception),
+                statusCode: statusCode);
 
-            var response = new
-            {
-                title = GetTitle(exception),
-                status = statusCode,
-                detail = exception.Message,
-                errors = GetErrors(exception)
-            };
+            httpContext.Response.StatusCode = (int)statusCode;
 
-            httpContext.Response.ContentType = "application/json";
-
-            httpContext.Response.StatusCode = statusCode;
-
-            await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await httpContext.Response.WriteAsJsonAsync(response, ErrorJson.Options);
         }
 
-        private static int GetStatusCode(Exception exception) =>
+        private static HttpStatusCode GetStatusCode(Exception exception) =>
             exception switch
             {
-                BadRequestException => StatusCodes.Status400BadRequest,
-                NotFoundException => StatusCodes.Status404NotFound,
-                ValidationException => StatusCodes.Status422UnprocessableEntity,
-                _ => StatusCodes.Status500InternalServerError
+                ValidationException => HttpStatusCode.BadRequest,
+                BadRequestException => HttpStatusCode.BadRequest,
+                NotFoundException => HttpStatusCode.NotFound,
+                DbUpdateException { InnerException: SqlException { Number: SqlUniqueIndexViolation or SqlUniqueConstraintViolation } }
+                    => HttpStatusCode.Conflict,
+                _ => HttpStatusCode.InternalServerError
             };
 
-        private static string GetTitle(Exception exception) =>
-            exception switch
+        private static string GetMessage(Exception exception, HttpStatusCode statusCode) =>
+            statusCode switch
             {
-                Catalog.Core.Exceptions.ApplicationException applicationException => applicationException.Title,
-                _ => "Server Error"
+                HttpStatusCode.Conflict when exception is DbUpdateException => "A record with the same unique value already exists.",
+                // Details stay in the log, never in the response.
+                HttpStatusCode.InternalServerError => "An unexpected error occurred.",
+                _ => exception.Message
             };
 
-        private static IReadOnlyDictionary<string, string[]> GetErrors(Exception exception)
-        {
-            IReadOnlyDictionary<string, string[]> errors = null;
-
-            if (exception is ValidationException validationException)
-            {
-                errors = validationException.ErrorsDictionary;
-            }
-
-            return errors;
-        }
+        private static Dictionary<string, List<string>>? GetErrors(Exception exception) =>
+            exception is ValidationException validationException
+                ? validationException.ErrorsDictionary.ToDictionary(x => x.Key, x => x.Value.ToList())
+                : null;
     }
 }

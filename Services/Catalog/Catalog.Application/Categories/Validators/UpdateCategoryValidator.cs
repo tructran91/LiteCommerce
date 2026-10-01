@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Categories.Commands;
+using Catalog.Core.Constants;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Validators;
@@ -9,14 +10,15 @@ namespace Catalog.Application.Categories.Validators
     {
         public UpdateCategoryValidator()
         {
-            RuleFor(x => x.Payload.Id)
+            RuleFor(x => x.Id)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
                 .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
                 .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("Id"));
 
             RuleFor(x => x.Payload.Name)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
-                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"));
+                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
+                .MaximumLength(FieldLength.CategoryName).WithMessage(ValidationMessages.MaximumLength("Name", FieldLength.CategoryName));
 
 
             RuleFor(x => x.Payload.DisplayOrder)

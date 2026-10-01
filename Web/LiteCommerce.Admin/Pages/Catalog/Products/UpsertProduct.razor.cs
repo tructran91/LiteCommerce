@@ -6,6 +6,7 @@ using LiteCommerce.Admin.Models.Business.Category;
 using LiteCommerce.Admin.Models.Business.Product;
 using LiteCommerce.Admin.Models.Business.ProductAttribute;
 using LiteCommerce.Admin.Models.Business.ProductTemplate;
+using LiteCommerce.Admin.Models.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
@@ -163,7 +164,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 content.Add(new StringContent(isNewProduct.ToString()), "isNewProduct");
 
                 var response = await ProductApi.UploadContentImageAsync(content);
-                return response?.Url;
+                if (!response.IsSuccess)
+                {
+                    Snackbar.Add($"Upload image failed: {response.GetErrorMessage(SystemMessages.ErrorOccurred)}", Severity.Error);
+                    return null;
+                }
+
+                return response.Data;
             }
             catch (Exception ex)
             {
@@ -223,11 +230,22 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private async Task LoadProduct()
         {
             _loading = true;
-            var response = await ProductApi.GetProductAsync(Id!);
+
+            BaseResponse<ProductFormModel> response;
+            try
+            {
+                response = await ProductApi.GetProductAsync(Id!);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                _loading = false;
+                return;
+            }
 
             if (!response.IsSuccess)
             {
-                Snackbar.Add(response.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
                 _loading = false;
                 return;
             }
@@ -612,9 +630,6 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         {
             var content = new MultipartFormDataContent();
 
-            if (!string.IsNullOrEmpty(_productForm.Id))
-                content.Add(new StringContent(_productForm.Id), "Product.Id");
-
             content.Add(new StringContent(_productForm.Name ?? string.Empty), "Product.Name");
             content.Add(new StringContent(_productForm.ShortDescription ?? string.Empty), "Product.ShortDescription");
             content.Add(new StringContent(_productForm.Description ?? string.Empty), "Product.Description");
@@ -710,27 +725,37 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             _productForm.Description = await _descriptionEditor.GetHTML();
 
             _loading = true;
-            var content = await CreateMultipartFormDataContent();
 
-            var response = _isEditMode
-                ? await ProductApi.UpdateProductAsync(content)
-                : await ProductApi.CreateProductAsync(content);
-
-            if (response.IsSuccess)
+            try
             {
-                var successMessage = _isEditMode
-                    ? SystemMessages.UpdateDataSuccess
-                    : SystemMessages.AddDataSuccess;
+                var content = await CreateMultipartFormDataContent();
 
-                Snackbar.Add(successMessage, Severity.Success);
-                NavigationManager.NavigateTo("/products");
+                var response = _isEditMode
+                    ? await ProductApi.UpdateProductAsync(Id!, content)
+                    : await ProductApi.CreateProductAsync(content);
+
+                if (response.IsSuccess)
+                {
+                    var successMessage = _isEditMode
+                        ? SystemMessages.UpdateDataSuccess
+                        : SystemMessages.AddDataSuccess;
+
+                    Snackbar.Add(successMessage, Severity.Success);
+                    NavigationManager.NavigateTo("/products");
+                }
+                else
+                {
+                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Snackbar.Add(response.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
+            finally
+            {
+                _loading = false;
+            }
         }
 
         private void Cancel()

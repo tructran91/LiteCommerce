@@ -10,7 +10,7 @@ namespace Catalog.API.Controllers
 {
     [Route("api/admin/product-option")]
     [ApiController]
-    public class AdminProductOptionController : ControllerBase
+    public class AdminProductOptionController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -20,47 +20,58 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(BaseResponse<List<ProductOptionResponse>>), 200)]
-        public async Task<ActionResult> GetAllProductOptions([FromQuery] GetAllProductOptionsQuery query)
+        [ProducesResponseType(typeof(BaseResponse<List<ProductOptionResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetAllProductOptions([FromQuery] GetAllProductOptionsQuery query)
         {
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), 200)]
-        public async Task<ActionResult> GetProductOptionById(string id)
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProductOptionById(string id)
         {
             var query = new GetProductOptionQuery(id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), 200)]
-        public async Task<ActionResult> CreateProductOption([FromBody] CreateProductOptionRequest request)
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> CreateProductOption([FromBody] CreateProductOptionRequest request)
         {
             var command = new CreateProductOptionCommand(request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToCreatedResult(result, nameof(GetProductOptionById), item => new { id = item.Id });
         }
 
-        [HttpPut]
-        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), 200)]
-        public async Task<ActionResult> UpdateProductOption([FromBody] UpdateProductOptionRequest request)
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> UpdateProductOption(string id, [FromBody] UpdateProductOptionRequest request)
         {
-            var command = new UpdateProductOptionCommand(request);
+            var command = new UpdateProductOptionCommand(id, request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
-        public async Task<ActionResult> DeleteProductOption(string id)
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> DeleteProductOption(string id)
         {
             var command = new DeleteProductOptionCommand(id);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
     }
 }

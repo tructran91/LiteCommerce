@@ -61,23 +61,33 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         private async Task LoadCategory()
         {
             _loading = true;
-            var response = await CategoryApi.GetCategoryAsync(Id!);
 
-            if (response.IsSuccess)
+            try
             {
-                _categoryForm = response.Data;
+                var response = await CategoryApi.GetCategoryAsync(Id!);
 
-                if (!string.IsNullOrEmpty(_categoryForm.ThumbnailImageUrl))
+                if (response.IsSuccess)
                 {
-                    _thumbnailPreviewUrl = _categoryForm.ThumbnailImageUrl;
+                    _categoryForm = response.Data;
+
+                    if (!string.IsNullOrEmpty(_categoryForm.ThumbnailImageUrl))
+                    {
+                        _thumbnailPreviewUrl = _categoryForm.ThumbnailImageUrl;
+                    }
+                }
+                else
+                {
+                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Snackbar.Add(response.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
+            finally
+            {
+                _loading = false;
+            }
         }
 
         private async Task OnThumbnailSelected(InputFileChangeEventArgs e)
@@ -127,9 +137,6 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         {
             var content = new MultipartFormDataContent();
 
-            if (!string.IsNullOrEmpty(_categoryForm.Id))
-                content.Add(new StringContent(_categoryForm.Id), "Id");
-
             content.Add(new StringContent(_categoryForm.Name ?? string.Empty), "Name");
             content.Add(new StringContent(_categoryForm.Slug ?? string.Empty), "Slug");
             content.Add(new StringContent(_categoryForm.Description ?? string.Empty), "Description");
@@ -159,27 +166,37 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             if (!_form.IsValid) return;
 
             _loading = true;
-            var content = await CreateMultipartFormDataContent();
 
-            var response = _isEditMode
-                ? await CategoryApi.UpdateCategoryAsync(content)
-                : await CategoryApi.CreateCategoryAsync(content);
-
-            if (response.IsSuccess)
+            try
             {
-                var successMessage = _isEditMode
-                    ? SystemMessages.UpdateDataSuccess
-                    : SystemMessages.AddDataSuccess;
+                var content = await CreateMultipartFormDataContent();
 
-                Snackbar.Add(successMessage, Severity.Success);
-                NavigationManager.NavigateTo("/categories");
+                var response = _isEditMode
+                    ? await CategoryApi.UpdateCategoryAsync(Id!, content)
+                    : await CategoryApi.CreateCategoryAsync(content);
+
+                if (response.IsSuccess)
+                {
+                    var successMessage = _isEditMode
+                        ? SystemMessages.UpdateDataSuccess
+                        : SystemMessages.AddDataSuccess;
+
+                    Snackbar.Add(successMessage, Severity.Success);
+                    NavigationManager.NavigateTo("/categories");
+                }
+                else
+                {
+                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Snackbar.Add(response.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
+            finally
+            {
+                _loading = false;
+            }
         }
 
         private void Cancel()

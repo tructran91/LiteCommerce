@@ -10,5 +10,8 @@ namespace Catalog.Core.Repositories
         Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(int currentPage, int pageSize);
 
         Task<(List<ProductPricingDto> Products, int TotalCount)> GetProductPricingAsync(int currentPage, int pageSize);
+
+        // Tracked links where the product is either the source or the target.
+        Task<List<ProductLink>> GetLinksInvolvingAsync(Guid productId);
     }
 }

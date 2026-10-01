@@ -67,10 +67,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
                 }
                 else
                 {
-                    var errorDetails = result.Errors != null && result.Errors.Any()
-                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
-                        : result.Message ?? SystemMessages.ErrorOccurred;
-
+                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -80,9 +77,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
                 _errorMessage = ex.Message;
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private void OnSortChanged(SortDirection direction)
@@ -120,47 +119,63 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
 
             var attributeForm = new ProductAttributeFormModel
             {
-                Id = data.IsEdit ? data.Id : null,
                 Name = data.Name,
                 GroupId = data.GroupId
             };
 
-            var response = data.IsEdit
-                ? await ProductAttributeApi.UpdateProductAttributeAsync(attributeForm)
-                : await ProductAttributeApi.CreateProductAttributeAsync(attributeForm);
-
-            if (response.IsSuccess)
+            try
             {
-                var successMessage = data.IsEdit
-                    ? SystemMessages.UpdateDataSuccess
-                    : SystemMessages.AddDataSuccess;
+                var response = data.IsEdit
+                    ? await ProductAttributeApi.UpdateProductAttributeAsync(data.Id!, attributeForm)
+                    : await ProductAttributeApi.CreateProductAttributeAsync(attributeForm);
 
-                Snackbar.Add(successMessage, Severity.Success);
+                if (response.IsSuccess)
+                {
+                    var successMessage = data.IsEdit
+                        ? SystemMessages.UpdateDataSuccess
+                        : SystemMessages.AddDataSuccess;
+
+                    Snackbar.Add(successMessage, Severity.Success);
+                    await LoadData();
+                }
+                else
+                {
+                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var msg = response.Message ?? SystemMessages.ErrorOccurred;
-                Snackbar.Add(msg, Severity.Error);
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            await LoadData();
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private async Task OpenDeleteConfirm(ProductAttributeResponse attribute)
         {
             _loading = true;
 
-            await _deleteHelper.ExecuteDeleteOperation(
-                attribute.Id,
-                attribute.Name,
-                ProductAttributeApi.DeleteProductAttributeAsync,
-                async () => await LoadData()
-            );
-
-            _loading = false;
-            StateHasChanged();
+            try
+            {
+                await _deleteHelper.ExecuteDeleteOperation(
+                    attribute.Id,
+                    attribute.Name,
+                    ProductAttributeApi.DeleteProductAttributeAsync,
+                    async () => await LoadData()
+                );
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

@@ -60,10 +60,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
                 }
                 else
                 {
-                    var errorDetails = result.Errors != null && result.Errors.Any()
-                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
-                        : result.Message ?? SystemMessages.ErrorOccurred;
-
+                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -73,9 +70,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
                 _errorMessage = ex.Message;
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private void OnSortChanged(SortDirection direction)
@@ -103,47 +102,63 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
             var brandForm = new BrandFormModel
             {
-                Id = data.IsEdit ? data.Id : null,
                 Name = data.Name,
                 IsPublished = data.IsPublished
             };
 
-            var response = data.IsEdit
-                ? await BrandApi.UpdateBrandAsync(brandForm)
-                : await BrandApi.CreateBrandAsync(brandForm);
-
-            if (response.IsSuccess)
+            try
             {
-                var successMessage = data.IsEdit
-                    ? SystemMessages.UpdateDataSuccess
-                    : SystemMessages.AddDataSuccess;
+                var response = data.IsEdit
+                    ? await BrandApi.UpdateBrandAsync(data.Id!, brandForm)
+                    : await BrandApi.CreateBrandAsync(brandForm);
 
-                Snackbar.Add(successMessage, Severity.Success);
+                if (response.IsSuccess)
+                {
+                    var successMessage = data.IsEdit
+                        ? SystemMessages.UpdateDataSuccess
+                        : SystemMessages.AddDataSuccess;
+
+                    Snackbar.Add(successMessage, Severity.Success);
+                    await LoadData();
+                }
+                else
+                {
+                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var msg = response.Message ?? SystemMessages.ErrorOccurred;
-                Snackbar.Add(msg, Severity.Error);
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            await LoadData();
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private async Task OpenDeleteConfirm(BrandResponse brand)
         {
             _loading = true;
 
-            await _deleteHelper.ExecuteDeleteOperation(
-                brand.Id,
-                brand.Name,
-                BrandApi.DeleteBrandAsync,
-                async () => await LoadData()
-            );
-
-            _loading = false;
-            StateHasChanged();
+            try
+            {
+                await _deleteHelper.ExecuteDeleteOperation(
+                    brand.Id,
+                    brand.Name,
+                    BrandApi.DeleteBrandAsync,
+                    async () => await LoadData()
+                );
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

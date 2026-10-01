@@ -10,7 +10,7 @@ namespace LiteCommerce.Admin.ApiClients
         [Get(ApiRoutes.ProductPrice.GetProductPricing)]
         Task<BaseResponse<List<ProductPricingResponse>>> GetProductPricingAsync(int currentPage, int pageSize);
 
-        [Put(ApiRoutes.ProductPrice.UpdateProductPricing)]
+        [Patch(ApiRoutes.ProductPrice.UpdateProductPricing)]
         Task<BaseResponse<List<ProductPricingResponse>>> UpdateProductPricingAsync([Body] UpdateProductPricingListRequest requests);
     }
 }
