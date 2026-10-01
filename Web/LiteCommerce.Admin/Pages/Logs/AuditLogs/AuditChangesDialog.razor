@@ -1,0 +1,155 @@
+@using MudBlazor
+@using LiteCommerce.Admin.ApiClients
+@using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Models.Business.AuditLog
+
+@* Shows one audit row (AuditLog), or every audit row written by one request (CorrelationId). *@
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">@Title</MudText>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        @if (_loading)
+        {
+            <div class="pa-6 d-flex justify-center">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else if (_errorMessage != null)
+        {
+            <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+        }
+        else if (_auditLogs.Count == 0)
+        {
+            <div class="pa-6 text-center">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    No data changes were recorded for this action.
+                </MudText>
+            </div>
+        }
+        else
+        {
+            <div style="max-height:65vh; overflow-y:auto">
+                @foreach (var log in _auditLogs)
+                {
+                    <MudPaper Elevation="0" Class="pa-3 mb-3 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
+                        <div class="d-flex align-center flex-wrap gap-2 mb-2">
+                            <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(log.Action)" Variant="Variant.Text">
+                                @log.Action
+                            </MudChip>
+                            <MudText Typo="Typo.subtitle2" Class="font-weight-bold">@log.EntityName</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="font-family:monospace">@log.EntityId</MudText>
+                            <MudSpacer />
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @LogConstants.ToLocalDisplay(log.Timestamp) · @log.UserName
+                            </MudText>
+                        </div>
+
+                        <MudSimpleTable Dense="true" Hover="true" Elevation="0" Style="table-layout:fixed">
+                            <thead>
+                                <tr>
+                                    <th style="width:28%">Property</th>
+                                    <th style="width:36%">Old value</th>
+                                    <th style="width:36%">New value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var change in log.Changes)
+                                {
+                                    <tr style="@(change.IsChanged ? "background:var(--mud-palette-warning-hover)" : null)">
+                                        <td><MudText Typo="Typo.body2" Class="font-weight-medium">@change.Property</MudText></td>
+                                        <td style="word-break:break-word">@RenderValue(change.OldValue)</td>
+                                        <td style="word-break:break-word">@RenderValue(change.NewValue)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudPaper>
+                }
+            </div>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Close" StartIcon="@Icons.Material.Filled.Close">
+            Close
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    // Long values (product descriptions are HTML) are cut so the table stays readable.
+    private const int MaxValueLength = 300;
+
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Inject] private IAuditLogApi AuditLogApi { get; set; } = null!;
+
+    [Parameter] public string Title { get; set; } = "Data changes";
+
+    [Parameter] public AuditLogResponse? AuditLog { get; set; }
+
+    [Parameter] public string? CorrelationId { get; set; }
+
+    private List<AuditLogResponse> _auditLogs = new();
+    private bool _loading;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuditLog != null)
+        {
+            _auditLogs = new() { AuditLog };
+            return;
+        }
+
+        if (string.IsNullOrEmpty(CorrelationId)) return;
+
+        _loading = true;
+        try
+        {
+            // One request rarely touches more than a handful of rows; 100 is the API's page size limit.
+            var result = await AuditLogApi.GetAuditLogsAsync(1, 100, correlationId: CorrelationId);
+            if (result.IsSuccess)
+            {
+                _auditLogs = result.Data ?? new();
+            }
+            else
+            {
+                _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private static RenderFragment RenderValue(string? value) => builder =>
+    {
+        if (value is null)
+        {
+            builder.OpenElement(0, "span");
+            builder.AddAttribute(1, "class", "mud-text-disabled");
+            builder.AddContent(2, "—");
+            builder.CloseElement();
+            return;
+        }
+
+        builder.OpenElement(3, "span");
+        builder.AddAttribute(4, "title", value.Length > MaxValueLength ? value : null);
+        builder.AddContent(5, value.Length > MaxValueLength ? value[..MaxValueLength] + "…" : value);
+        builder.CloseElement();
+    };
+
+    private void Close() => MudDialog.Close();
+}

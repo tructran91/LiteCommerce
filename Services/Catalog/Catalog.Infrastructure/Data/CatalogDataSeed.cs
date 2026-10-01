@@ -183,7 +183,16 @@ namespace Catalog.Infrastructure.Data
             var templateAttributes = GetProductTemplateProductAttributes();
             await context.ProductTemplateProductAttributes.AddRangeAsync(templateAttributes);
 
-            await context.SaveChangesAsync();
+            // Seed rows are not user actions; keep them out of the audit log.
+            context.IsAuditEnabled = false;
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            finally
+            {
+                context.IsAuditEnabled = true;
+            }
         }
 
         private static List<ProductAttributeValue> GetProductAttributeValues()

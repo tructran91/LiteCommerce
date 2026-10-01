@@ -36,6 +36,9 @@ namespace Catalog.Application.ProductTemplates.Handlers
                 return BaseResponse<bool>.Failure("Product Template does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
+            // The command only carries the id; give the activity log a readable name.
+            request.EntityDisplayName = existingTemplate.Name;
+
             // Hard delete all related ProductTemplateProductAttribute records
             var relatedAttributes = await _productTemplateProductAttributeRepository
                 .GetAsync(x => x.ProductTemplateId == existingTemplate.Id);

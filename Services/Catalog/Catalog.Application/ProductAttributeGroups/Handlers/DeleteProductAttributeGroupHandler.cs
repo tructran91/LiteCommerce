@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.ProductAttributeGroups.Commands;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -33,15 +34,18 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
                 .GetByIdAsync(Guid.Parse(request.Id));
             if (existingProductAttributeGroup == null)
             {
-                return BaseResponse<bool>.Failure("Attribute Group does not exist.", statusCode: HttpStatusCode.NotFound);
+                return BaseResponse<bool>.Failure("Product Attribute Group does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
-            var productAttributesInGroup = await _productAttributeRepository
-                .AnyAsync(pa => pa.GroupId == existingProductAttributeGroup.Id);
-            if (productAttributesInGroup)
+            // The command only carries the id; give the activity log a readable name.
+            request.EntityDisplayName = existingProductAttributeGroup.Name;
+
+            var attributeCount = await _productAttributeRepository
+                .CountAsync(pa => pa.GroupId == existingProductAttributeGroup.Id);
+            if (attributeCount > 0)
             {
                 return BaseResponse<bool>.Failure(
-                    "Cannot delete Attribute Group because it is being used by one or more Attributes.",
+                    ErrorMessages.CannotDeleteInUse("product attribute group", existingProductAttributeGroup.Name, attributeCount, "product attribute", "product attributes"),
                     statusCode: HttpStatusCode.Conflict);
             }
 

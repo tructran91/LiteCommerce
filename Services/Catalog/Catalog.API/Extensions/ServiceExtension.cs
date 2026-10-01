@@ -1,9 +1,11 @@
 ﻿using Catalog.API.Middlewares;
+using Catalog.API.Services;
 using Catalog.Application;
 using Catalog.Application.Behaviors;
 using Catalog.Application.Services;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
+using Catalog.Infrastructure.Data.Interceptors;
 using Catalog.Infrastructure.Repositories;
 using FluentValidation;
 using LiteCommerce.Shared.Models;
@@ -108,12 +110,27 @@ namespace Catalog.API.Extensions
 
         public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<CatalogContext>(c =>
-                c.UseSqlServer(configuration.GetConnectionString("CatalogConnection")));
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+            // Order matters: dates are stamped before the audit interceptor reads the entries.
+            services.AddScoped<AuditableEntityInterceptor>();
+            services.AddScoped<AuditLogInterceptor>();
+            services.AddDbContext<CatalogContext>((serviceProvider, c) =>
+                c.UseSqlServer(configuration.GetConnectionString("CatalogConnection"))
+                 .AddInterceptors(
+                     serviceProvider.GetRequiredService<AuditableEntityInterceptor>(),
+                     serviceProvider.GetRequiredService<AuditLogInterceptor>()));
+
             services.AddTransient<ExceptionHandlingMiddleware>();
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+            services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+
+            // Registration order is pipeline order: ValidationBehavior runs first, so invalid requests are never logged.
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ActivityLogBehavior<,>));
         }
 
         public static void AddThirdPartyServices(this IServiceCollection services, Assembly assembly)

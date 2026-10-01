@@ -39,6 +39,8 @@ builder.Services.AddRefitClient<IProductAttributeApi>(refitSettings).ConfigureHt
 builder.Services.AddRefitClient<IProductTemplateApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 builder.Services.AddRefitClient<IProductApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 builder.Services.AddRefitClient<IProductPriceApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IAuditLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+builder.Services.AddRefitClient<IActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 
 // System Service
 builder.Services.AddScoped<AppSettingsService>();

@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.Categories.Commands;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -38,17 +39,22 @@ namespace Catalog.Application.Categories.Handlers
                 return BaseResponse<bool>.Failure("Category does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
-            // Check if category has active subcategories
-            if (existingCategory.SubCategories?.Any(sc => !sc.IsDeleted) == true)
+            // The command only carries the id; give the activity log a readable name.
+            request.EntityDisplayName = existingCategory.Name;
+
+            var subCategoryCount = existingCategory.SubCategories?.Count(sc => !sc.IsDeleted) ?? 0;
+            if (subCategoryCount > 0)
             {
-                return BaseResponse<bool>.Failure("Cannot delete category. Please delete all subcategories first.", statusCode: HttpStatusCode.Conflict);
+                return BaseResponse<bool>.Failure(
+                    ErrorMessages.CannotDeleteInUse("category", existingCategory.Name, subCategoryCount, "subcategory", "subcategories"),
+                    statusCode: HttpStatusCode.Conflict);
             }
 
             var productCount = await _productCategoryRepository.CountAsync(pc => pc.CategoryId == categoryId && !pc.Product.IsDeleted);
             if (productCount > 0)
             {
                 return BaseResponse<bool>.Failure(
-                    $"Cannot delete category. It is assigned to {productCount} product(s).",
+                    ErrorMessages.CannotDeleteInUse("category", existingCategory.Name, productCount, "product", "products"),
                     statusCode: HttpStatusCode.Conflict);
             }
 

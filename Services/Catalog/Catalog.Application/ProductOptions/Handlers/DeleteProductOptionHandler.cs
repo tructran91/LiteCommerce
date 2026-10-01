@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.ProductOptions.Commands;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -35,12 +36,15 @@ namespace Catalog.Application.ProductOptions.Handlers
                 return BaseResponse<bool>.Failure("Product Option does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
-            var isUsedByProducts = await _productRepository
-                .AnyAsync(p => p.OptionValues.Any(o => o.OptionId == existingProductOption.Id));
-            if (isUsedByProducts)
+            // The command only carries the id; give the activity log a readable name.
+            request.EntityDisplayName = existingProductOption.Name;
+
+            var productCount = await _productRepository
+                .CountAsync(p => p.OptionValues.Any(o => o.OptionId == existingProductOption.Id));
+            if (productCount > 0)
             {
                 return BaseResponse<bool>.Failure(
-                    "Cannot delete Product Option because it is being used by one or more Products.",
+                    ErrorMessages.CannotDeleteInUse("product option", existingProductOption.Name, productCount, "product", "products"),
                     statusCode: HttpStatusCode.Conflict);
             }
 
