@@ -31,5 +31,10 @@
         {
             return $"{fieldName} must be less than or equal to {max}.";
         }
+
+        public static string MaximumLength(string fieldName, int max)
+        {
+            return $"{fieldName} must not exceed {max} characters.";
+        }
     }
 }

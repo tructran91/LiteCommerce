@@ -77,10 +77,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
                 }
                 else
                 {
-                    var errorDetails = result.Errors != null && result.Errors.Any()
-                        ? string.Join(", ", result.Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")))
-                        : result.Message ?? SystemMessages.ErrorOccurred;
-
+                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -90,9 +87,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
                 _errorMessage = ex.Message;
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private void OnSortChanged(SortDirection direction)
@@ -121,47 +120,63 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductTemplates
 
             var templateForm = new ProductTemplateFormModel
             {
-                Id = data.IsEdit ? data.Id : null,
                 Name = data.Name,
                 ProductAttributes = data.ProductAttributes
             };
 
-            var response = data.IsEdit
-                ? await ProductTemplateApi.UpdateProductTemplateAsync(templateForm)
-                : await ProductTemplateApi.CreateProductTemplateAsync(templateForm);
-
-            if (response.IsSuccess)
+            try
             {
-                var successMessage = data.IsEdit
-                    ? SystemMessages.UpdateDataSuccess
-                    : SystemMessages.AddDataSuccess;
+                var response = data.IsEdit
+                    ? await ProductTemplateApi.UpdateProductTemplateAsync(data.Id!, templateForm)
+                    : await ProductTemplateApi.CreateProductTemplateAsync(templateForm);
 
-                Snackbar.Add(successMessage, Severity.Success);
+                if (response.IsSuccess)
+                {
+                    var successMessage = data.IsEdit
+                        ? SystemMessages.UpdateDataSuccess
+                        : SystemMessages.AddDataSuccess;
+
+                    Snackbar.Add(successMessage, Severity.Success);
+                    await LoadData();
+                }
+                else
+                {
+                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var msg = response.Message ?? SystemMessages.ErrorOccurred;
-                Snackbar.Add(msg, Severity.Error);
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            await LoadData();
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private async Task OpenDeleteConfirm(ProductTemplateResponse productTemplate)
         {
             _loading = true;
 
-            await _deleteHelper.ExecuteDeleteOperation(
-                productTemplate.Id,
-                productTemplate.Name,
-                ProductTemplateApi.DeleteProductTemplateAsync,
-                async () => await LoadData()
-            );
-
-            _loading = false;
-            StateHasChanged();
+            try
+            {
+                await _deleteHelper.ExecuteDeleteOperation(
+                    productTemplate.Id,
+                    productTemplate.Name,
+                    ProductTemplateApi.DeleteProductTemplateAsync,
+                    async () => await LoadData()
+                );
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

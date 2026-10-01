@@ -22,11 +22,10 @@ namespace Catalog.Application.Brands.Handlers
         public async Task<BaseResponse<List<BrandResponse>>> Handle(GetAllBrandsQuery request, CancellationToken cancellationToken)
         {
             var brands = await _brandRepository.GetAsync(
-                predicate: t => !t.IsDeleted,
-                orderBy: x => x.OrderBy(y=>y.Name),
+                orderBy: x => x.OrderBy(y => y.Name),
                 pageNumber: request.CurrentPage,
                 pageSize: request.PageSize);
-            var totalRecords = await _brandRepository.CountAsync(t => !t.IsDeleted);
+            var totalRecords = await _brandRepository.CountAsync();
             var brandResponses = _mapper.Map<List<BrandResponse>>(brands);
             var response = BaseResponse<List<BrandResponse>>.Success(brandResponses);
             response.Pagination = new Pagination(totalRecords, request.CurrentPage, request.PageSize);

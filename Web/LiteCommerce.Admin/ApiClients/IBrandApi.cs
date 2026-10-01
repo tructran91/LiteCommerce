@@ -17,7 +17,7 @@ namespace LiteCommerce.Admin.ApiClients
         Task<BaseResponse<BrandResponse>> CreateBrandAsync([Body] BrandFormModel brand);
 
         [Put(ApiRoutes.Brand.Update)]
-        Task<BaseResponse<BrandResponse>> UpdateBrandAsync([Body] BrandFormModel brand);
+        Task<BaseResponse<BrandResponse>> UpdateBrandAsync(string id, [Body] BrandFormModel brand);
 
         [Delete(ApiRoutes.Brand.Delete)]
         Task<BaseResponse<bool>> DeleteBrandAsync(string id);

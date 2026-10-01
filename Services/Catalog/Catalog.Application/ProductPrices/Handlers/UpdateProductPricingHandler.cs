@@ -45,7 +45,7 @@ namespace Catalog.Application.ProductPrices.Handlers
                 var notFoundIdStrings = notFoundIds.Select(id => id.ToString()).ToList();
                 var errors = new Dictionary<string, List<string>>
                 {
-                    { "NotFoundProductIds", notFoundIdStrings }
+                    { "notFoundProductIds", notFoundIdStrings }
                 };
                 return BaseResponse<List<ProductPricingResponse>>.Failure(
                     $"The following product IDs were not found: {string.Join(", ", notFoundIdStrings)}",

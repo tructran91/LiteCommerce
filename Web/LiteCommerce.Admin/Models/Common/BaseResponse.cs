@@ -15,5 +15,13 @@ namespace LiteCommerce.Admin.Models.Common
         public HttpStatusCode StatusCode { get; set; }
 
         public Dictionary<string, List<string>>? Errors { get; set; }
+
+        public string GetErrorMessage(string fallback)
+        {
+            if (Errors != null && Errors.Count > 0)
+                return string.Join(", ", Errors.SelectMany(e => e.Value.Select(msg => $"{e.Key}: {msg}")));
+
+            return string.IsNullOrWhiteSpace(Message) ? fallback : Message;
+        }
     }
 }

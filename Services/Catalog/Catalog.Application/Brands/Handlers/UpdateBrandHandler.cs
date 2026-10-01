@@ -8,7 +8,6 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
@@ -27,24 +26,27 @@ namespace Catalog.Application.Brands.Handlers
 
         public async Task<BaseResponse<BrandResponse>> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"UpdateBrandHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("UpdateBrandHandler: {BrandId} {BrandName}", request.Id, request.Payload.Name);
 
-            var existingBrand = await _brandRepository
-                .GetByIdAsync(Guid.Parse(request.Payload.Id));
+            var brandId = Guid.Parse(request.Id);
+            var existingBrand = await _brandRepository.GetByIdAsync(brandId);
             if (existingBrand == null)
             {
                 return BaseResponse<BrandResponse>.Failure("Brand does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
+            var slug = request.Payload.Name.Slugify();
+
+            // Different names can share a slug ("Hồng" / "Hong"), so check both.
             var existingBrandByName = await _brandRepository
-                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id.ToString() != request.Payload.Id);
+                .AnyAsync(t => (t.Name.ToLower() == request.Payload.Name.ToLower() || t.Slug == slug) && t.Id != brandId);
             if (existingBrandByName)
             {
                 return BaseResponse<BrandResponse>.Failure("Brand already exists.", statusCode: HttpStatusCode.Conflict);
             }
 
             _mapper.Map(request.Payload, existingBrand);
-            existingBrand.Slug = existingBrand.Name.Slugify();
+            existingBrand.Slug = slug;
 
             await _brandRepository.UpdateAsync(existingBrand);
 

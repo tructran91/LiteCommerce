@@ -22,7 +22,7 @@ namespace LiteCommerce.Admin.ApiClients
 
         [Put(ApiRoutes.Category.Update)]
         [Multipart]
-        Task<BaseResponse<CategoryResponse>> UpdateCategoryAsync(MultipartFormDataContent content);
+        Task<BaseResponse<CategoryResponse>> UpdateCategoryAsync(string id, MultipartFormDataContent content);
 
         [Delete(ApiRoutes.Category.Delete)]
         Task<BaseResponse<bool>> DeleteCategoryAsync(string id);

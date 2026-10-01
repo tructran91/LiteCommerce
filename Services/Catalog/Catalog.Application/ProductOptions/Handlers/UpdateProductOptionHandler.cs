@@ -29,14 +29,14 @@ namespace Catalog.Application.ProductOptions.Handlers
             _logger.LogInformation($"UpdateProductOptionHandler: {JsonSerializer.Serialize(request.Payload)}");
 
             var existingProductOption = await _productOptionRepository
-                .GetByIdAsync(Guid.Parse(request.Payload.Id));
+                .GetByIdAsync(Guid.Parse(request.Id));
             if (existingProductOption == null)
             {
                 return BaseResponse<ProductOptionResponse>.Failure("Product Option does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             var existingProductOptionByName = await _productOptionRepository
-                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id.ToString() != request.Payload.Id);
+                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id != Guid.Parse(request.Id));
             if (existingProductOptionByName)
             {
                 return BaseResponse<ProductOptionResponse>.Failure("Product Option already exists.", statusCode: HttpStatusCode.Conflict);

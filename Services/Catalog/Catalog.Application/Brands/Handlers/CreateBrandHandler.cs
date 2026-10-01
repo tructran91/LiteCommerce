@@ -8,7 +8,6 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
@@ -27,21 +26,25 @@ namespace Catalog.Application.Brands.Handlers
 
         public async Task<BaseResponse<BrandResponse>> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"CreateBrandHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("CreateBrandHandler: {BrandName}", request.Payload.Name);
 
-            var isExistingBrand = await _brandRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
+            var slug = request.Payload.Name.Slugify();
+
+            // Different names can share a slug ("Hồng" / "Hong"), so check both.
+            var isExistingBrand = await _brandRepository
+                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() || t.Slug == slug);
             if (isExistingBrand)
             {
                 return BaseResponse<BrandResponse>.Failure("Brand already exists.", statusCode: HttpStatusCode.Conflict);
             }
 
             var newBrand = _mapper.Map<Brand>(request.Payload);
-            newBrand.Slug = newBrand.Name.Slugify();
+            newBrand.Slug = slug;
 
             var createdBrand = await _brandRepository.AddAsync(newBrand);
             var responseMapping = _mapper.Map<BrandResponse>(createdBrand);
 
-            return BaseResponse<BrandResponse>.Success(responseMapping);
+            return BaseResponse<BrandResponse>.Success(responseMapping, statusCode: HttpStatusCode.Created);
         }
     }
 }

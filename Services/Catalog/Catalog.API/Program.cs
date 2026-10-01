@@ -10,7 +10,7 @@ builder.Services.ConfigureSwagger();
 builder.Services.ConfigureCorsAllowAny();
 builder.Host.UseSerilog(Logging.ConfigureLogger);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureBaseResponseErrors();
 
 var app = builder.Build();
 
@@ -22,6 +22,7 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseCors("CorsPolicy");
+app.UseBaseResponseStatusCodePages();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 //app.UseHttpsRedirection();
 

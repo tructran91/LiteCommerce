@@ -50,9 +50,9 @@ namespace Catalog.Application.Services
             await blobClient.UploadAsync(mediaBinaryStream, overwrite: true);
         }
 
-        public async Task DeleteFileAsync(string fileName)
+        public async Task DeleteFileAsync(string fileName, string? subFolder = null)
         {
-            var blobClient = _containerClient.GetBlobClient(fileName);
+            var blobClient = _containerClient.GetBlobClient(GetBlobName(fileName, subFolder));
             await blobClient.DeleteIfExistsAsync();
         }
 

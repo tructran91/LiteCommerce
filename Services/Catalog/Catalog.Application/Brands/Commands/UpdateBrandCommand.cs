@@ -7,10 +7,13 @@ namespace Catalog.Application.Brands.Commands
 {
     public class UpdateBrandCommand : IRequest<BaseResponse<BrandResponse>>
     {
+        public string Id { get; set; }
+
         public UpdateBrandRequest Payload { get; set; }
 
-        public UpdateBrandCommand(UpdateBrandRequest payload)
+        public UpdateBrandCommand(string id, UpdateBrandRequest payload)
         {
+            Id = id;
             Payload = payload;
         }
     }

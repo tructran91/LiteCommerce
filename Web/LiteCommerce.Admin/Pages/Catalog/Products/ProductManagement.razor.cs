@@ -54,8 +54,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 }
                 else
                 {
-                    _errorMessage = result.Message;
-                    Snackbar.Add(result.Message ?? SystemMessages.ErrorOccurred, Severity.Error);
+                    _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                    Snackbar.Add(_errorMessage, Severity.Error);
                 }
             }
             catch (Exception ex)
@@ -63,9 +63,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 _errorMessage = ex.Message;
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
-
-            _loading = false;
-            StateHasChanged();
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
 
         private void OnSortChanged(SortDirection direction)
@@ -87,15 +89,24 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         {
             _loading = true;
 
-            await _deleteHelper.ExecuteDeleteOperation(
-                product.Id.ToString(),
-                product.Name,
-                ProductApi.DeleteProductAsync,
-                async () => await LoadData()
-            );
-
-            _loading = false;
-            StateHasChanged();
+            try
+            {
+                await _deleteHelper.ExecuteDeleteOperation(
+                    product.Id.ToString(),
+                    product.Name,
+                    ProductApi.DeleteProductAsync,
+                    async () => await LoadData()
+                );
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+            finally
+            {
+                _loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

@@ -29,14 +29,14 @@ namespace Catalog.Application.ProductAttributes.Handlers
             _logger.LogInformation($"UpdateProductAttributeHandler: {JsonSerializer.Serialize(request.Payload)}");
 
             var existingProductAttribute = await _productAttributeRepository
-                .GetByIdAsync(Guid.Parse(request.Payload.Id));
+                .GetByIdAsync(Guid.Parse(request.Id));
             if (existingProductAttribute == null)
             {
                 return BaseResponse<ProductAttributeResponse>.Failure("Product Attribute does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             var existingProductAttributeByName = await _productAttributeRepository
-                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id.ToString() != request.Payload.Id);
+                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id != Guid.Parse(request.Id));
             if (existingProductAttributeByName)
             {
                 return BaseResponse<ProductAttributeResponse>.Failure("Product Attribute already exists.", statusCode: HttpStatusCode.Conflict);

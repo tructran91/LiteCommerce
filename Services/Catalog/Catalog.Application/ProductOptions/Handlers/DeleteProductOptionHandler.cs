@@ -12,11 +12,15 @@ namespace Catalog.Application.ProductOptions.Handlers
     public class DeleteProductOptionHandler : IRequestHandler<DeleteProductOptionCommand, BaseResponse<bool>>
     {
         private readonly IBaseRepository<ProductOption> _productOptionRepository;
+        private readonly IBaseRepository<Product> _productRepository;
         private readonly ILogger<DeleteProductOptionHandler> _logger;
 
-        public DeleteProductOptionHandler(IBaseRepository<ProductOption> productOptionRepository, ILogger<DeleteProductOptionHandler> logger)
+        public DeleteProductOptionHandler(IBaseRepository<ProductOption> productOptionRepository,
+            IBaseRepository<Product> productRepository,
+            ILogger<DeleteProductOptionHandler> logger)
         {
             _productOptionRepository = productOptionRepository;
+            _productRepository = productRepository;
             _logger = logger;
         }
 
@@ -29,6 +33,15 @@ namespace Catalog.Application.ProductOptions.Handlers
             if (existingProductOption == null)
             {
                 return BaseResponse<bool>.Failure("Product Option does not exist.", statusCode: HttpStatusCode.NotFound);
+            }
+
+            var isUsedByProducts = await _productRepository
+                .AnyAsync(p => p.OptionValues.Any(o => o.OptionId == existingProductOption.Id));
+            if (isUsedByProducts)
+            {
+                return BaseResponse<bool>.Failure(
+                    "Cannot delete Product Option because it is being used by one or more Products.",
+                    statusCode: HttpStatusCode.Conflict);
             }
 
             existingProductOption.IsDeleted = true;

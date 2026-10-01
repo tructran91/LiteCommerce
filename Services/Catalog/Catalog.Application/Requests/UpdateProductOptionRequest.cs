@@ -2,6 +2,5 @@
 {
     public record UpdateProductOptionRequest : CreateProductOptionRequest
     {
-        public string Id { get; set; }
     }
 }

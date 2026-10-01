@@ -29,14 +29,14 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
             _logger.LogInformation($"UpdateProductAttributeGroupHandler: {JsonSerializer.Serialize(request.Payload)}");
 
             var existingProductAttributeGroup = await _productAttributeGroupRepository
-                .GetByIdAsync(Guid.Parse(request.Payload.Id));
+                .GetByIdAsync(Guid.Parse(request.Id));
             if (existingProductAttributeGroup == null)
             {
                 return BaseResponse<ProductAttributeGroupResponse>.Failure("Product Attribute Group does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
             var existingProductAttributeGroupByName = await _productAttributeGroupRepository
-                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id.ToString() != request.Payload.Id);
+                .AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower() && t.Id != Guid.Parse(request.Id));
             if (existingProductAttributeGroupByName)
             {
                 return BaseResponse<ProductAttributeGroupResponse>.Failure("Product Attribute Group already exists.", statusCode: HttpStatusCode.Conflict);

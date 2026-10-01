@@ -2,6 +2,5 @@
 {
     public record UpdateProductAttributeRequest : CreateProductAttributeRequest
     {
-        public string Id { get; set; }
     }
 }

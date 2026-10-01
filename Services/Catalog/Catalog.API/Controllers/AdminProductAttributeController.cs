@@ -10,7 +10,7 @@ namespace Catalog.API.Controllers
 {
     [Route("api/admin/product-attribute")]
     [ApiController]
-    public class AdminProductAttributeController : ControllerBase
+    public class AdminProductAttributeController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -20,47 +20,58 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(BaseResponse<List<ProductAttributeResponse>>), 200)]
-        public async Task<ActionResult> GetAllProductAttributes([FromQuery] GetAllProductAttributesQuery query)
+        [ProducesResponseType(typeof(BaseResponse<List<ProductAttributeResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetAllProductAttributes([FromQuery] GetAllProductAttributesQuery query)
         {
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), 200)]
-        public async Task<ActionResult> GetProductAttributeById(string id)
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProductAttributeById(string id)
         {
             var query = new GetProductAttributeQuery(id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), 200)]
-        public async Task<ActionResult> CreateProductAttribute([FromBody] CreateProductAttributeRequest request)
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> CreateProductAttribute([FromBody] CreateProductAttributeRequest request)
         {
             var command = new CreateProductAttributeCommand(request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToCreatedResult(result, nameof(GetProductAttributeById), item => new { id = item.Id });
         }
 
-        [HttpPut]
-        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), 200)]
-        public async Task<ActionResult> UpdateProductAttribute([FromBody] UpdateProductAttributeRequest request)
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> UpdateProductAttribute(string id, [FromBody] UpdateProductAttributeRequest request)
         {
-            var command = new UpdateProductAttributeCommand(request);
+            var command = new UpdateProductAttributeCommand(id, request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
-        public async Task<ActionResult> DeleteProductAttribute(string id)
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> DeleteProductAttribute(string id)
         {
             var command = new DeleteProductAttributeCommand(id);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
     }
 }

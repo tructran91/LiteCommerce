@@ -10,7 +10,7 @@
 
         Task MoveFolderContentAsync(string sourceSubFolder, string destSubFolder);
 
-        Task DeleteFileAsync(string fileName);
+        Task DeleteFileAsync(string fileName, string? subFolder = null);
 
         Task DeleteFolderAsync(string subFolder);
     }

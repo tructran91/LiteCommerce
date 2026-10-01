@@ -17,12 +17,12 @@ namespace LiteCommerce.Admin.ApiClients
         Task<BaseResponse<ProductFormModel>> CreateProductAsync([Body] MultipartFormDataContent content);
 
         [Put(ApiRoutes.Product.Update)]
-        Task<BaseResponse<ProductFormModel>> UpdateProductAsync([Body] MultipartFormDataContent content);
+        Task<BaseResponse<ProductFormModel>> UpdateProductAsync(string id, [Body] MultipartFormDataContent content);
 
         [Delete(ApiRoutes.Product.Delete)]
         Task<BaseResponse<bool>> DeleteProductAsync(string id);
 
         [Post(ApiRoutes.Product.UploadContentImage)]
-        Task<ContentImageUploadResponse> UploadContentImageAsync([Body] MultipartFormDataContent content);
+        Task<BaseResponse<string>> UploadContentImageAsync([Body] MultipartFormDataContent content);
     }
 }

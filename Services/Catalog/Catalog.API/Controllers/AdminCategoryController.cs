@@ -20,25 +20,28 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(BaseResponse<List<CategoryResponse>>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<List<CategoryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllCategories([FromQuery] GetAllCategoriesQuery query)
         {
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpGet("basic")]
-        [ProducesResponseType(typeof(BaseResponse<List<BasicCategoryResponse>>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<List<BasicCategoryResponse>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllBasicCategories()
         {
             var query = new GetAllBasicCategoriesQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), 200)]
-        public async Task<ActionResult> GetCategoryById(string id)
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCategoryById(string id)
         {
             var query = new GetCategoryQuery(id);
             var result = await _mediator.Send(query);
@@ -48,34 +51,43 @@ namespace Catalog.API.Controllers
                 result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
             }
 
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), 200)]
-        public async Task<ActionResult> CreateCategory([FromForm] CreateCategoryRequest request)
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand(request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToCreatedResult(result, nameof(GetCategoryById), category => new { id = category.Id });
         }
 
-        [HttpPut]
-        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), 200)]
-        public async Task<IActionResult> UpdateCategory([FromForm] UpdateCategoryRequest request)
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> UpdateCategory(string id, [FromForm] UpdateCategoryRequest request)
         {
-            var command = new UpdateCategoryCommand(request);
+            var command = new UpdateCategoryCommand(id, request);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> DeleteCategory(string id)
         {
             var command = new DeleteCategoryCommand(id);
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return ToActionResult(result);
         }
     }
 }

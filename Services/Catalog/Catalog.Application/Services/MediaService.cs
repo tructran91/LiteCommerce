@@ -50,9 +50,9 @@ namespace Catalog.Application.Services
             return _storageService.MoveFolderContentAsync(tempFolderPath, destFolderPath);
         }
 
-        public Task DeleteMediaAsync(string fileName)
+        public Task DeleteMediaAsync(string fileName, string? subFolder = null)
         {
-            return _storageService.DeleteFileAsync(fileName);
+            return _storageService.DeleteFileAsync(fileName, subFolder);
         }
 
         public async Task DeleteMediaAsync(Media media)

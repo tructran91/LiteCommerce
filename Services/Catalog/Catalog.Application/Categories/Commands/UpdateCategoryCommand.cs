@@ -7,10 +7,13 @@ namespace Catalog.Application.Categories.Commands
 {
     public class UpdateCategoryCommand : IRequest<BaseResponse<CategoryResponse>>
     {
+        public string Id { get; set; }
+
         public UpdateCategoryRequest Payload { get; set; }
 
-        public UpdateCategoryCommand(UpdateCategoryRequest payload)
+        public UpdateCategoryCommand(string id, UpdateCategoryRequest payload)
         {
+            Id = id;
             Payload = payload;
         }
     }

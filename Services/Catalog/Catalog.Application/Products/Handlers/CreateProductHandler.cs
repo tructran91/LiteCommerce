@@ -11,7 +11,7 @@ using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace Catalog.Application.Products.Handlers
@@ -40,44 +40,42 @@ namespace Catalog.Application.Products.Handlers
         public async Task<BaseResponse<ProductResponse>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation($"CreateProductHandler: {JsonSerializer.Serialize(payload)}");
+            _logger.LogInformation("CreateProductHandler: {ProductName}", payload.Product.Name);
 
-            try
+            _logger.LogInformation("CreateProductHandler => Step 1: Map data");
+            var slug = payload.Product.Name.Slugify();
+            if (await _productRepository.AnyAsync(p => p.Slug == slug))
             {
-                _logger.LogInformation("CreateProductHandler => Step 1: Map data");
-                var product = _mapper.Map<Product>(payload.Product);
-                product.Slug = product.Name.Slugify();
-
-                if (product.Id == Guid.Empty)
-                {
-                    product.Id = Guid.NewGuid();
-                }
-
-                _productService.AddOrDeleteOptions(payload.Product, product);
-                _productService.AddOrDeleteAttributes(payload.Product, product);
-                _productService.AddOrDeleteCategories(payload.Product, product);
-                _productService.AddOrDeleteProductLinks(payload.Product, product);
-
-                var productPriceHistory = _productService.CreatePriceHistory(product);
-                product.PriceHistories.Add(productPriceHistory);
-
-                _logger.LogInformation("CreateProductHandler => Step 2: Upload media and map media data");
-                await SaveProductMediasAsync(payload, product);
-
-                _logger.LogInformation("CreateProductHandler => Step 2.1: Move content images from temp to product folder");
-                await MoveContentImagesFromTempAsync(payload, product);
-
-                _logger.LogInformation("CreateProductHandler => Step 3: Save data");
-                var createdProduct = await _productRepository.AddAsync(product);
-                var response = _mapper.Map<ProductResponse>(createdProduct);
-
-                return BaseResponse<ProductResponse>.Success(response);
+                return BaseResponse<ProductResponse>.Failure("A product with the same name already exists.", statusCode: HttpStatusCode.Conflict);
             }
-            catch (Exception ex)
+
+            var product = _mapper.Map<Product>(payload.Product);
+            product.Slug = slug;
+
+            if (product.Id == Guid.Empty)
             {
-                _logger.LogError(ex, $"CreateProductHandler => Error: {ex.Message}");
-                return BaseResponse<ProductResponse>.Failure(ex.Message);
+                product.Id = Guid.NewGuid();
             }
+
+            _productService.AddOrDeleteOptions(payload.Product, product);
+            _productService.AddOrDeleteAttributes(payload.Product, product);
+            _productService.AddOrDeleteCategories(payload.Product, product);
+            _productService.AddOrDeleteProductLinks(payload.Product, product);
+
+            var productPriceHistory = _productService.CreatePriceHistory(product);
+            product.PriceHistories.Add(productPriceHistory);
+
+            _logger.LogInformation("CreateProductHandler => Step 2: Upload media and map media data");
+            await SaveProductMediasAsync(payload, product);
+
+            _logger.LogInformation("CreateProductHandler => Step 2.1: Move content images from temp to product folder");
+            await MoveContentImagesFromTempAsync(payload, product);
+
+            _logger.LogInformation("CreateProductHandler => Step 3: Save data");
+            var createdProduct = await _productRepository.AddAsync(product);
+            var response = _mapper.Map<ProductResponse>(createdProduct);
+
+            return BaseResponse<ProductResponse>.Success(response, statusCode: HttpStatusCode.Created);
         }
 
         private async Task MoveContentImagesFromTempAsync(CreateProductRequest request, Product product)
