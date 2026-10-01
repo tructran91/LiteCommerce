@@ -2,7 +2,7 @@
 
 namespace LiteCommerce.Shared.Models
 {
-    public class BaseResponse<T>
+    public class BaseResponse<T> : IBaseResponse
     {
         public BaseResponse(bool isSuccess, string message, T data, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
@@ -17,6 +17,8 @@ namespace LiteCommerce.Shared.Models
         public string Message { get; set; }
 
         public T Data { get; set; }
+
+        object? IBaseResponse.Data => Data;
 
         public Pagination? Pagination { get; set; }
 

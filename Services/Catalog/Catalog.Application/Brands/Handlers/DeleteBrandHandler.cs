@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.Brands.Commands;
 using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
+using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -34,11 +35,14 @@ namespace Catalog.Application.Brands.Handlers
                 return BaseResponse<bool>.Failure("Brand does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
+            // The command only carries the id; give the activity log a readable name.
+            request.EntityDisplayName = existingBrand.Name;
+
             var productCount = await _productRepository.CountAsync(p => p.BrandId == brandId);
             if (productCount > 0)
             {
                 return BaseResponse<bool>.Failure(
-                    $"Cannot delete brand. It is used by {productCount} product(s).",
+                    ErrorMessages.CannotDeleteInUse("brand", existingBrand.Name, productCount, "product", "products"),
                     statusCode: HttpStatusCode.Conflict);
             }
 

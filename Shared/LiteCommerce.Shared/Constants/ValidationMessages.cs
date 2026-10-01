@@ -36,5 +36,10 @@
         {
             return $"{fieldName} must not exceed {max} characters.";
         }
+
+        public static string MustNotBeAfter(string fieldName, string otherFieldName)
+        {
+            return $"{fieldName} must not be after {otherFieldName}.";
+        }
     }
 }

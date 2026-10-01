@@ -29,6 +29,9 @@ namespace Catalog.Application.Products.Handlers
                 return BaseResponse<bool>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
+            // The command only carries the id; give the activity log a readable name.
+            request.EntityDisplayName = existingProduct.Name;
+
             // Both directions: this product's related/cross-sell links, and other products' links pointing at it.
             var links = await _productRepository.GetLinksInvolvingAsync(productId);
             foreach (var link in links)

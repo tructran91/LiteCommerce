@@ -80,5 +80,19 @@
             public const string GetProductPricing = Base;
             public const string UpdateProductPricing = Base;
         }
+
+        public static class AuditLog
+        {
+            private const string Base = "/api/admin/audit-log";
+            public const string GetAll = Base;
+            public const string GetById = $"{Base}/{{id}}";
+        }
+
+        public static class ActivityLog
+        {
+            private const string Base = "/api/admin/activity-log";
+            public const string GetAll = Base;
+            public const string GetById = $"{Base}/{{id}}";
+        }
     }
 }

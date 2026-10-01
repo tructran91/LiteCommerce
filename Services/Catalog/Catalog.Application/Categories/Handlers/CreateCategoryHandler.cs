@@ -45,7 +45,7 @@ namespace Catalog.Application.Categories.Handlers
                 var isExistingParentCategory = await _categoryRepository.GetByIdAsync(parentId.Value);
                 if (isExistingParentCategory is null)
                 {
-                    return BaseResponse<CategoryResponse>.Failure("Parent Category does not exist.", statusCode: HttpStatusCode.NotFound);
+                    return BaseResponse<CategoryResponse>.Failure("Parent category does not exist.", statusCode: HttpStatusCode.NotFound);
                 }
             }
 
