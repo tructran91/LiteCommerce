@@ -12,12 +12,50 @@ namespace Catalog.Infrastructure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ActivityLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Action = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    EntityName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    EntityDisplayName = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    RequestName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    CorrelationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActivityLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuditLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EntityName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Action = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Changes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    CorrelationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Brands",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -96,8 +134,8 @@ namespace Catalog.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
                     IncludeInMenu = table.Column<bool>(type: "bit", nullable: false),
@@ -138,7 +176,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
                     ShortDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
@@ -406,9 +444,55 @@ namespace Catalog.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_ParentId",
+                name: "IX_ActivityLogs_CorrelationId",
+                table: "ActivityLogs",
+                column: "CorrelationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_EntityName_EntityId",
+                table: "ActivityLogs",
+                columns: new[] { "EntityName", "EntityId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_Timestamp",
+                table: "ActivityLogs",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_CorrelationId",
+                table: "AuditLogs",
+                column: "CorrelationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_EntityName_EntityId",
+                table: "AuditLogs",
+                columns: new[] { "EntityName", "EntityId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_Timestamp",
+                table: "AuditLogs",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Brands_Name",
+                table: "Brands",
+                column: "Name",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Brands_Slug",
+                table: "Brands",
+                column: "Slug",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_ParentId_Name",
                 table: "Categories",
-                column: "ParentId");
+                columns: new[] { "ParentId", "Name" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_ThumbnailImageId",
@@ -481,6 +565,13 @@ namespace Catalog.Infrastructure.Data.Migrations
                 column: "BrandId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_Slug",
+                table: "Products",
+                column: "Slug",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_ThumbnailImageId",
                 table: "Products",
                 column: "ThumbnailImageId");
@@ -494,6 +585,12 @@ namespace Catalog.Infrastructure.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ActivityLogs");
+
+            migrationBuilder.DropTable(
+                name: "AuditLogs");
+
             migrationBuilder.DropTable(
                 name: "ProductAttributeValues");
 

@@ -30,6 +30,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.Services.ApplySeedAsync();
+await app.Services.ApplySeedAsync(app.Configuration);
 
 app.Run();
