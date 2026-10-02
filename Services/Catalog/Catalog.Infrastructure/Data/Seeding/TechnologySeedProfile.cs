@@ -1,20 +1,14 @@
-﻿using Catalog.Core.Entities;
-using Catalog.Core.Enums;
-using Microsoft.EntityFrameworkCore;
+using Catalog.Application.Database;
+using Catalog.Core.Entities;
 
-namespace Catalog.Infrastructure.Data
+namespace Catalog.Infrastructure.Data.Seeding
 {
-    public static class CatalogDataSeed
+    public class TechnologySeedProfile : ISeedProfile
     {
-        public static async Task SeedAsync(CatalogContext context)
-        {
-            // Check if database already has data
-            if (await context.Brands.AnyAsync())
-            {
-                return;
-            }
+        public string Name => SeedProfiles.Technology;
 
-            // 1. Seed Brands (no FK)
+        public async Task SeedAsync(CatalogContext context, CancellationToken cancellationToken = default)
+        {
             var brands = new List<Brand>
             {
                 new() { Id = Guid.Parse("5fb5f20c-bf57-4907-bc13-08de78272836"), Name = "Apple", Slug = "apple", IsPublished = true, CreatedDate = DateTime.UtcNow },
@@ -26,9 +20,8 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("47096813-224e-42c7-bc19-08de78272836"), Name = "Oppo", Slug = "oppo", IsPublished = true, CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("29364927-6439-473f-bc1a-08de78272836"), Name = "Asus", Slug = "asus", IsPublished = true, CreatedDate = DateTime.UtcNow }
             };
-            await context.Brands.AddRangeAsync(brands);
+            await context.Brands.AddRangeAsync(brands, cancellationToken);
 
-            // 2. Seed ProductAttributeGroups (no FK)
             var attributeGroups = new List<ProductAttributeGroup>
             {
                 new() { Id = Guid.Parse("206e76f1-1f4d-4c0b-84b2-38431548ea49"), Name = "General", CreatedDate = DateTime.UtcNow },
@@ -37,18 +30,16 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("58b6906e-8589-42ca-8d8e-ea85867d4cb7"), Name = "Connectivity", CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("b0c12b2c-7f15-4dea-90d0-08de7828f656"), Name = "Battery", CreatedDate = DateTime.UtcNow }
             };
-            await context.ProductAttributeGroups.AddRangeAsync(attributeGroups);
+            await context.ProductAttributeGroups.AddRangeAsync(attributeGroups, cancellationToken);
 
-            // 3. Seed ProductOptions (no FK)
             var productOptions = new List<ProductOption>
             {
                 new() { Id = Guid.Parse("452d918b-b5bf-41b7-90e6-51cad397b292"), Name = "Color" },
                 new() { Id = Guid.Parse("a900d061-715e-4682-b493-4a3f75f95b01"), Name = "Size" },
                 new() { Id = Guid.Parse("646dceee-5eca-46a0-8a5f-db8d280dab4a"), Name = "Warranty" }
             };
-            await context.ProductOptions.AddRangeAsync(productOptions);
+            await context.ProductOptions.AddRangeAsync(productOptions, cancellationToken);
 
-            // 4. Seed Categories (FK to Medias - null, and self-reference)
             var categories = new List<Category>
             {
                 new() { Id = Guid.Parse("8ac51586-431d-4642-8435-5926cb6c04f4"), Name = "Accessories", Slug = "accessories", IsPublished = true, IncludeInMenu = true, DisplayOrder = 0, MetaTitle = "Accessories - Shop all accessories", MetaKeywords = "accessories, gadgets, tech", MetaDescription = "Browse a wide selection of accessories including gadgets, tech gear, and more.", OgTitle = "Accessories - Shop the latest tech accessories", OgDescription = "Discover the best accessories for your devices", OgImage = "/images/accessories.jpg", OgUrl = "/categories/accessories", CreatedDate = DateTime.UtcNow },
@@ -61,11 +52,12 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("761d55da-023c-41e0-ace7-c7316602e0f6"), Name = "MacBook", Slug = "macbook", ParentId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 0, MetaTitle = "MacBook - Apple laptops", MetaKeywords = "MacBook, Apple laptops, MacBook Pro", MetaDescription = "Shop MacBook and MacBook Pro models for powerful performance and sleek design.", OgTitle = "MacBook - The best Apple laptops", OgDescription = "Explore MacBook models for premium performance and design", OgImage = "/images/macbook.jpg", OgUrl = "/categories/macbook", CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("5a6895a9-ce31-4a37-8300-60bb6a939c2c"), Name = "iPhone", Slug = "iphone", ParentId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 0, MetaTitle = "iPhone - The latest iPhone models", MetaKeywords = "iPhone, Apple, smartphones", MetaDescription = "Shop for the latest iPhone models and accessories.", OgTitle = "iPhone - Buy the latest iPhone", OgDescription = "Explore the latest iPhone models from Apple", OgImage = "/images/iphone.jpg", OgUrl = "/categories/iphone", CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("a5924453-4608-427f-9751-717f217ea569"), Name = "Basic Phones", Slug = "basic-phones", ParentId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 0, MetaTitle = "Basic Phones - Affordable mobile solutions", MetaKeywords = "basic phones, mobile, affordable phones", MetaDescription = "Browse affordable and reliable basic phones for simple communication.", OgTitle = "Basic Phones - Shop simple and reliable mobile phones", OgDescription = "Find durable and affordable basic mobile phones", OgImage = "/images/basic-phones.jpg", OgUrl = "/categories/basic-phones", CreatedDate = DateTime.UtcNow },
-                new() { Id = Guid.Parse("d5f3b0e4-350d-4188-a0d1-28ebc5cc3aea"), Name = "Gaming", Slug = "gaming", ParentId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 0, MetaTitle = "Gaming - Explore the ultimate gaming devices", MetaKeywords = "gaming, gaming devices, gaming phones", MetaDescription = "Discover high-performance gaming phones and devices for gamers.", OgTitle = "Gaming - High-performance gaming phones", OgDescription = "Explore the latest gaming phones and devices for the ultimate gaming experience.", OgImage = "/images/gaming.jpg", OgUrl = "/categories/gaming", CreatedDate = DateTime.UtcNow }
+                new() { Id = Guid.Parse("d5f3b0e4-350d-4188-a0d1-28ebc5cc3aea"), Name = "Gaming", Slug = "gaming", ParentId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 0, MetaTitle = "Gaming - Explore the ultimate gaming devices", MetaKeywords = "gaming, gaming devices, gaming phones", MetaDescription = "Discover high-performance gaming phones and devices for gamers.", OgTitle = "Gaming - High-performance gaming phones", OgDescription = "Explore the latest gaming phones and devices for the ultimate gaming experience.", OgImage = "/images/gaming.jpg", OgUrl = "/categories/gaming", CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.Parse("f2f2f2f2-f2f2-4f2f-8f2f-f2f2f2f2f2f2"), Name = "Laptops", Slug = "laptops", ParentId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 2, MetaTitle = "Laptops - Văn phòng & học tập", MetaKeywords = "laptop, ultrabook, laptop văn phòng", MetaDescription = "Laptop văn phòng, học tập từ Dell, HP, Lenovo.", OgTitle = "Laptops - Mỏng nhẹ, pin lâu", OgDescription = "Laptop cho công việc và học tập", OgImage = "/images/laptops.jpg", OgUrl = "/categories/laptops", CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.Parse("a3a3a3a3-a3a3-4a3a-8a3a-a3a3a3a3a3a3"), Name = "Android", Slug = "android", ParentId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), IsPublished = true, IncludeInMenu = true, DisplayOrder = 2, MetaTitle = "Điện thoại Android", MetaKeywords = "android, samsung, oppo", MetaDescription = "Smartphone Android từ Samsung, OPPO.", OgTitle = "Android - Đa dạng lựa chọn", OgDescription = "Khám phá điện thoại Android", OgImage = "/images/android.jpg", OgUrl = "/categories/android", CreatedDate = DateTime.UtcNow }
             };
-            await context.Categories.AddRangeAsync(categories);
+            await context.Categories.AddRangeAsync(categories, cancellationToken);
 
-            // 5. Seed ProductAttributes (FK to ProductAttributeGroups)
             var attributes = new List<ProductAttribute>
             {
                 new() { Id = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), Name = "CPU", GroupId = Guid.Parse("206e76f1-1f4d-4c0b-84b2-38431548ea49"), CreatedDate = DateTime.UtcNow },
@@ -86,15 +78,14 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), Name = "Battery capacity", GroupId = Guid.Parse("b0c12b2c-7f15-4dea-90d0-08de7828f656"), CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), Name = "Battery type", GroupId = Guid.Parse("b0c12b2c-7f15-4dea-90d0-08de7828f656"), CreatedDate = DateTime.UtcNow }
             };
-            await context.ProductAttributes.AddRangeAsync(attributes);
+            await context.ProductAttributes.AddRangeAsync(attributes, cancellationToken);
 
-            // 6. Seed Products (FK to Brands and Medias)
             var products = new List<Product>
             {
-                new() 
-                { 
-                    Id = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), 
-                    Name = "iPhone 17 Pro Max 256GB", 
+                new()
+                {
+                    Id = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"),
+                    Name = "iPhone 17 Pro Max 256GB",
                     Slug = "iphone-17-pro-max-256gb",
                     ShortDescription = "<ul><li>Apple A19 Pro 6-core chip</li><li>RAM: 12 GB</li><li>Capacity: 256 GB</li><li>Rear camera: Main 48 MP &amp; Secondary 48 MP, 48 MP</li><li>Front camera: 18 MP</li><li>37-hour battery life, 40W charging</li></ul>",
                     Description = "<p>Key features of the iPhone 17 Pro Max:</p><ul><li>Solid unibody aluminum design, featuring the largest screen ever.</li><li>Brightest and largest 120Hz ProMotion display for super smooth images and immersive movie viewing.</li><li>Professional photography with a 48MP triple camera system.</li><li>Utilizes the Apple A19 Pro chip, ensuring incredibly fast performance and effortless processing.</li><li>Incredible battery life, the longest-lasting iPhone ever, allowing for up to 37 hours of video playback.</li></ul>",
@@ -106,10 +97,10 @@ namespace Catalog.Infrastructure.Data
                     MetaKeywords = "iphone 17 pro max, iphone 17 pro max 2025, giá iphone 17 pro max, apple iphone 17 pro max, iphone 17 pro max 256gb",
                     MetaDescription = "iPhone 17 Pro Max (256GB, 512GB, 1TB, 2TB) giá tốt, có màu cam vũ trụ, xanh đậm, thu cũ giảm đến 3tr, giảm đến 5tr khi thanh toán qua Kredivo, trả chậm 0%. Mua ngay!"
                 },
-                new() 
-                { 
-                    Id = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"), 
-                    Name = "iPhone 16 Pro Max 256GB", 
+                new()
+                {
+                    Id = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"),
+                    Name = "iPhone 16 Pro Max 256GB",
                     Slug = "iphone-16-pro-max-256gb",
                     ShortDescription = "<ul><li>Apple A18 Pro 6-core chip</li><li>RAM: 8 GB</li><li>Capacity: 256 GB</li><li>Rear camera: Main 48 MP &amp; Secondary 48 MP, 12 MP</li><li>Front camera: 12 MP</li><li>33-hour battery life, 20W charging.</li></ul>",
                     Description = "<h3 class=\"ql-align-justify\"><strong>Overview of iPhone 16 Pro Max and iPhone 16 Pro</strong></h3><p class=\"ql-align-justify\">The iPhone 16 Pro and iPhone 16 Pro Max share many similarities but also have some important differences. Both use a titanium frame with a frosted glass finish and support IP68 water resistance. In terms of color, both versions come in four options: Natural Titanium, White Titanium, Black Titanium, and Desert Titanium.</p><p class=\"ql-align-justify\">Both models are equipped with an Action Button and a Camera Control button for quick camera control. The iPhone 16 Pro Max has a 6.9-inch Super Retina XDR OLED display, larger than the 6.3-inch screen of the iPhone 16 Pro. Both devices have a maximum brightness of 2000 nits and use the A18 Pro chip for powerful performance.</p><p class=\"ql-align-justify\">The iPhone 16 Pro Max boasts better battery life with 33 hours of video playback, compared to 27 hours for the iPhone 16 Pro. Storage on the iPhone 16 Pro Max starts at 256 GB, while the iPhone 16 Pro offers an additional 128 GB option.</p><p><br></p>",
@@ -121,10 +112,10 @@ namespace Catalog.Infrastructure.Data
                     MetaKeywords = "điện thoại iphone 16 pro max, iphone 16 pro max, iphone 16 pro max 256gb",
                     MetaDescription = "iPhone 16 Pro Max 256GB giá tốt, giảm ngay 4tr, thu cũ trợ giá đến 2tr, bảo hành chính hãng 1 năm, trả chậm 0% lãi suất, hư gì đổi nấy 12 tháng. Mua ngay!"
                 },
-                new() 
-                { 
-                    Id = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), 
-                    Name = "Samsung Galaxy S25 FE 5G 8GB/128GB", 
+                new()
+                {
+                    Id = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"),
+                    Name = "Samsung Galaxy S25 FE 5G 8GB/128GB",
                     Slug = "samsung-galaxy-s25-fe-5g-8gb128gb",
                     ShortDescription = "<ul><li>Chip Exynos 2400 10 nhân</li><li>RAM: 8 GB</li><li>Dung lượng: 128 GB</li><li>Camera sau: Chính 50 MP &amp; Phụ 12 MP, 8 MP</li><li>Camera trước: 12 MP</li><li>Pin 4900 mAh, Sạc 45 W</li></ul>",
                     Description = "<p class=\"ql-align-justify\">Samsung Galaxy S25 FE không chỉ là bản nâng cấp phần cứng, mà còn là dấu mốc quan trọng cho trải nghiệm di động tương lai. Thiết bị kết hợp hiệu năng mạnh mẽ với trí tuệ nhân tạo Galaxy AI, mang đến một trợ lý cá nhân thông minh, luôn thấu hiểu và chủ động hỗ trợ. Đồng thời, đây cũng là mẫu FE mỏng nhẹ nhất, kết hợp thiết kế tinh tế cùng nhiều tính năng hiện đại.</p>",
@@ -136,10 +127,10 @@ namespace Catalog.Infrastructure.Data
                     MetaKeywords = "Samsung Galaxy S25 FE 5G 8GB/128GB, s25 fe, Samsung galaxy s25 fe, glx s25, glx s25 fe, Samsung s25, Samsung s25 fe, s25 fe, s25fe, s25 fe, s25 fe, galaxy s25fe",
                     MetaDescription = "Mua Samsung Galaxy S25 FE 5G 8GB/128GB giá tốt, giảm đến 2 triệu, thu cũ trợ giá đến 1.5tr, trả chậm 0% lãi suất - trả trước 0đ, hư gì đổi nấy 12 tháng. Mua ngay!"
                 },
-                new() 
-                { 
-                    Id = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), 
-                    Name = "Laptop Dell 15 DC15250 - DC5I5357W1 (i5 1334U, 16GB, 512GB, Full HD 120Hz, OfficeH24+365, Win11)", 
+                new()
+                {
+                    Id = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"),
+                    Name = "Laptop Dell 15 DC15250 - DC5I5357W1 (i5 1334U, 16GB, 512GB, Full HD 120Hz, OfficeH24+365, Win11)",
                     Slug = "laptop-dell-15-dc15250---dc5i5357w1-i5-1334u-16gb-512gb-full-hd-120hz-officeh24365-win11",
                     Description = "<p>Chiếc laptop Dell 15 DC15250 i5 1334U (DC5I5357W1) là sản phẩm lý tưởng cho học sinh, sinh viên và nhân viên văn phòng, thậm chí đáp ứng tốt nhu cầu thiết kế đồ họa cơ bản. Với hiệu năng ổn định, thiết kế thanh lịch và màn hình sắc nét, chiếc laptop này hứa hẹn mang đến trải nghiệm tuyệt vời trong công việc và giải trí, là một lựa chọn đáng cân nhắc trong phân khúc giá.</p>",
                     IsPublished = true,
@@ -149,11 +140,175 @@ namespace Catalog.Infrastructure.Data
                     MetaTitle = "Dell 15 DC15250 i5 1334U (DC5I5357W1) giá tốt, bảo hành 1 năm",
                     MetaKeywords = "Dell 15 DC15250 i5 1334U/16GB/512GB/120Hz/OfficeHS24+365/Win11 (DC5I5357W1), Dell 15 DC15250 i5 1334U (DC5I5357W1), Dell 15 DC15250 i5 1334U (DC5I5357W1), Laptop Dell 15 DC15250 i5 1334U/16GB/512GB/120Hz/OfficeHS24+365/Win11 (DC5I5357W1), giá Dell 15 DC15250 i5 1334U/16GB/512GB/120Hz/OfficeHS24+365/Win11 (DC5I5357W1), thông tin Dell 15 DC15250 i5 1334U/16GB/512GB/120Hz/OfficeHS24+365/Win11 (DC5I5357W1)",
                     MetaDescription = "Laptop Dell 15 DC15250 i5 1334U (DC5I5357W1) giá tốt, trả chậm 0%. Giảm đến 10% qua Kredivo, hư gì đổi nấy 12 tháng, bảo hành chính hãng 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"),
+                    Name = "Samsung Galaxy S25 Ultra 5G 12GB/512GB",
+                    Slug = "samsung-galaxy-s25-ultra-5g-12gb512gb",
+                    ShortDescription = "<ul><li>Snapdragon 8 Elite</li><li>RAM 12 GB, 512 GB</li><li>Camera 200 MP, bút S Pen</li><li>Pin 5000 mAh, sạc 45 W</li></ul>",
+                    Description = "<p>Galaxy S25 Ultra: khung titan, camera 200 MP với Galaxy AI, bút S Pen đa năng và chip Snapdragon 8 Elite mạnh nhất.</p>",
+                    IsPublished = true,
+                    Price = 33990000m,
+                    BrandId = Guid.Parse("75138068-7176-4afb-bc14-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "Samsung Galaxy S25 Ultra 5G giá tốt, góp 0%",
+                    MetaKeywords = "samsung s25 ultra, galaxy s25 ultra, s25 ultra 512gb",
+                    MetaDescription = "Mua Samsung Galaxy S25 Ultra 5G giá tốt, thu cũ trợ giá, trả chậm 0%, bảo hành chính hãng 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"),
+                    Name = "OPPO Reno13 F 5G 8GB/256GB",
+                    Slug = "oppo-reno13-f-5g-8gb256gb",
+                    ShortDescription = "<ul><li>Snapdragon 6 Gen 1</li><li>RAM 8 GB, 256 GB</li><li>Camera 50 MP chống rung OIS</li><li>Pin 5800 mAh, sạc 45 W</li></ul>",
+                    Description = "<p>OPPO Reno13 F: thiết kế mỏng nhẹ, camera chân dung AI, pin lớn dùng 2 ngày và kháng nước bụi IP69.</p>",
+                    IsPublished = true,
+                    Price = 9490000m,
+                    BrandId = Guid.Parse("47096813-224e-42c7-bc19-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "OPPO Reno13 F 5G giá tốt, góp 0%",
+                    MetaKeywords = "oppo reno13 f, reno13 f 5g, điện thoại oppo",
+                    MetaDescription = "Mua OPPO Reno13 F 5G giá tốt, trả chậm 0%, bảo hành chính hãng 1 năm, hư gì đổi nấy 12 tháng. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"),
+                    Name = "Nokia 110 4G (2024)",
+                    Slug = "nokia-110-4g-2024",
+                    ShortDescription = "<ul><li>Màn hình TFT 2.4 inch</li><li>2 SIM, nghe gọi 4G</li><li>Pin 1000 mAh tháo rời</li><li>Nghe radio FM không cần tai nghe</li></ul>",
+                    Description = "<p>Nokia 110 4G (2024): điện thoại phổ thông bền bỉ, pin dùng nhiều ngày, bàn phím lớn dễ bấm, phù hợp người lớn tuổi.</p>",
+                    IsPublished = true,
+                    Price = 890000m,
+                    BrandId = Guid.Parse("d0efbf1c-8d93-43cb-bc18-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "Nokia 110 4G (2024) giá rẻ, pin lâu",
+                    MetaKeywords = "nokia 110 4g, điện thoại cục gạch, nokia phổ thông",
+                    MetaDescription = "Mua Nokia 110 4G (2024) giá rẻ, pin dùng nhiều ngày, bảo hành chính hãng 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"),
+                    Name = "Laptop Asus ROG Strix G16 G614JU i7-14650HX RTX 4050",
+                    Slug = "laptop-asus-rog-strix-g16-g614ju-i7-14650hx-rtx4050",
+                    ShortDescription = "<ul><li>Intel Core i7-14650HX</li><li>RTX 4050 6 GB, RAM 16 GB</li><li>SSD 512 GB, màn 16 inch 165 Hz</li></ul>",
+                    Description = "<p>ROG Strix G16: laptop gaming với tản nhiệt 3 quạt, màn hình ROG Nebula 165 Hz và hiệu năng chiến game AAA mượt mà.</p>",
+                    IsPublished = true,
+                    Price = 34990000m,
+                    BrandId = Guid.Parse("29364927-6439-473f-bc1a-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "Asus ROG Strix G16 RTX 4050 giá tốt, BH 2 năm",
+                    MetaKeywords = "rog strix g16, laptop gaming asus, rtx 4050 laptop",
+                    MetaDescription = "Mua Asus ROG Strix G16 RTX 4050 giá tốt, trả chậm 0%, bảo hành chính hãng 2 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"),
+                    Name = "Laptop Lenovo ThinkPad E14 Gen 6 Ryzen 7 7735U",
+                    Slug = "laptop-lenovo-thinkpad-e14-gen-6-ryzen-7-7735u",
+                    ShortDescription = "<ul><li>AMD Ryzen 7 7735U</li><li>RAM 16 GB, SSD 512 GB</li><li>Màn 14 inch WUXGA chống chói</li><li>Vỏ nhôm, đạt chuẩn quân đội</li></ul>",
+                    Description = "<p>ThinkPad E14 Gen 6: laptop doanh nhân bền bỉ với bàn phím huyền thoại, bảo mật vân tay và pin dùng cả ngày làm việc.</p>",
+                    IsPublished = true,
+                    Price = 21990000m,
+                    BrandId = Guid.Parse("718b4a11-1b02-44c6-bc17-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "Lenovo ThinkPad E14 Gen 6 giá tốt, BH 1 năm",
+                    MetaKeywords = "thinkpad e14, lenovo thinkpad, laptop doanh nhân",
+                    MetaDescription = "Mua Lenovo ThinkPad E14 Gen 6 giá tốt, trả chậm 0%, bảo hành chính hãng 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"),
+                    Name = "Laptop HP Pavilion 15-eg3048TU i5-1335U 16GB 512GB",
+                    Slug = "laptop-hp-pavilion-15-eg3048tu-i5-1335u-16gb-512gb",
+                    ShortDescription = "<ul><li>Intel Core i5-1335U</li><li>RAM 16 GB, SSD 512 GB</li><li>Màn 15.6 inch Full HD viền mỏng</li></ul>",
+                    Description = "<p>HP Pavilion 15: laptop học tập văn phòng cân bằng giữa hiệu năng và giá, loa B&O và pin dùng 8 tiếng.</p>",
+                    IsPublished = true,
+                    Price = 16490000m,
+                    BrandId = Guid.Parse("ffaf754f-f5c2-4853-bc16-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "HP Pavilion 15 i5-1335U giá tốt, góp 0%",
+                    MetaKeywords = "hp pavilion 15, laptop hp, pavilion eg3048tu",
+                    MetaDescription = "Mua HP Pavilion 15 i5-1335U giá tốt, trả chậm 0%, bảo hành chính hãng 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"),
+                    Name = "Apple MacBook Air 13 inch M4 16GB/256GB",
+                    Slug = "apple-macbook-air-13-m4-16gb256gb",
+                    ShortDescription = "<ul><li>Chip Apple M4 10 nhân</li><li>RAM unified 16 GB, SSD 256 GB</li><li>Màn Liquid Retina 13.6 inch</li><li>Pin dùng đến 18 tiếng</li></ul>",
+                    Description = "<p>MacBook Air M4: mỏng 11.3 mm, nhẹ 1.24 kg, hiệu năng AI vượt trội và thời lượng pin tốt nhất phân khúc ultrabook.</p>",
+                    IsPublished = true,
+                    Price = 27990000m,
+                    BrandId = Guid.Parse("5fb5f20c-bf57-4907-bc13-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "MacBook Air M4 13 inch giá tốt, BH 1 năm",
+                    MetaKeywords = "macbook air m4, macbook air 13, apple m4",
+                    MetaDescription = "Mua MacBook Air M4 13 inch giá tốt, trả chậm 0%, bảo hành chính hãng 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"),
+                    Name = "Tai nghe Asus ROG Cetra True Wireless",
+                    Slug = "tai-nghe-asus-rog-cetra-true-wireless",
+                    ShortDescription = "<ul><li>Chống ồn chủ động lai</li><li>Driver 10 mm, Bluetooth 5.3</li><li>Pin 27 tiếng kèm hộp sạc</li><li>Chế độ gaming độ trễ thấp</li></ul>",
+                    Description = "<p>ROG Cetra True Wireless: tai nghe gaming không dây với ANC, âm thanh chi tiết và kháng nước IPX4 để dùng ngoài trời.</p>",
+                    IsPublished = true,
+                    Price = 2990000m,
+                    BrandId = Guid.Parse("29364927-6439-473f-bc1a-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "Tai nghe Asus ROG Cetra True Wireless chính hãng",
+                    MetaKeywords = "rog cetra, tai nghe gaming, true wireless asus",
+                    MetaDescription = "Mua tai nghe Asus ROG Cetra True Wireless chính hãng, bảo hành 2 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("c9c9c9c9-c9c9-4c9c-8c9c-c9c9c9c9c9c9"),
+                    Name = "Pin sạc dự phòng Samsung 10000mAh 25W",
+                    Slug = "pin-sac-du-phong-samsung-10000mah-25w",
+                    ShortDescription = "<ul><li>Dung lượng 10000 mAh</li><li>Sạc nhanh 25 W, 2 cổng USB-C</li><li>Vỏ nhôm nguyên khối</li></ul>",
+                    Description = "<p>Pin sạc dự phòng Samsung 10000 mAh: sạc nhanh 25 W cho Galaxy, thiết kế mỏng nhẹ bỏ túi, an toàn nhiều lớp.</p>",
+                    IsPublished = true,
+                    Price = 890000m,
+                    BrandId = Guid.Parse("75138068-7176-4afb-bc14-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "Pin sạc dự phòng Samsung 10000mAh 25W chính hãng",
+                    MetaKeywords = "sạc dự phòng samsung, pin 10000mah, battery pack",
+                    MetaDescription = "Mua pin sạc dự phòng Samsung 10000mAh 25W chính hãng, bảo hành 1 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("d0d0d0d0-d0d0-4d0d-8d0d-d0d0d0d0d0d0"),
+                    Name = "USB Samsung FIT Plus 256GB USB 3.1",
+                    Slug = "usb-samsung-fit-plus-256gb-usb31",
+                    ShortDescription = "<ul><li>Dung lượng 256 GB</li><li>Chuẩn USB 3.1, đọc đến 400 MB/s</li><li>Vỏ kim loại chống nước, siêu nhỏ gọn</li></ul>",
+                    Description = "<p>Samsung FIT Plus 256 GB: USB siêu nhỏ cắm là quên, tốc độ đọc 400 MB/s, lưu phim 4K và backup nhanh chóng.</p>",
+                    IsPublished = true,
+                    Price = 990000m,
+                    BrandId = Guid.Parse("75138068-7176-4afb-bc14-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "USB Samsung FIT Plus 256GB chính hãng",
+                    MetaKeywords = "usb samsung, fit plus 256gb, usb 3.1",
+                    MetaDescription = "Mua USB Samsung FIT Plus 256GB chính hãng, bảo hành 5 năm. Mua ngay!"
+                },
+                new()
+                {
+                    Id = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"),
+                    Name = "Apple AirPods Pro 2 USB-C",
+                    Slug = "apple-airpods-pro-2-usb-c",
+                    ShortDescription = "<ul><li>Chip H2, chống ồn gấp 2 lần</li><li>Âm thanh Adaptive Transparency</li><li>Pin 30 tiếng kèm hộp MagSafe</li></ul>",
+                    Description = "<p>AirPods Pro 2 USB-C: chống ồn chủ động mạnh gấp đôi thế hệ trước, âm trầm sâu và hộp sạc MagSafe tiện lợi.</p>",
+                    IsPublished = true,
+                    Price = 5490000m,
+                    BrandId = Guid.Parse("5fb5f20c-bf57-4907-bc13-08de78272836"),
+                    CreatedDate = DateTime.UtcNow,
+                    MetaTitle = "AirPods Pro 2 USB-C chính hãng, giá tốt",
+                    MetaKeywords = "airpods pro 2, tai nghe apple, airpods usb-c",
+                    MetaDescription = "Mua AirPods Pro 2 USB-C chính hãng, bảo hành 1 năm, trả chậm 0%. Mua ngay!"
                 }
             };
-            await context.Products.AddRangeAsync(products);
+            await context.Products.AddRangeAsync(products, cancellationToken);
 
-            // 7. Seed ProductCategories (FK to Categories and Products)
             var productCategories = new List<ProductCategory>
             {
                 new() { Id = Guid.Parse("48a26b27-90a3-4348-d973-08de78387cfa"), CategoryId = Guid.Parse("5a6895a9-ce31-4a37-8300-60bb6a939c2c"), ProductId = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
@@ -163,43 +318,50 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("3c548a37-8de6-460f-d977-08de78387cfa"), CategoryId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("09739461-a944-4d12-d978-08de78387cfa"), CategoryId = Guid.Parse("d5f3b0e4-350d-4188-a0d1-28ebc5cc3aea"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("0404d76a-b7a5-4b46-d979-08de78387cfa"), CategoryId = Guid.Parse("acfb3c87-502b-44a0-b39b-6b644c57ffb6"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
-                new() { Id = Guid.Parse("19a78608-0c04-4a8d-d97a-08de78387cfa"), CategoryId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow }
+                new() { Id = Guid.Parse("19a78608-0c04-4d8d-d97a-08de78387cfa"), CategoryId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("a3a3a3a3-a3a3-4a3a-8a3a-a3a3a3a3a3a3"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("a3a3a3a3-a3a3-4a3a-8a3a-a3a3a3a3a3a3"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("7e226ecb-6fc1-4602-bf0b-d14d02a14555"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("a5924453-4608-427f-9751-717f217ea569"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("acfb3c87-502b-44a0-b39b-6b644c57ffb6"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("f2f2f2f2-f2f2-4f2f-8f2f-f2f2f2f2f2f2"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("f2f2f2f2-f2f2-4f2f-8f2f-f2f2f2f2f2f2"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("f64602e6-d373-42ef-a3be-4360449bada1"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("761d55da-023c-41e0-ace7-c7316602e0f6"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("8ac51586-431d-4642-8435-5926cb6c04f4"), ProductId = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("d8c4a2d8-3f4d-4d3c-923c-f4f46482ab7a"), ProductId = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("8ac51586-431d-4642-8435-5926cb6c04f4"), ProductId = Guid.Parse("c9c9c9c9-c9c9-4c9c-8c9c-c9c9c9c9c9c9"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("c3f05c5c-3fa3-4c6d-81c8-e33526e39511"), ProductId = Guid.Parse("c9c9c9c9-c9c9-4c9c-8c9c-c9c9c9c9c9c9"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("8ac51586-431d-4642-8435-5926cb6c04f4"), ProductId = Guid.Parse("d0d0d0d0-d0d0-4d0d-8d0d-d0d0d0d0d0d0"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("633b7e0d-e227-450e-a3a2-574125aa6024"), ProductId = Guid.Parse("d0d0d0d0-d0d0-4d0d-8d0d-d0d0d0d0d0d0"), DisplayOrder = 0, IsFeaturedProduct = false, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("8ac51586-431d-4642-8435-5926cb6c04f4"), ProductId = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow },
+                new() { Id = Guid.NewGuid(), CategoryId = Guid.Parse("d8c4a2d8-3f4d-4d3c-923c-f4f46482ab7a"), ProductId = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"), DisplayOrder = 0, IsFeaturedProduct = true, CreatedDate = DateTime.UtcNow }
             };
-            await context.ProductCategories.AddRangeAsync(productCategories);
+            await context.ProductCategories.AddRangeAsync(productCategories, cancellationToken);
 
-            // 9. Seed ProductAttributeValues (FK to ProductAttributes and Products)
             var attributeValues = GetProductAttributeValues();
-            await context.ProductAttributeValues.AddRangeAsync(attributeValues);
+            await context.ProductAttributeValues.AddRangeAsync(attributeValues, cancellationToken);
 
-            // 10. Seed ProductTemplates (no FK)
             var productTemplates = new List<ProductTemplate>
             {
                 new() { Id = Guid.Parse("ba82cd8d-198d-4106-bb8a-08de7829c8d9"), Name = "Phone", CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("40e153ad-35e8-4032-b848-08de783a4442"), Name = "Laptop", CreatedDate = DateTime.UtcNow }
             };
-            await context.ProductTemplates.AddRangeAsync(productTemplates);
+            await context.ProductTemplates.AddRangeAsync(productTemplates, cancellationToken);
 
-            // 11. Seed ProductTemplateProductAttributes (FK to ProductTemplates and ProductAttributes)
             var templateAttributes = GetProductTemplateProductAttributes();
-            await context.ProductTemplateProductAttributes.AddRangeAsync(templateAttributes);
-
-            // Seed rows are not user actions; keep them out of the audit log.
-            context.IsAuditEnabled = false;
-            try
-            {
-                await context.SaveChangesAsync();
-            }
-            finally
-            {
-                context.IsAuditEnabled = true;
-            }
+            await context.ProductTemplateProductAttributes.AddRangeAsync(templateAttributes, cancellationToken);
         }
 
         private static List<ProductAttributeValue> GetProductAttributeValues()
         {
             return new List<ProductAttributeValue>
             {
-                // iPhone 17 Pro Max
                 new() { Id = Guid.Parse("aabda6f6-f1d6-482c-9b5e-08de78387cf8"), AttributeId = Guid.Parse("fe158671-2d0c-4775-ace8-0017f3e21f02"), ProductId = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), Value = "48 MP" },
                 new() { Id = Guid.Parse("c561d87e-fa22-4aa3-9b5f-08de78387cf8"), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), Value = "37 hours" },
                 new() { Id = Guid.Parse("ffb18944-15d6-44a0-9b60-08de78387cf8"), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), Value = "Li-Ion" },
@@ -217,7 +379,6 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("d7de914b-a9fd-4278-9b6c-08de78387cf8"), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), Value = "12 GB" },
                 new() { Id = Guid.Parse("5d5bccbc-9db0-4bfa-9b6d-08de78387cf8"), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("7eb16dfc-78cf-427c-d6a1-08de78387ceb"), Value = "Super Retina XDR (1320 x 2868 Pixels)" },
 
-                // iPhone 16 Pro Max
                 new() { Id = Guid.Parse("1b6b82e4-fbff-4c7f-9b6e-08de78387cf8"), AttributeId = Guid.Parse("fe158671-2d0c-4775-ace8-0017f3e21f02"), ProductId = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"), Value = "48 MP" },
                 new() { Id = Guid.Parse("38d3ee42-98bb-4a62-9b6f-08de78387cf8"), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"), Value = "33 hours" },
                 new() { Id = Guid.Parse("d6547840-5136-4521-9b70-08de78387cf8"), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"), Value = "Li-Ion" },
@@ -235,7 +396,6 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("0c9fbb38-e19f-4b17-9b7c-08de78387cf8"), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"), Value = "8 GB" },
                 new() { Id = Guid.Parse("ff45814b-b33d-459b-9b7d-08de78387cf8"), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("98770860-2a59-42c4-d6a2-08de78387ceb"), Value = "Super Retina XDR (1320 x 2868 Pixels)" },
 
-                // Samsung Galaxy S25 FE
                 new() { Id = Guid.Parse("bee87102-384f-4d1e-9b7e-08de78387cf8"), AttributeId = Guid.Parse("fe158671-2d0c-4775-ace8-0017f3e21f02"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), Value = "50 MP" },
                 new() { Id = Guid.Parse("1d5f0f0a-0ccc-4dd4-9b7f-08de78387cf8"), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), Value = "4900 mAh" },
                 new() { Id = Guid.Parse("f8b56827-9db6-40ed-9b80-08de78387cf8"), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), Value = "Updating" },
@@ -252,7 +412,6 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("8c46cdc7-f53d-4d9f-9b8b-08de78387cf8"), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), Value = "8 GB" },
                 new() { Id = Guid.Parse("be973be0-7cc9-4578-9b8c-08de78387cf8"), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("012d01f5-1629-4a51-d6a3-08de78387ceb"), Value = "Full HD+ (1080 x 2340 Pixels)" },
 
-                // Dell Laptop
                 new() { Id = Guid.Parse("c33c95ac-c668-4592-9b8d-08de78387cf8"), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "3-cell Li-ion, 41 Wh" },
                 new() { Id = Guid.Parse("967f5c3a-e81b-4fd2-9b8e-08de78387cf8"), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "15.6 inch" },
                 new() { Id = Guid.Parse("b6e2089b-c792-4e24-9b8f-08de78387cf8"), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "Wi-Fi 6 (802.11ax)" },
@@ -262,7 +421,110 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("8a22d709-8b3c-47b8-9b93-08de78387cf8"), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "Windows 11 Home SL + Office Home 2024 lifetime license + Microsoft 365 Basic" },
                 new() { Id = Guid.Parse("acc32c6a-ae06-478e-9b94-08de78387cf8"), AttributeId = Guid.Parse("022c909e-bcf6-40ce-a490-e781557b9b96"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "Integrated graphics card - Intel UHD Graphics" },
                 new() { Id = Guid.Parse("a524b4a3-88b8-4f63-9b95-08de78387cf8"), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "16 GB" },
-                new() { Id = Guid.Parse("48054d10-3d18-4d0d-9b96-08de78387cf8"), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "Full HD (1920 x 1080)" }
+                new() { Id = Guid.Parse("48054d10-3d18-4d0d-9b96-08de78387cf8"), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("6ff755bd-47ac-4397-d6a4-08de78387ceb"), Value = "Full HD (1920 x 1080)" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("fe158671-2d0c-4775-ace8-0017f3e21f02"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "200 MP" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("8d5fa038-27c6-4184-9b4c-eb50ec7ceb00"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "12 MP" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "5000 mAh" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "Li-Ion" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("d2641e35-ade1-48ac-a660-1fa70c648757"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "2 Nano SIM + eSIM" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9f898dbd-1c78-4890-ba23-a2703def84f6"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "5G support" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "Wi-Fi 7" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "v5.4" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "Snapdragon 8 Elite" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "Android 15" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "12 GB" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "512 GB" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "6.9 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("7d637bdf-7801-40c2-b813-4e3c68a0502b"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "Dynamic AMOLED 2X" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("a1a1a1a1-a1a1-4a1a-8a1a-a1a1a1a1a1a1"), Value = "QHD+ (3120 x 1440 Pixels)" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("fe158671-2d0c-4775-ace8-0017f3e21f02"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "50 MP OIS" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "5800 mAh" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("d2641e35-ade1-48ac-a660-1fa70c648757"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "2 Nano SIM" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9f898dbd-1c78-4890-ba23-a2703def84f6"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "5G support" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "Wi-Fi 5" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "v5.1" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "Snapdragon 6 Gen 1" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "Android 15" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "8 GB" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "256 GB" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "6.67 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("7d637bdf-7801-40c2-b813-4e3c68a0502b"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "AMOLED" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("b2b2b2b2-b2b2-4b2b-8b2b-b2b2b2b2b2b2"), Value = "Full HD+ (1080 x 2400 Pixels)" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("fe158671-2d0c-4775-ace8-0017f3e21f02"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "QVGA" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "1000 mAh" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "Li-Ion (removable)" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("d2641e35-ade1-48ac-a660-1fa70c648757"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "2 Nano SIM" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9f898dbd-1c78-4890-ba23-a2703def84f6"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "4G" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "S30+" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "2.4 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("c3c3c3c3-c3c3-4c3c-8c3c-c3c3c3c3c3c3"), Value = "v5.0" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "Intel Core i7-14650HX" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("022c909e-bcf6-40ce-a490-e781557b9b96"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "RTX 4050 6GB GDDR6" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "16 GB DDR5" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "512 GB NVMe PCIe SSD" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "Windows 11 Home" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "16 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("7d637bdf-7801-40c2-b813-4e3c68a0502b"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "ROG Nebula Anti-Glare" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "WUXGA (1920 x 1200) 165Hz" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "Wi-Fi 6E" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "v5.3" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("d4d4d4d4-d4d4-4d4d-8d4d-d4d4d4d4d4d4"), Value = "90Wh 4-cell" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "AMD Ryzen 7 7735U" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("022c909e-bcf6-40ce-a490-e781557b9b96"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "AMD Radeon 680M" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "16 GB LPDDR5" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "512 GB NVMe SSD" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "Windows 11 Pro" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "14 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("7d637bdf-7801-40c2-b813-4e3c68a0502b"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "IPS Anti-glare" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "WUXGA (1920 x 1200)" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "Wi-Fi 6E" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "v5.3" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5"), Value = "57Wh" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "Intel Core i5-1335U" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("022c909e-bcf6-40ce-a490-e781557b9b96"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "Intel Iris Xe" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "16 GB DDR4" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "512 GB NVMe SSD" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "Windows 11 Home" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "15.6 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("7d637bdf-7801-40c2-b813-4e3c68a0502b"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "IPS micro-edge" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "Full HD (1920 x 1080)" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "Wi-Fi 6E" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("f6f6f6f6-f6f6-4f6f-8f6f-f6f6f6f6f6f6"), Value = "43Wh 3-cell" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "Apple M4 10-core" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("022c909e-bcf6-40ce-a490-e781557b9b96"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "Apple GPU 10-core" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0993dc9d-38b9-4c9a-a315-ec6e63a540ea"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "16 GB unified" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "256 GB SSD" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("18bbcb21-0c25-4543-af2a-b855e87e01f4"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "macOS Sequoia" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("74d4f4b8-64f7-46ee-9c15-3ee3743514bf"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "13.6 inch" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("7d637bdf-7801-40c2-b813-4e3c68a0502b"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "Liquid Retina" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("67054b20-deb6-46dd-9e8f-edaf0b55a551"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "2560 x 1664 Pixels" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "Wi-Fi 6E" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "v5.3" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("a7a7a7a7-a7a7-4a7a-8a7a-a7a7a7a7a7a7"), Value = "Up to 18 hours" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"), Value = "v5.3" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"), Value = "27 hours with case" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"), Value = "Li-Ion" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("775a1c47-acd5-4794-a859-09f9aa6cc901"), ProductId = Guid.Parse("b8b8b8b8-b8b8-4b8b-8b8b-b8b8b8b8b8b8"), Value = "USB-C charging" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("c9c9c9c9-c9c9-4c9c-8c9c-c9c9c9c9c9c9"), Value = "10000 mAh" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("c9c9c9c9-c9c9-4c9c-8c9c-c9c9c9c9c9c9"), Value = "Li-Polymer" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("775a1c47-acd5-4794-a859-09f9aa6cc901"), ProductId = Guid.Parse("c9c9c9c9-c9c9-4c9c-8c9c-c9c9c9c9c9c9"), Value = "USB-C 25W, 2 ports" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("0ae35309-b38e-4002-a418-8c3f2d5ff66b"), ProductId = Guid.Parse("d0d0d0d0-d0d0-4d0d-8d0d-d0d0d0d0d0d0"), Value = "256 GB" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("775a1c47-acd5-4794-a859-09f9aa6cc901"), ProductId = Guid.Parse("d0d0d0d0-d0d0-4d0d-8d0d-d0d0d0d0d0d0"), Value = "USB 3.1 Gen 1" },
+
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), ProductId = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"), Value = "v5.3" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), ProductId = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"), Value = "30 hours with case" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), ProductId = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"), Value = "Li-Ion" },
+                new() { Id = Guid.NewGuid(), AttributeId = Guid.Parse("775a1c47-acd5-4794-a859-09f9aa6cc901"), ProductId = Guid.Parse("e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1"), Value = "USB-C + MagSafe" }
             };
         }
 
@@ -270,7 +532,6 @@ namespace Catalog.Infrastructure.Data
         {
             return new List<ProductTemplateProductAttribute>
             {
-                // Phone Template
                 new() { Id = Guid.Parse("d05a00aa-f303-4eac-89b4-324685d25418"), ProductTemplateId = Guid.Parse("ba82cd8d-198d-4106-bb8a-08de7829c8d9"), ProductAttributeId = Guid.Parse("9f898dbd-1c78-4890-ba23-a2703def84f6"), CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("944d7c80-e2df-4352-a64a-6fcb09996991"), ProductTemplateId = Guid.Parse("ba82cd8d-198d-4106-bb8a-08de7829c8d9"), ProductAttributeId = Guid.Parse("d2641e35-ade1-48ac-a660-1fa70c648757"), CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("2e785611-930b-4c0c-964d-a58cb38edce0"), ProductTemplateId = Guid.Parse("ba82cd8d-198d-4106-bb8a-08de7829c8d9"), ProductAttributeId = Guid.Parse("1416eaa3-2f64-4fb9-966a-86c6dd76166a"), CreatedDate = DateTime.UtcNow },
@@ -288,7 +549,6 @@ namespace Catalog.Infrastructure.Data
                 new() { Id = Guid.Parse("9e446248-6d9f-412d-87ae-8df3c95fb50c"), ProductTemplateId = Guid.Parse("ba82cd8d-198d-4106-bb8a-08de7829c8d9"), ProductAttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("811d0aa8-d539-405c-9064-7d7dc44eb4d8"), ProductTemplateId = Guid.Parse("ba82cd8d-198d-4106-bb8a-08de7829c8d9"), ProductAttributeId = Guid.Parse("9c073c84-a0ea-4a18-52d2-08de783534be"), CreatedDate = DateTime.UtcNow },
 
-                // Laptop Template
                 new() { Id = Guid.Parse("d627f839-87d6-4183-bbb0-6d46c8114072"), ProductTemplateId = Guid.Parse("40e153ad-35e8-4032-b848-08de783a4442"), ProductAttributeId = Guid.Parse("23be21d4-3622-4206-52d1-08de783534be"), CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("c5bb8dec-62c0-4f0a-8d49-2c6ad4f46d0f"), ProductTemplateId = Guid.Parse("40e153ad-35e8-4032-b848-08de783a4442"), ProductAttributeId = Guid.Parse("2f16e475-7ccf-4bfd-ab37-46fe0dd725bf"), CreatedDate = DateTime.UtcNow },
                 new() { Id = Guid.Parse("9598fbc1-2515-4e2e-85ee-9626c6409c47"), ProductTemplateId = Guid.Parse("40e153ad-35e8-4032-b848-08de783a4442"), ProductAttributeId = Guid.Parse("6dda4bd4-538c-4a56-bb9a-804e4e477456"), CreatedDate = DateTime.UtcNow },

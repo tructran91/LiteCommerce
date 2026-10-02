@@ -3,6 +3,7 @@ using Catalog.Application.ActivityLogs.Queries;
 using Catalog.Application.AuditLogs.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using Catalog.Application.Services;
 using Catalog.Application.ViewModels;
 using Catalog.Core.DTOs;
 using Catalog.Core.Entities;
@@ -56,6 +57,8 @@ namespace Catalog.Application
             CreateMap<Product, ProductViewModel>();
 
             CreateMap<Product, ProductPricingResponse>();
+
+            CreateMap<SeedResult, SeedDatabaseResponse>();
 
             // Log timestamps are stored as UTC but read back as Unspecified; mark them so the JSON carries the Z suffix.
             CreateMap<GetAllAuditLogsQuery, AuditLogFilter>();

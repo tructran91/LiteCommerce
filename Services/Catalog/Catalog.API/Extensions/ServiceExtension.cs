@@ -2,10 +2,12 @@
 using Catalog.API.Services;
 using Catalog.Application;
 using Catalog.Application.Behaviors;
+using Catalog.Application.Database;
 using Catalog.Application.Services;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Data.Interceptors;
+using Catalog.Infrastructure.Data.Seeding;
 using Catalog.Infrastructure.Repositories;
 using FluentValidation;
 using LiteCommerce.Shared.Models;
@@ -128,6 +130,12 @@ namespace Catalog.API.Extensions
             services.AddScoped<IAuditLogRepository, AuditLogRepository>();
             services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
 
+            services.AddScoped<ISeedProfile, TechnologySeedProfile>();
+            services.AddScoped<ISeedProfile, FashionSeedProfile>();
+            services.AddScoped<ISeedProfile, FurnitureSeedProfile>();
+            services.AddScoped<ISeedProfile, CosmeticsSeedProfile>();
+            services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
+
             // Registration order is pipeline order: ValidationBehavior runs first, so invalid requests are never logged.
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ActivityLogBehavior<,>));
@@ -140,19 +148,41 @@ namespace Catalog.API.Extensions
             services.AddValidatorsFromAssembly(assembly);
         }
 
-        public static async Task ApplySeedAsync(this IServiceProvider serviceProvider)
+        public static async Task ApplySeedAsync(this IServiceProvider serviceProvider, IConfiguration configuration)
         {
             using var scope = serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Catalog.Seeding");
 
             try
             {
-                var context = services.GetRequiredService<CatalogContext>();
-                await CatalogDataSeed.SeedAsync(context);
+                if (!configuration.GetValue("Seeding:Enabled", true))
+                {
+                    return;
+                }
+
+                var profile = configuration.GetValue<string>("Seeding:Profile") ?? SeedProfiles.Default;
+                var seeder = services.GetRequiredService<IDatabaseSeeder>();
+                var availableProfiles = seeder.GetAvailableProfiles();
+                if (!availableProfiles.Contains(profile, StringComparer.OrdinalIgnoreCase))
+                {
+                    logger.LogError("Seeding skipped: unknown Seeding:Profile '{Profile}'. Available profiles: {AvailableProfiles}",
+                        profile, string.Join(", ", availableProfiles));
+                    return;
+                }
+
+                if (await seeder.HasDataAsync())
+                {
+                    return;
+                }
+
+                var result = await seeder.SeedAsync(profile);
+                logger.LogInformation("Database seeded with '{Profile}' profile: {BrandCount} brands, {CategoryCount} categories, {ProductCount} products",
+                    result.Profile, result.BrandCount, result.CategoryCount, result.ProductCount);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during migration and seeding: {ex.Message}");
+                logger.LogError(ex, "Error during database seeding");
             }
         }
     }
