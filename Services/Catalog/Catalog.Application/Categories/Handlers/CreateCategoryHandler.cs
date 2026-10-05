@@ -66,7 +66,9 @@ namespace Catalog.Application.Categories.Handlers
                 category.ThumbnailImage = new Media
                 {
                     FileName = newFileName,
-                    MediaType = MediaType.Image
+                    MediaType = MediaType.Image,
+                    Caption = payload.ThumbnailImage.FileName,
+                    FileSize = payload.ThumbnailImage.Length
                 };
             }
 
@@ -83,6 +85,10 @@ namespace Catalog.Application.Categories.Handlers
             }
 
             var response = _mapper.Map<CategoryResponse>(createdCategory);
+            if (createdCategory.ThumbnailImage is not null)
+            {
+                response.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(createdCategory.ThumbnailImage, StorageFolder.Category);
+            }
 
             return BaseResponse<CategoryResponse>.Success(response, statusCode: HttpStatusCode.Created);
         }

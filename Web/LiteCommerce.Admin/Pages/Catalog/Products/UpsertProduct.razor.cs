@@ -44,6 +44,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         [Inject]
         private IJSRuntime JSRuntime { get; set; }
 
+        [Inject]
+        private FileUploadSettings FileUploadSettings { get; set; }
+
         private List<BreadcrumbItem> _breadcrumbs = new();
         private bool _isEditMode => !string.IsNullOrEmpty(Id);
         private bool _loading = false;
@@ -504,9 +507,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         {
             var file = e.File;
 
-            if (file.Size > FileUploadConstants.MaxImageSize)
+            if (file.Size > FileUploadSettings.MaxImageSize)
             {
-                Snackbar.Add(FileUploadConstants.ImageSizeExceededMessage, Severity.Error);
+                Snackbar.Add(FileUploadSettings.ImageSizeExceededMessage, Severity.Error);
                 return;
             }
 
@@ -519,7 +522,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             try
             {
                 var buffer = new byte[file.Size];
-                await file.OpenReadStream(FileUploadConstants.MaxImageSize).ReadAsync(buffer);
+                await file.OpenReadStream(FileUploadSettings.MaxImageSize).ReadAsync(buffer);
                 var imageBase64 = Convert.ToBase64String(buffer);
                 _thumbnailPreviewUrl = $"data:{file.ContentType};base64,{imageBase64}";
                 _createProductForm.ThumbnailImage = file;
@@ -543,9 +546,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         {
             foreach (var file in e.GetMultipleFiles())
             {
-                if (file.Size > FileUploadConstants.MaxImageSize)
+                if (file.Size > FileUploadSettings.MaxImageSize)
                 {
-                    Snackbar.Add($"{file.Name}: {FileUploadConstants.ImageSizeExceededMessage}", Severity.Error);
+                    Snackbar.Add($"{file.Name}: {FileUploadSettings.ImageSizeExceededMessage}", Severity.Error);
                     continue;
                 }
 
@@ -558,7 +561,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 try
                 {
                     var buffer = new byte[file.Size];
-                    await file.OpenReadStream(FileUploadConstants.MaxImageSize).ReadAsync(buffer);
+                    await file.OpenReadStream(FileUploadSettings.MaxImageSize).ReadAsync(buffer);
                     var imageBase64 = Convert.ToBase64String(buffer);
 
                     _createProductForm.ProductImages.Add(file);
@@ -591,9 +594,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         {
             foreach (var file in e.GetMultipleFiles())
             {
-                if (file.Size > FileUploadConstants.MaxDocumentSize)
+                if (file.Size > FileUploadSettings.MaxDocumentSize)
                 {
-                    Snackbar.Add($"{file.Name}: {FileUploadConstants.DocumentSizeExceededMessage}", Severity.Error);
+                    Snackbar.Add($"{file.Name}: {FileUploadSettings.DocumentSizeExceededMessage}", Severity.Error);
                     continue;
                 }
 
@@ -689,21 +692,21 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
             if (_createProductForm.ThumbnailImage != null)
             {
-                var fileContent = new StreamContent(_createProductForm.ThumbnailImage.OpenReadStream(FileUploadConstants.MaxImageSize));
+                var fileContent = new StreamContent(_createProductForm.ThumbnailImage.OpenReadStream(FileUploadSettings.MaxImageSize));
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(_createProductForm.ThumbnailImage.ContentType);
                 content.Add(fileContent, "ThumbnailImage", _createProductForm.ThumbnailImage.Name);
             }
 
             foreach (var imageFile in _createProductForm.ProductImages)
             {
-                var fileContent = new StreamContent(imageFile.OpenReadStream(FileUploadConstants.MaxImageSize));
+                var fileContent = new StreamContent(imageFile.OpenReadStream(FileUploadSettings.MaxImageSize));
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(imageFile.ContentType);
                 content.Add(fileContent, "ProductImages", imageFile.Name);
             }
 
             foreach (var docFile in _createProductForm.ProductDocuments)
             {
-                var fileContent = new StreamContent(docFile.OpenReadStream(FileUploadConstants.MaxDocumentSize));
+                var fileContent = new StreamContent(docFile.OpenReadStream(FileUploadSettings.MaxDocumentSize));
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(docFile.ContentType);
                 content.Add(fileContent, "ProductDocuments", docFile.Name);
             }

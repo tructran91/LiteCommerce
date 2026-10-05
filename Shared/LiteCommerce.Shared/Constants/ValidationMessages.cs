@@ -41,5 +41,15 @@
         {
             return $"{fieldName} must not be after {otherFieldName}.";
         }
+
+        public static string FileSizeExceeded(string fieldName, int maxSizeMB)
+        {
+            return $"{fieldName} must not exceed {maxSizeMB}MB.";
+        }
+
+        public static string InvalidFileType(string fieldName, string allowedExtensions)
+        {
+            return $"{fieldName} must be one of the following file types: {allowedExtensions}.";
+        }
     }
 }

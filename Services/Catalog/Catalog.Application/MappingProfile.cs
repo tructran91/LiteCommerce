@@ -21,7 +21,7 @@ namespace Catalog.Application
 
             CreateMap<Category, CategoryResponse>()
                 .ForMember(prop => prop.DisplayName, opt => opt.MapFrom(o => o.Name))
-                .ForMember(prop => prop.ThumbnailImageUrl, opt => opt.MapFrom(o => o.ThumbnailImage.FileName));
+                .ForMember(prop => prop.ThumbnailImageUrl, opt => opt.Ignore());
             CreateMap<CreateCategoryRequest, Category>()
                 .ForMember(prop => prop.ThumbnailImage, opt => opt.Ignore())
                 .ForMember(prop => prop.ParentId, opt => opt.MapFrom(o => (string.IsNullOrEmpty(o.ParentId)) ? (Guid?)null : Guid.Parse(o.ParentId)));

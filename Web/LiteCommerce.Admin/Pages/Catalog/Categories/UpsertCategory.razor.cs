@@ -1,6 +1,7 @@
 ﻿using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Category;
+using LiteCommerce.Admin.Models.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
@@ -22,12 +23,16 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
+        [Inject]
+        private FileUploadSettings FileUploadSettings { get; set; }
+
         private List<BreadcrumbItem> _breadcrumbs = new();
         private bool _isEditMode => !string.IsNullOrEmpty(Id);
         private List<BasicCategoryResponse> _basicCategories = new();
         private CategoryFormModel _categoryForm = new();
         private IBrowserFile? _thumbnailFile;
         private string? _thumbnailPreviewUrl;
+        private bool _removeThumbnail;
         private bool _loading = false;
         private MudForm _form = null!;
 
@@ -96,9 +101,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
 
             if (_thumbnailFile != null)
             {
-                if (_thumbnailFile.Size > FileUploadConstants.MaxImageSize)
+                if (_thumbnailFile.Size > FileUploadSettings.MaxImageSize)
                 {
-                    Snackbar.Add(FileUploadConstants.ImageSizeExceededMessage, Severity.Error);
+                    Snackbar.Add(FileUploadSettings.ImageSizeExceededMessage, Severity.Error);
                     _thumbnailFile = null;
                     return;
                 }
@@ -113,7 +118,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 try
                 {
                     var buffer = new byte[_thumbnailFile.Size];
-                    await _thumbnailFile.OpenReadStream(FileUploadConstants.MaxImageSize).ReadAsync(buffer);
+                    await _thumbnailFile.OpenReadStream(FileUploadSettings.MaxImageSize).ReadAsync(buffer);
                     var imageBase64 = Convert.ToBase64String(buffer);
                     _thumbnailPreviewUrl = $"data:{_thumbnailFile.ContentType};base64,{imageBase64}";
                 }
@@ -131,6 +136,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             _thumbnailFile = null;
             _thumbnailPreviewUrl = null;
             _categoryForm.ThumbnailImageUrl = null;
+            _removeThumbnail = _isEditMode;
         }
 
         private async Task<MultipartFormDataContent> CreateMultipartFormDataContent()
@@ -152,9 +158,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
 
             if (_thumbnailFile != null)
             {
-                var fileContent = new StreamContent(_thumbnailFile.OpenReadStream(FileUploadConstants.MaxImageSize));
+                var fileContent = new StreamContent(_thumbnailFile.OpenReadStream(FileUploadSettings.MaxImageSize));
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(_thumbnailFile.ContentType);
                 content.Add(fileContent, "ThumbnailImage", _thumbnailFile.Name);
+            }
+            else if (_removeThumbnail)
+            {
+                content.Add(new StringContent(bool.TrueString), "RemoveThumbnail");
             }
 
             return content;

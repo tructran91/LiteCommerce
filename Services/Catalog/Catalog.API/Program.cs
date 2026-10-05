@@ -1,12 +1,13 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
 using LiteCommerce.Shared.Logging;
+using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.RegisterApplicationLayers();
-builder.Services.ConfigureSwagger();
+builder.Services.ConfigureOpenApi();
 builder.Services.ConfigureCorsAllowAny();
 builder.Host.UseSerilog(Logging.ConfigureLogger);
 
@@ -14,12 +15,13 @@ builder.Services.AddControllers().ConfigureBaseResponseErrors();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//if (app.Environment.IsDevelopment())
+//{
+//    app.MapOpenApi();
+//    app.MapScalarApiReference();
+//}
 app.MapOpenApi();
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/openapi/v1.json", "Catalog API v1");
-});
+app.MapScalarApiReference();
 
 app.UseCors("CorsPolicy");
 app.UseBaseResponseStatusCodePages();

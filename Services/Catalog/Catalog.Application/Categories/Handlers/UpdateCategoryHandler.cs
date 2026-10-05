@@ -52,6 +52,15 @@ namespace Catalog.Application.Categories.Handlers
 
             Guid? parentId = string.IsNullOrEmpty(payload.ParentId) ? null : Guid.Parse(payload.ParentId);
 
+            if (parentId.HasValue && parentId != updatedCategory.ParentId)
+            {
+                var parentError = await ValidateParentAsync(categoryId, parentId.Value);
+                if (parentError is not null)
+                {
+                    return parentError;
+                }
+            }
+
             var isDuplicateName = await _categoryRepository
                 .AnyAsync(t => t.ParentId == parentId && t.Name.ToLower() == payload.Name.ToLower() && t.Id != updatedCategory.Id);
             if (isDuplicateName)
@@ -72,15 +81,25 @@ namespace Catalog.Application.Categories.Handlers
                 {
                     oldFileName = updatedCategory.ThumbnailImage.FileName;
                     updatedCategory.ThumbnailImage.FileName = newFileName;
+                    updatedCategory.ThumbnailImage.Caption = payload.ThumbnailImage.FileName;
+                    updatedCategory.ThumbnailImage.FileSize = payload.ThumbnailImage.Length;
                 }
                 else
                 {
                     updatedCategory.ThumbnailImage = new Media
                     {
                         FileName = newFileName,
-                        MediaType = MediaType.Image
+                        MediaType = MediaType.Image,
+                        Caption = payload.ThumbnailImage.FileName,
+                        FileSize = payload.ThumbnailImage.Length
                     };
                 }
+            }
+            else if (payload.RemoveThumbnail && updatedCategory.ThumbnailImage != null)
+            {
+                oldFileName = updatedCategory.ThumbnailImage.FileName;
+                updatedCategory.ThumbnailImage.IsDeleted = true;
+                updatedCategory.ThumbnailImage = null;
             }
 
             try
@@ -96,11 +115,53 @@ namespace Catalog.Application.Categories.Handlers
 
             // Delete the old file only after the DB no longer references it.
             if (oldFileName != null)
-                await _mediaService.DeleteMediaAsync(oldFileName, StorageFolder.Category);
+            {
+                try
+                {
+                    await _mediaService.DeleteMediaAsync(oldFileName, StorageFolder.Category);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "UpdateCategoryHandler => Could not delete file {FileName}", oldFileName);
+                }
+            }
 
             var response = _mapper.Map<CategoryResponse>(updatedCategory);
+            if (updatedCategory.ThumbnailImage is not null)
+            {
+                response.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(updatedCategory.ThumbnailImage, StorageFolder.Category);
+            }
 
             return BaseResponse<CategoryResponse>.Success(response);
+        }
+
+        private async Task<BaseResponse<CategoryResponse>?> ValidateParentAsync(Guid categoryId, Guid parentId)
+        {
+            if (parentId == categoryId)
+            {
+                return BaseResponse<CategoryResponse>.Failure("A category cannot be its own parent.", statusCode: HttpStatusCode.BadRequest);
+            }
+
+            var parent = await _categoryRepository.GetByIdAsync(parentId);
+            if (parent is null)
+            {
+                return BaseResponse<CategoryResponse>.Failure("Parent category does not exist.", statusCode: HttpStatusCode.NotFound);
+            }
+
+            var visited = new HashSet<Guid> { parentId };
+            var ancestorId = parent.ParentId;
+            while (ancestorId.HasValue && visited.Add(ancestorId.Value))
+            {
+                if (ancestorId == categoryId)
+                {
+                    return BaseResponse<CategoryResponse>.Failure("A category cannot be moved under one of its own subcategories.", statusCode: HttpStatusCode.BadRequest);
+                }
+
+                var ancestor = await _categoryRepository.GetByIdAsync(ancestorId.Value);
+                ancestorId = ancestor?.ParentId;
+            }
+
+            return null;
         }
     }
 }
