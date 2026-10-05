@@ -41,7 +41,10 @@ namespace Catalog.Application.Categories.Handlers
 
             var categoryMapping = _mapper.Map<CategoryResponse>(category);
 
-            categoryMapping.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(category.ThumbnailImage, StorageFolder.Category);
+            if (category.ThumbnailImage is not null)
+            {
+                categoryMapping.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(category.ThumbnailImage, StorageFolder.Category);
+            }
 
             return BaseResponse<CategoryResponse>.Success(categoryMapping);
         }

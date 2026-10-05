@@ -3,7 +3,7 @@ using Catalog.Core.Enums;
 namespace Catalog.Application.Behaviors
 {
     // Marks a command whose successful execution is recorded by ActivityLogBehavior.
-    // Implement the members explicitly so they stay out of model binding and Swagger.
+    // Implement the members explicitly so they stay out of model binding and OpenAPI.
     public interface IActivityLoggable
     {
         ActivityAction ActivityAction { get; }

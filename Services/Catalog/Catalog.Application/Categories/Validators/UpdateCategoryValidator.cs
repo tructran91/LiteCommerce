@@ -1,14 +1,17 @@
 ﻿using Catalog.Application.Categories.Commands;
+using Catalog.Application.Extensions;
+using Catalog.Application.Settings;
 using Catalog.Core.Constants;
 using FluentValidation;
 using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Validators;
+using Microsoft.Extensions.Options;
 
 namespace Catalog.Application.Categories.Validators
 {
     public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryCommand>
     {
-        public UpdateCategoryValidator()
+        public UpdateCategoryValidator(IOptions<FileUploadSettings> fileUploadOptions)
         {
             RuleFor(x => x.Id)
                 .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Id"))
@@ -27,6 +30,9 @@ namespace Catalog.Application.Categories.Validators
             RuleFor(x => x.Payload.ParentId)
                 .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("ParentId"))
                 .When(x => !string.IsNullOrEmpty(x.Payload.ParentId?.ToString()));
+
+            RuleFor(x => x.Payload.ThumbnailImage)
+                .MustBeValidImage("ThumbnailImage", fileUploadOptions.Value.MaxImageSizeMB);
         }
     }
 }

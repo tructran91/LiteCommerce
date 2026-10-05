@@ -4,6 +4,7 @@ using Catalog.Application;
 using Catalog.Application.Behaviors;
 using Catalog.Application.Database;
 using Catalog.Application.Services;
+using Catalog.Application.Settings;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Data.Interceptors;
@@ -33,7 +34,7 @@ namespace Catalog.API.Extensions
             });
         }
 
-        public static void ConfigureSwagger(this IServiceCollection services)
+        public static void ConfigureOpenApi(this IServiceCollection services)
         {
             services.AddOpenApi("v1", options =>
             {
@@ -95,6 +96,7 @@ namespace Catalog.API.Extensions
 
         public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<FileUploadSettings>(configuration.GetSection(FileUploadSettings.SectionName));
             services.AddScoped<IMediaService, MediaService>();
 
             var storageProvider = configuration["Storage:Provider"];

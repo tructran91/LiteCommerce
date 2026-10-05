@@ -1,4 +1,5 @@
 using LiteCommerce.Admin.ApiClients;
+using LiteCommerce.Admin.Models.Common;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -43,6 +44,9 @@ builder.Services.AddRefitClient<IAuditLogApi>(refitSettings).ConfigureHttpClient
 builder.Services.AddRefitClient<IActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
 
 // System Service
+var fileUploadSettings = new FileUploadSettings();
+builder.Configuration.GetSection(FileUploadSettings.SectionName).Bind(fileUploadSettings);
+builder.Services.AddSingleton(fileUploadSettings);
 builder.Services.AddScoped<AppSettingsService>();
 builder.Services.AddScoped<MenuService>();
 

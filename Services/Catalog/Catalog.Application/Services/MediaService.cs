@@ -1,36 +1,28 @@
 ﻿using Catalog.Core.Entities;
-using Catalog.Core.Repositories;
 using Microsoft.AspNetCore.Http;
 
 namespace Catalog.Application.Services
 {
     public class MediaService : IMediaService
     {
-        private readonly IBaseRepository<Media> _mediaRepository;
         private readonly IStorageService _storageService;
 
-        public MediaService(IBaseRepository<Media> mediaRepository, IStorageService storageService)
+        public MediaService(IStorageService storageService)
         {
-            _mediaRepository = mediaRepository;
             _storageService = storageService;
         }
 
-        public string GetMediaUrl(string fileName, string? subFolder = null)
+        public string GetMediaUrl(string? fileName, string? subFolder = null)
         {
             return string.IsNullOrEmpty(fileName) ? string.Empty : _storageService.GetFileUrl(fileName, subFolder);
         }
 
-        public string GetMediaUrl(Media media, string? subFolder = null)
+        public string GetMediaUrl(Media? media, string? subFolder = null)
         {
-            if (media == null)
-            {
-                return GetMediaUrl("no-image.png");
-            }
-
-            return GetMediaUrl(media.FileName, subFolder);
+            return media is null ? string.Empty : GetMediaUrl(media.FileName, subFolder);
         }
 
-        public string GetThumbnailUrl(Media media, string? subFolder = null)
+        public string GetThumbnailUrl(Media? media, string? subFolder = null)
         {
             return GetMediaUrl(media, subFolder);
         }
@@ -53,12 +45,6 @@ namespace Catalog.Application.Services
         public Task DeleteMediaAsync(string fileName, string? subFolder = null)
         {
             return _storageService.DeleteFileAsync(fileName, subFolder);
-        }
-
-        public async Task DeleteMediaAsync(Media media)
-        {
-            await _mediaRepository.DeleteAsync(media);
-            await DeleteMediaAsync(media.FileName);
         }
     }
 }

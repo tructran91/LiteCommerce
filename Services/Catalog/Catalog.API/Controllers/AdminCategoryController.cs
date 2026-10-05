@@ -45,12 +45,7 @@ namespace Catalog.API.Controllers
         {
             var query = new GetCategoryQuery(id);
             var result = await _mediator.Send(query);
-
-            if (result.Data != null && result.IsSuccess && !string.IsNullOrEmpty(result.Data.ThumbnailImageUrl))
-            {
-                result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
-            }
-
+            ApplyImageUrl(result);
             return ToActionResult(result);
         }
 
@@ -63,6 +58,7 @@ namespace Catalog.API.Controllers
         {
             var command = new CreateCategoryCommand(request);
             var result = await _mediator.Send(command);
+            ApplyImageUrl(result);
             return ToCreatedResult(result, nameof(GetCategoryById), category => new { id = category.Id });
         }
 
@@ -75,6 +71,7 @@ namespace Catalog.API.Controllers
         {
             var command = new UpdateCategoryCommand(id, request);
             var result = await _mediator.Send(command);
+            ApplyImageUrl(result);
             return ToActionResult(result);
         }
 
@@ -88,6 +85,14 @@ namespace Catalog.API.Controllers
             var command = new DeleteCategoryCommand(id);
             var result = await _mediator.Send(command);
             return ToActionResult(result);
+        }
+
+        private void ApplyImageUrl(BaseResponse<CategoryResponse> result)
+        {
+            if (result.IsSuccess && result.Data != null)
+            {
+                result.Data.ThumbnailImageUrl = BuildImageUrl(result.Data.ThumbnailImageUrl);
+            }
         }
     }
 }
