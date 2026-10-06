@@ -16,6 +16,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using System.Net;
 using System.Reflection;
 
@@ -46,6 +47,23 @@ namespace Catalog.API.Extensions
                         Version = "v1",
                         Description = "LiteCommerce Catalog API for managing products, categories, brands, and attributes",
                     };
+
+                    // Bearer JWT scheme + global requirement: Scalar shows one auth input applied to every request.
+                    document.Components ??= new();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Description = "Paste the access token from Identity POST /api/auth/login. The 'Bearer ' prefix is added automatically."
+                    };
+                    document.Security ??= new List<OpenApiSecurityRequirement>();
+                    document.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+                    });
+
                     return Task.CompletedTask;
                 });
             });

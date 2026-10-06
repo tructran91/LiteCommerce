@@ -58,9 +58,7 @@ namespace Identity.Infrastructure.Services
 
             var email = request.Email.Trim().ToLowerInvariant();
             if (await _db.Users.AnyAsync(x => x.Email == email, cancellationToken))
-                return BaseResponse<AuthResponse>.Failure(
-                    $"Email \"{email}\" is already registered.",
-                    statusCode: HttpStatusCode.Conflict);
+                return BaseResponse<AuthResponse>.Failure($"Email \"{email}\" is already registered.", statusCode: HttpStatusCode.Conflict);
 
             var role = await _db.Roles.FirstAsync(x => x.Name == IdentityRoles.Customer, cancellationToken);
             var now = DateTime.UtcNow;
@@ -88,9 +86,7 @@ namespace Identity.Infrastructure.Services
                 // Lost a race with a concurrent register for the same email (unique index). Anything else is a real error.
                 _db.ChangeTracker.Clear();
                 if (await _db.Users.AnyAsync(x => x.Email == email, cancellationToken))
-                    return BaseResponse<AuthResponse>.Failure(
-                        $"Email \"{email}\" is already registered.",
-                        statusCode: HttpStatusCode.Conflict);
+                    return BaseResponse<AuthResponse>.Failure($"Email \"{email}\" is already registered.", statusCode: HttpStatusCode.Conflict);
                 throw;
             }
 

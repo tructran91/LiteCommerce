@@ -3,6 +3,7 @@ using Identity.Infrastructure;
 using Identity.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using LiteCommerce.Shared.Models;
 using System.Net;
@@ -24,6 +25,23 @@ builder.Services.AddOpenApi("v1", options =>
             Version = "v1",
             Description = "LiteCommerce Identity API for authentication and authorization",
         };
+
+        // Bearer JWT scheme + global requirement: Scalar shows one auth input applied to every request.
+        document.Components ??= new();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Paste the access token from POST /api/auth/login. The 'Bearer ' prefix is added automatically."
+        };
+        document.Security ??= new List<OpenApiSecurityRequirement>();
+        document.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+        });
+
         return Task.CompletedTask;
     });
 });
