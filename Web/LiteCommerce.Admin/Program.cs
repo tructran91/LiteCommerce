@@ -33,11 +33,13 @@ var identityUrl = builder.Configuration["ApiSettings:IdentityUrl"]
     ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddAuthorizationCore();
-builder.Services.AddScoped<TokenStorageService>();
-builder.Services.AddScoped<JwtAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<AuthHeaderHandler>();
+// Singletons: IHttpClientFactory gives each handler chain its own DI scope, so scoped
+// registrations would give AuthHeaderHandler a different token cache than the UI.
+builder.Services.AddSingleton<TokenStorageService>();
+builder.Services.AddSingleton<JwtAuthenticationStateProvider>();
+builder.Services.AddSingleton<AuthenticationStateProvider>(sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
+builder.Services.AddSingleton<AuthService>();
+builder.Services.AddTransient<AuthHeaderHandler>();
 
 // API Clients
 var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"]

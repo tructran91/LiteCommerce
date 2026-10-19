@@ -1,8 +1,10 @@
 using Identity.Application.Options;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Data;
+using Identity.Infrastructure.Security;
 using Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.OpenApi;
@@ -50,6 +52,16 @@ builder.Services.AddOpenApi("v1", options =>
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Behind a TLS-terminating proxy: real scheme for the discovery URLs, real client IP for the
+// rate limiter. Only loopback and the listed proxies are trusted.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    foreach (var proxy in builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [])
+        options.KnownProxies.Add(System.Net.IPAddress.Parse(proxy));
+});
+
 // Same policy as Catalog. Tighten to the real admin origins before production.
 builder.Services.AddCors(options =>
 {
@@ -78,13 +90,7 @@ if (builder.Environment.IsDevelopment()
     Console.WriteLine($"[Identity] Dev RSA key pair generated at {jwt.PrivateKeyPath} and {jwt.PublicKeyPath}");
 }
 
-if (string.IsNullOrWhiteSpace(jwt.PublicKeyPath) || !File.Exists(jwt.PublicKeyPath))
-    throw new InvalidOperationException(
-        $"RSA public key not found at '{jwt.PublicKeyPath}'. Check Jwt:PublicKeyPath configuration.");
-
-var rsaPublic = RSA.Create();
-rsaPublic.ImportFromPem(File.ReadAllText(jwt.PublicKeyPath));
-var validationKey = new RsaSecurityKey(rsaPublic) { KeyId = jwt.KeyId };
+var validationKey = RsaKeyLoader.Load(jwt.PublicKeyPath, "Public");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -110,7 +116,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // Per-IP throttle on the auth endpoints (the controller opts in with [EnableRateLimiting("auth")]).
-// Behind a reverse proxy, enable ForwardedHeaders so RemoteIpAddress is the client, not the proxy.
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -132,6 +137,8 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Scalar/OpenAPI docs: on for Development, or whenever OpenApi:Enabled is true (e.g. IIS hosting).
 //if (app.Environment.IsDevelopment())

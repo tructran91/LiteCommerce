@@ -14,6 +14,9 @@ namespace LiteCommerce.Admin.Services
         private AuthTokens? _cached;
         private bool _loaded;
 
+        // JwtAuthenticationStateProvider listens to this to follow every login, refresh and logout.
+        public event Action? TokensChanged;
+
         public TokenStorageService(IJSRuntime js)
         {
             _js = js;
@@ -43,6 +46,7 @@ namespace LiteCommerce.Admin.Services
             _cached = tokens;
             _loaded = true;
             await _js.InvokeVoidAsync("localStorage.setItem", StorageKey, JsonSerializer.Serialize(tokens));
+            TokensChanged?.Invoke();
         }
 
         public async Task ClearAsync()
@@ -50,6 +54,7 @@ namespace LiteCommerce.Admin.Services
             _cached = null;
             _loaded = true;
             await _js.InvokeVoidAsync("localStorage.removeItem", StorageKey);
+            TokensChanged?.Invoke();
         }
     }
 }

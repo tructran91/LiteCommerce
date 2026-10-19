@@ -2,6 +2,7 @@ using Identity.Application.Interfaces;
 using Identity.Application.Options;
 using Identity.Core.Constants;
 using Identity.Core.Entities;
+using Identity.Infrastructure.Security;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,13 +24,7 @@ namespace Identity.Infrastructure.Services
         {
             _options = options.Value;
 
-            if (string.IsNullOrWhiteSpace(_options.PrivateKeyPath) || !File.Exists(_options.PrivateKeyPath))
-                throw new InvalidOperationException(
-                    $"RSA private key not found at '{_options.PrivateKeyPath}'. Check Jwt:PrivateKeyPath configuration.");
-
-            var rsa = RSA.Create();
-            rsa.ImportFromPem(File.ReadAllText(_options.PrivateKeyPath));
-            _signingKey = new RsaSecurityKey(rsa) { KeyId = _options.KeyId };
+            _signingKey = RsaKeyLoader.Load(_options.PrivateKeyPath, "Private");
         }
 
         public (string AccessToken, DateTime Expires) CreateAccessToken(User user)

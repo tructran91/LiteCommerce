@@ -1,16 +1,16 @@
 using Identity.Application.Options;
+using Identity.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
 
 namespace Identity.API.Controllers
 {
     // Publishes the RSA public key so other services validate access tokens without a copy
     // of the PEM file. JwtBearer with Authority = this service fetches the discovery
-    // document, then jwks_uri, and caches the keys. Rotating keys only means bumping
-    // Jwt:KeyId and restarting Identity.
+    // document, then jwks_uri, and caches the keys. To rotate, replace the PEM files and
+    // restart Identity: the kid changes with the key (RsaKeyLoader).
     //
     // Not a BaseApiController: these are well-known OIDC endpoints and must return the raw
     // spec shape, not BaseResponse<T>.
@@ -50,9 +50,8 @@ namespace Identity.API.Controllers
             if (string.IsNullOrWhiteSpace(_jwt.PublicKeyPath) || !System.IO.File.Exists(_jwt.PublicKeyPath))
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Signing key is not configured." });
 
-            using var rsa = RSA.Create();
-            rsa.ImportFromPem(System.IO.File.ReadAllText(_jwt.PublicKeyPath));
-            var parameters = rsa.ExportParameters(includePrivateParameters: false);
+            var key = RsaKeyLoader.Load(_jwt.PublicKeyPath, "Public");
+            var parameters = key.Rsa.ExportParameters(includePrivateParameters: false);
 
             return Ok(new
             {
@@ -63,7 +62,7 @@ namespace Identity.API.Controllers
                         kty = "RSA",
                         use = "sig",
                         alg = SecurityAlgorithms.RsaSha256,
-                        kid = _jwt.KeyId,
+                        kid = key.KeyId,
                         n = Base64UrlEncoder.Encode(parameters.Modulus),
                         e = Base64UrlEncoder.Encode(parameters.Exponent)
                     }

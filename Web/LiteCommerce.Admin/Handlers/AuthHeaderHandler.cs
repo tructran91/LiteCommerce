@@ -30,15 +30,11 @@ namespace LiteCommerce.Admin.Handlers
             if (response.StatusCode != HttpStatusCode.Unauthorized)
                 return response;
 
-            // The token looked valid but the API rejected it (revoked, key rotated, clock
-            // drift). One refresh and one retry; a second 401 goes back to the caller.
-            var refreshed = await _authService.RefreshAsync();
+            // RefreshAsync decides whether a failure ends the session, so no clear here.
+            var refreshed = await _authService.RefreshAsync(token);
 
-            if (string.IsNullOrWhiteSpace(refreshed) || refreshed == token)
-            {
-                await _authService.ClearAndNotifyAsync();
+            if (string.IsNullOrWhiteSpace(refreshed))
                 return response;
-            }
 
             response.Dispose();
 
@@ -47,7 +43,7 @@ namespace LiteCommerce.Admin.Handlers
             var retryResponse = await base.SendAsync(retry, cancellationToken);
 
             if (retryResponse.StatusCode == HttpStatusCode.Unauthorized)
-                await _authService.ClearAndNotifyAsync();
+                await _authService.ClearAsync();
 
             return retryResponse;
         }

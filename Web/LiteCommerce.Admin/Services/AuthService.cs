@@ -1,7 +1,7 @@
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Auth;
-using Microsoft.AspNetCore.Components.Authorization;
+using System.Net;
 
 namespace LiteCommerce.Admin.Services
 {
@@ -17,7 +17,6 @@ namespace LiteCommerce.Admin.Services
         private readonly IIdentityApi _identityApi;
         private readonly ISessionApi _sessionApi;
         private readonly TokenStorageService _tokenStorage;
-        private readonly AuthenticationStateProvider _authStateProvider;
 
         // One refresh at a time: parallel rotations would make Identity see a reused
         // refresh token, which it treats as theft and revokes every session.
@@ -26,13 +25,11 @@ namespace LiteCommerce.Admin.Services
         public AuthService(
             IIdentityApi identityApi,
             ISessionApi sessionApi,
-            TokenStorageService tokenStorage,
-            AuthenticationStateProvider authStateProvider)
+            TokenStorageService tokenStorage)
         {
             _identityApi = identityApi;
             _sessionApi = sessionApi;
             _tokenStorage = tokenStorage;
-            _authStateProvider = authStateProvider;
         }
 
         public async Task<AuthOutcome> LoginAsync(string email, string password)
@@ -42,22 +39,22 @@ namespace LiteCommerce.Admin.Services
             if (!response.IsSuccess || response.Data is null || string.IsNullOrWhiteSpace(response.Data.AccessToken))
                 return new AuthOutcome(false, response.GetErrorMessage(SystemMessages.LoginFailed));
 
+            // Identity authenticates every role, but this app is Admin-only. Asking Catalog
+            // instead of checking the role here keeps the rejection message the API's.
+            // Checked before storing, so a failure leaves nothing in localStorage.
+            var session = await _sessionApi.GetSessionAsync(response.Data.AccessToken);
+            if (!session.IsSuccess)
+            {
+                await TryRevokeAsync(response.Data.RefreshToken);
+                return new AuthOutcome(false, session.GetErrorMessage(SystemMessages.LoginFailed));
+            }
+
             await _tokenStorage.SetAsync(new AuthTokens
             {
                 AccessToken = response.Data.AccessToken,
                 RefreshToken = response.Data.RefreshToken
             });
 
-            // Identity authenticates every role, but this app is Admin-only. Asking Catalog
-            // instead of checking the role here keeps the rejection message the API's.
-            var session = await _sessionApi.GetSessionAsync(response.Data.AccessToken);
-            if (!session.IsSuccess)
-            {
-                await _tokenStorage.ClearAsync();
-                return new AuthOutcome(false, session.GetErrorMessage(SystemMessages.LoginFailed));
-            }
-
-            NotifyStateChanged();
             return new AuthOutcome(true, null);
         }
 
@@ -69,7 +66,7 @@ namespace LiteCommerce.Admin.Services
 
             if (string.IsNullOrWhiteSpace(token))
             {
-                await ClearAndNotifyAsync();
+                await ClearAsync();
                 return new AuthOutcome(false, SystemMessages.SessionExpired);
             }
 
@@ -78,7 +75,7 @@ namespace LiteCommerce.Admin.Services
             if (!response.IsSuccess)
                 return new AuthOutcome(false, response.GetErrorMessage(SystemMessages.ErrorOccurred));
 
-            await ClearAndNotifyAsync();
+            await ClearAsync();
             return new AuthOutcome(true, null);
         }
 
@@ -86,20 +83,8 @@ namespace LiteCommerce.Admin.Services
         {
             var tokens = await _tokenStorage.GetAsync();
 
-            if (!string.IsNullOrWhiteSpace(tokens?.RefreshToken))
-            {
-                try
-                {
-                    await _identityApi.RevokeAsync(new RevokeRequest { RefreshToken = tokens.RefreshToken });
-                }
-                catch
-                {
-                    // Best effort; the local token is cleared either way.
-                }
-            }
-
-            await _tokenStorage.ClearAsync();
-            NotifyStateChanged();
+            await TryRevokeAsync(tokens?.RefreshToken);
+            await ClearAsync();
         }
 
         // Null means there is no usable token and the caller must send the request anonymously.
@@ -116,7 +101,8 @@ namespace LiteCommerce.Admin.Services
             return await RefreshAsync();
         }
 
-        public async Task<string?> RefreshAsync()
+        // rejectedToken: a token the API answered 401 to, refreshed even if not yet expired.
+        public async Task<string?> RefreshAsync(string? rejectedToken = null)
         {
             await _refreshLock.WaitAsync();
             try
@@ -127,27 +113,29 @@ namespace LiteCommerce.Admin.Services
                     return null;
 
                 // Another caller may have refreshed while this one waited on the lock.
-                if (!JwtParser.IsExpired(tokens.AccessToken, ExpirySkew))
+                if (tokens.AccessToken != rejectedToken && !JwtParser.IsExpired(tokens.AccessToken, ExpirySkew))
                     return tokens.AccessToken;
 
                 try
                 {
                     var response = await _identityApi.RefreshAsync(new RefreshRequest { RefreshToken = tokens.RefreshToken });
 
-                    if (!response.IsSuccess || response.Data is null || string.IsNullOrWhiteSpace(response.Data.AccessToken))
+                    if (response.IsSuccess && response.Data is not null && !string.IsNullOrWhiteSpace(response.Data.AccessToken))
                     {
-                        await ClearAndNotifyAsync();
-                        return null;
+                        await _tokenStorage.SetAsync(new AuthTokens
+                        {
+                            AccessToken = response.Data.AccessToken,
+                            RefreshToken = response.Data.RefreshToken
+                        });
+
+                        return response.Data.AccessToken;
                     }
 
-                    await _tokenStorage.SetAsync(new AuthTokens
-                    {
-                        AccessToken = response.Data.AccessToken,
-                        RefreshToken = response.Data.RefreshToken
-                    });
+                    // Only a rejected refresh token ends the session; 429/5xx are transient.
+                    if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.BadRequest)
+                        await ClearAsync();
 
-                    NotifyStateChanged();
-                    return response.Data.AccessToken;
+                    return null;
                 }
                 catch
                 {
@@ -161,15 +149,21 @@ namespace LiteCommerce.Admin.Services
             }
         }
 
-        public async Task ClearAndNotifyAsync()
-        {
-            await _tokenStorage.ClearAsync();
-            NotifyStateChanged();
-        }
+        public Task ClearAsync() => _tokenStorage.ClearAsync();
 
-        private void NotifyStateChanged()
+        // Best effort: a failed revoke must not block logout.
+        private async Task TryRevokeAsync(string? refreshToken)
         {
-            (_authStateProvider as JwtAuthenticationStateProvider)?.NotifyAuthenticationStateChanged();
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return;
+
+            try
+            {
+                await _identityApi.RevokeAsync(new RevokeRequest { RefreshToken = refreshToken });
+            }
+            catch
+            {
+            }
         }
     }
 }
