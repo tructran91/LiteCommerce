@@ -4,6 +4,27 @@ LiteCommerce is an e-commerce platform built on a **microservice architecture**.
 
 Authentication and authorization are handled by a dedicated **Identity service** that issues JWTs; downstream services (starting with Catalog) validate those tokens through OpenID Connect discovery, so no service shares a signing secret.
 
+## Authentication flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin SPA
+    participant I as Identity Service
+    participant C as Catalog Service
+
+    A->>I: POST /api/auth/login (email, password)
+    I-->>A: accessToken (JWT, RS256) + refreshToken
+    A->>C: GET /api/admin/session (Bearer accessToken)
+    Note over C: Validate the JWT against Identity's JWKS
+    C-->>A: 200 session (role = Admin)
+    A->>C: Catalog admin requests (Bearer accessToken)
+    C-->>A: 200 data
+    Note over A,I: Access token nears expiry
+    A->>I: POST /api/auth/refresh (refreshToken)
+    I-->>A: rotated accessToken + refreshToken
+```
+
 ## Services
 
 ### 1. Identity Service — Implemented
@@ -96,6 +117,47 @@ dotnet run --project Web/LiteCommerce.Admin           # http://localhost:5027
 Both the Identity and Catalog APIs must be running for the admin SPA to log in. Point the SPA
 at them with `ApiSettings:CatalogUrl` / `ApiSettings:IdentityUrl` in
 `Web/LiteCommerce.Admin/wwwroot/appsettings.json`.
+
+## Initial data
+
+Startup does **not** run migrations, so create each database with `dotnet ef database update`
+first (see above). After that, each service populates its own initial data on startup.
+
+### Identity — default admin account
+
+Roles (`Admin`, `Staff`, `Customer`) are seeded through EF `HasData` as part of the migration.
+On every startup, `IdentityDbInitializer` then creates a single admin account from the
+`SeedAdmin` section of `appsettings.json`, and does nothing if that email already exists.
+
+Default credentials:
+
+| Field | Value |
+|---|---|
+| Email | `admin@litecommerce.vn` |
+| Password | `Admin@123` |
+
+If the `Users`/`Roles` tables are missing, startup seeding throws — so apply the migration
+first. Change `SeedAdmin:Email` / `SeedAdmin:Password` before running, and never reuse these
+values outside local development.
+
+### Catalog — sample data
+
+Catalog seeds sample data on startup when the database is empty (no rows in `Brands`) and
+`Seeding:Enabled` is `true`. The dataset is chosen with `Seeding:Profile`, and the available
+profiles are:
+
+| Profile | Content |
+|---|---|
+| `technology` (default) | Electronics and tech products |
+| `fashion` | Clothing and apparel |
+| `furniture` | Furniture and home goods |
+| `cosmetics` | Beauty and personal care products |
+
+Set `Seeding:Profile` in `Services/Catalog/Catalog.API/appsettings.json` and restart to pick a
+different profile. Seeding is skipped once data exists. To reseed, use the admin API (an Admin
+token is required): `GET api/admin/database/seed-profiles` lists the profiles and
+`POST api/admin/database/seed` reseeds with a chosen profile — it clears the catalog tables and
+re-inserts inside a transaction.
 
 ## Future improvements
 
