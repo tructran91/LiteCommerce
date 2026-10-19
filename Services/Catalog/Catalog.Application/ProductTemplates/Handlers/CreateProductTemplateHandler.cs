@@ -27,7 +27,7 @@ namespace Catalog.Application.ProductTemplates.Handlers
         public async Task<BaseResponse<ProductTemplateResponse>> Handle(CreateProductTemplateCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation($"CreateProductTemplateHandler: {JsonSerializer.Serialize(payload)}");
+            _logger.LogInformation("CreateProductTemplateHandler: {Request}", JsonSerializer.Serialize(request));
 
             var isExistingTemplate = await _productTemplateRepository.AnyAsync(t => t.Name.ToLower() == payload.Name.ToLower());
             if (isExistingTemplate)

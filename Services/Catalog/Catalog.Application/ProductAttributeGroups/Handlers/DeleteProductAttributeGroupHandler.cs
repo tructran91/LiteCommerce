@@ -28,7 +28,7 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteProductAttributeGroupCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"DeleteProductAttributeGroupHandler: {JsonSerializer.Serialize(request)}");
+            _logger.LogInformation("DeleteProductAttributeGroupHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingProductAttributeGroup = await _productAttributeGroupRepository
                 .GetByIdAsync(Guid.Parse(request.Id));

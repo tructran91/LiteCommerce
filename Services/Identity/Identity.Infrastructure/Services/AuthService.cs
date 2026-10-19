@@ -29,6 +29,7 @@ namespace Identity.Infrastructure.Services
         private readonly IValidator<LoginRequest> _loginValidator;
         private readonly IValidator<RefreshRequest> _refreshValidator;
         private readonly IValidator<RevokeRequest> _revokeValidator;
+        private readonly IValidator<ChangePasswordRequest> _changePasswordValidator;
 
         public AuthService(
             IdentityDbContext db,
@@ -38,7 +39,8 @@ namespace Identity.Infrastructure.Services
             IValidator<RegisterRequest> registerValidator,
             IValidator<LoginRequest> loginValidator,
             IValidator<RefreshRequest> refreshValidator,
-            IValidator<RevokeRequest> revokeValidator)
+            IValidator<RevokeRequest> revokeValidator,
+            IValidator<ChangePasswordRequest> changePasswordValidator)
         {
             _db = db;
             _tokens = tokens;
@@ -48,6 +50,7 @@ namespace Identity.Infrastructure.Services
             _loginValidator = loginValidator;
             _refreshValidator = refreshValidator;
             _revokeValidator = revokeValidator;
+            _changePasswordValidator = changePasswordValidator;
         }
 
         public async Task<BaseResponse<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
@@ -249,6 +252,48 @@ namespace Identity.Infrastructure.Services
                 Role = user.Role.Name,
                 IsActive = user.IsActive
             });
+        }
+
+        public async Task<BaseResponse<bool>> ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken cancellationToken = default)
+        {
+            var errors = Validate(_changePasswordValidator, request);
+            if (errors is not null)
+                return BaseResponse<bool>.Failure("One or more validation errors occurred", errors);
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+
+            if (user is null || !user.IsActive)
+                return BaseResponse<bool>.Failure("User not found.", statusCode: HttpStatusCode.NotFound);
+
+            // Keyed under currentPassword so the client can show it on the right field.
+            if (_hasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword) == PasswordVerificationResult.Failed)
+            {
+                return BaseResponse<bool>.Failure(
+                    "Current password is incorrect.",
+                    new Dictionary<string, List<string>>
+                    {
+                        ["currentPassword"] = ["Current password is incorrect."]
+                    },
+                    statusCode: HttpStatusCode.BadRequest);
+            }
+
+            var now = DateTime.UtcNow;
+            user.PasswordHash = _hasher.HashPassword(user, request.NewPassword);
+            user.FailedLoginCount = 0;
+            user.LockoutEnd = null;
+            user.LastModifiedDate = now;
+
+            // Ending every session is the point: if the old password leaked, this locks the
+            // other party out. Access tokens already issued live until they expire, so the
+            // window is AccessTokenMinutes.
+            //
+            // ExecuteUpdate runs outside the SaveChanges transaction, so it goes first:
+            // revoking and then failing to save only forces a re-login with the old password,
+            // whereas saving and then failing to revoke would leave the old sessions alive.
+            await RevokeAllUserTokensAsync(user.Id, cancellationToken);
+            await _db.SaveChangesAsync(cancellationToken);
+
+            return BaseResponse<bool>.Success(true, "Password changed successfully. Please log in again.");
         }
 
         private AuthResponse IssueTokens(User user, DateTime now)

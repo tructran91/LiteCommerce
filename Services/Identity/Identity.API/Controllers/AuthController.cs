@@ -55,13 +55,33 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<UserResponse>), 404)]
         public async Task<IActionResult> Me(CancellationToken cancellationToken)
         {
-            var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
-                ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (!Guid.TryParse(sub, out var userId))
+            if (!TryGetUserId(out var userId))
                 return Unauthorized();
 
             return ToActionResult(await _auth.GetMeAsync(userId, cancellationToken));
+        }
+
+        // Revokes every refresh token of the user, so all sessions must log in again.
+        [Authorize]
+        [HttpPost("change-password")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 401)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 404)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+        {
+            if (!TryGetUserId(out var userId))
+                return Unauthorized();
+
+            return ToActionResult(await _auth.ChangePasswordAsync(userId, request, cancellationToken));
+        }
+
+        private bool TryGetUserId(out Guid userId)
+        {
+            var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            return Guid.TryParse(sub, out userId);
         }
     }
 }

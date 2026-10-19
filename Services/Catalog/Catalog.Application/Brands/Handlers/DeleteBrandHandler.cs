@@ -6,6 +6,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
@@ -26,7 +27,7 @@ namespace Catalog.Application.Brands.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteBrandCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("DeleteBrandHandler: {BrandId}", request.Id);
+            _logger.LogInformation("DeleteBrandHandler: {Request}", JsonSerializer.Serialize(request));
 
             var brandId = Guid.Parse(request.Id);
             var existingBrand = await _brandRepository.GetByIdAsync(brandId);

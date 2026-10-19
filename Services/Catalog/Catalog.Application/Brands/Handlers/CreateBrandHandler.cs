@@ -8,6 +8,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
@@ -26,7 +27,7 @@ namespace Catalog.Application.Brands.Handlers
 
         public async Task<BaseResponse<BrandResponse>> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("CreateBrandHandler: {BrandName}", request.Payload.Name);
+            _logger.LogInformation("CreateBrandHandler: {Request}", JsonSerializer.Serialize(request));
 
             var slug = request.Payload.Name.Slugify();
 

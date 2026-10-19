@@ -26,6 +26,15 @@ namespace Identity.Application.DTOs
         public string RefreshToken { get; set; } = string.Empty;
     }
 
+    public record ChangePasswordRequest
+    {
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        public string NewPassword { get; set; } = string.Empty;
+
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
     public record AuthResponse
     {
         public string AccessToken { get; set; } = string.Empty;

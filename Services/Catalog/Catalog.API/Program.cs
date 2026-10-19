@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.RegisterApplicationLayers();
 builder.Services.ConfigureOpenApi();
 builder.Services.ConfigureCorsAllowAny();
+builder.Services.ConfigureJwtAuthentication(builder.Configuration);
+builder.Services.ConfigureAuthorizationPolicies();
 builder.Host.UseSerilog(Logging.ConfigureLogger);
 
 builder.Services.AddControllers().ConfigureBaseResponseErrors();
@@ -20,14 +22,17 @@ var app = builder.Build();
 //    app.MapOpenApi();
 //    app.MapScalarApiReference();
 //}
-app.MapOpenApi();
-app.MapScalarApiReference();
+// The fallback policy covers every endpoint, so the docs have to opt out explicitly.
+app.MapOpenApi().AllowAnonymous();
+app.MapScalarApiReference().AllowAnonymous();
+
 
 app.UseCors("CorsPolicy");
 app.UseBaseResponseStatusCodePages();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 //app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

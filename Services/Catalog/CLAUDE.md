@@ -73,6 +73,13 @@ There are no tests. Migrations live in `Catalog.Infrastructure/Data/Migrations` 
   - Attribute used by templates
   - Attribute Group that still has attributes
 
+## Handler logging
+
+Every command handler starts with `_logger.LogInformation("{HandlerName}: {Request}", JsonSerializer.Serialize(request));`.
+- Log the **whole command** (`request`), not `request.Payload` and not a few picked fields. Update/Delete commands carry `Id` outside the payload.
+- Keep the template constant (`{Request}`). Don't use `$"..."` interpolation, which breaks structured logging.
+- `IFormFile` serializes as metadata only (name, type, length), never the file content.
+
 ## Validators
 
 The query and command classes are validated, not the request DTOs. Id fields are `string` and checked with `GuidValidator.IsValidGuid` (from `LiteCommerce.Shared.Validators`). Messages come from `LiteCommerce.Shared.Constants.ValidationMessages`. Handlers then call `Guid.Parse` directly and trust the validator. Paging is bounded by `PaginationSetting` (max page size 100).

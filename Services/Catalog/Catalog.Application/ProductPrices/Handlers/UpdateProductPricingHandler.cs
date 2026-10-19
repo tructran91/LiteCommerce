@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductPrices.Handlers
 
         public async Task<BaseResponse<List<ProductPricingResponse>>> Handle(UpdateProductPricingCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"UpdateProductPricingHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("UpdateProductPricingHandler: {Request}", JsonSerializer.Serialize(request));
 
             var requestedIds = request.Payload.Items
                 .Select(x => Guid.Parse(x.Id))

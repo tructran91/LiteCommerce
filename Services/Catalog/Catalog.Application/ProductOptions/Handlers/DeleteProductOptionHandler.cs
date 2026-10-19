@@ -27,7 +27,7 @@ namespace Catalog.Application.ProductOptions.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteProductOptionCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"DeleteProductOptionHandler: {JsonSerializer.Serialize(request)}");
+            _logger.LogInformation("DeleteProductOptionHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingProductOption = await _productOptionRepository
                 .GetByIdAsync(Guid.Parse(request.Id));

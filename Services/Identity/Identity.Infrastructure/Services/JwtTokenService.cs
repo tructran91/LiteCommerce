@@ -2,6 +2,7 @@ using Identity.Application.Interfaces;
 using Identity.Application.Options;
 using Identity.Core.Constants;
 using Identity.Core.Entities;
+using Identity.Infrastructure.Security;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,6 +13,10 @@ namespace Identity.Infrastructure.Services
 {
     public class JwtTokenService : ITokenService
     {
+        // Short claim name. ClaimTypes.Role would be written to the token as the full
+        // WS-Federation URI, which every verifier would then have to special-case.
+        public const string RoleClaimType = "role";
+
         private readonly JwtOptions _options;
         private readonly RsaSecurityKey _signingKey;
 
@@ -19,13 +24,7 @@ namespace Identity.Infrastructure.Services
         {
             _options = options.Value;
 
-            if (string.IsNullOrWhiteSpace(_options.PrivateKeyPath) || !File.Exists(_options.PrivateKeyPath))
-                throw new InvalidOperationException(
-                    $"RSA private key not found at '{_options.PrivateKeyPath}'. Check Jwt:PrivateKeyPath configuration.");
-
-            var rsa = RSA.Create();
-            rsa.ImportFromPem(File.ReadAllText(_options.PrivateKeyPath));
-            _signingKey = new RsaSecurityKey(rsa) { KeyId = _options.KeyId };
+            _signingKey = RsaKeyLoader.Load(_options.PrivateKeyPath, "Private");
         }
 
         public (string AccessToken, DateTime Expires) CreateAccessToken(User user)
@@ -36,9 +35,13 @@ namespace Identity.Infrastructure.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role?.Name ?? IdentityRoles.Customer),
+                new Claim(RoleClaimType, user.Role?.Name ?? IdentityRoles.Customer),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            var handler = new JwtSecurityTokenHandler();
+            // Keep sub/email/role as-is instead of expanding them into the long URIs.
+            handler.OutboundClaimTypeMap.Clear();
 
             var credentials = new SigningCredentials(_signingKey, SecurityAlgorithms.RsaSha256);
             var token = new JwtSecurityToken(
@@ -48,7 +51,7 @@ namespace Identity.Infrastructure.Services
                 expires: expires,
                 signingCredentials: credentials);
 
-            return (new JwtSecurityTokenHandler().WriteToken(token), expires);
+            return (handler.WriteToken(token), expires);
         }
 
         public string CreateRefreshToken()

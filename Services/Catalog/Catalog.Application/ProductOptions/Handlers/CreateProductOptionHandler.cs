@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductOptions.Handlers
 
         public async Task<BaseResponse<ProductOptionResponse>> Handle(CreateProductOptionCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"CreateProductOptionHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("CreateProductOptionHandler: {Request}", JsonSerializer.Serialize(request));
 
             var isExistingProductOption = await _productOptionRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
             if (isExistingProductOption)

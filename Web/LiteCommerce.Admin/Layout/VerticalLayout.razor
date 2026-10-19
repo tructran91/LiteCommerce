@@ -42,49 +42,7 @@
                        OnClick="OnSettingsClick"
                        Title="Cài đặt hệ thống" />
 
-        <MudMenu AnchorOrigin="Origin.BottomRight" 
-                 TransformOrigin="Origin.TopRight" 
-                 Class="ml-2"
-                 @ref="_userMenu">
-            <ActivatorContent>
-                <div class="d-flex align-center gap-2" style="cursor:pointer" @onclick="OpenUserMenuAsync">
-                    <MudAvatar Color="Color.Primary" Size="Size.Small">A</MudAvatar>
-                    <div class="d-none d-md-flex flex-column" style="line-height:1.2">
-                        <MudText Typo="Typo.body2" Class="font-weight-semibold" Style="font-size:0.8rem">Admin User</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="font-size:0.7rem">Super Admin</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Class="mud-text-secondary d-none d-md-flex" />
-                </div>
-            </ActivatorContent>
-            <ChildContent>
-                <div class="pa-2" style="min-width:210px">
-                    <div class="d-flex align-center gap-3 pa-2 mb-1">
-                        <MudAvatar Color="Color.Primary" Size="Size.Medium">A</MudAvatar>
-                        <div>
-                            <MudText Typo="Typo.body2" Class="font-weight-bold">Admin User</MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">admin@commerce.vn</MudText>
-                        </div>
-                    </div>
-                    <MudDivider Class="mb-1" />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Person" IconColor="Color.Default" Href="/profile">
-                        Hồ sơ cá nhân
-                    </MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Lock" IconColor="Color.Default" Href="/change-password">
-                        Đổi mật khẩu
-                    </MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Notifications" IconColor="Color.Default" Href="/notifications">
-                        Thông báo
-                    </MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.History" IconColor="Color.Default" Href="/activity">
-                        Lịch sử hoạt động
-                    </MudMenuItem>
-                    <MudDivider Class="my-1" />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error">
-                        <MudText Color="Color.Error">Đăng xuất</MudText>
-                    </MudMenuItem>
-                </div>
-            </ChildContent>
-        </MudMenu>
+        <UserMenu />
     </MudAppBar>
 
     <!-- SIDEBAR DRAWER -->
@@ -100,16 +58,16 @@
             @if (_drawerOpen)
             {
                 <div class="d-flex align-center gap-2">
-                    <MudAvatar Color="Color.Primary" Size="Size.Medium">A</MudAvatar>
+                    <MudAvatar Color="Color.Primary" Size="Size.Medium">@_initial</MudAvatar>
                     <div>
-                        <MudText Typo="Typo.body1" Class="font-weight-bold" Style="line-height:1.2">Admin User</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Super Admin</MudText>
+                        <MudText Typo="Typo.body1" Class="font-weight-bold" Style="line-height:1.2">@_displayName</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@_role</MudText>
                     </div>
                 </div>
             }
             else
             {
-                <MudAvatar Color="Color.Primary" Size="Size.Medium">A</MudAvatar>
+                <MudAvatar Color="Color.Primary" Size="Size.Medium">@_initial</MudAvatar>
             }
         </MudDrawerHeader>
 
@@ -143,23 +101,34 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public EventCallback OnSettingsClick { get; set; }
 
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
     private bool _drawerOpen = true;
-    private MudMenu? _userMenu;
+    private string _displayName = string.Empty;
+    private string _role = string.Empty;
+    private string _initial = "?";
 
     protected override void OnInitialized()
     {
         SettingsService.OnSettingsChanged += StateHasChanged;
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState is null)
+            return;
+
+        var user = (await AuthState).User;
+        var email = user.FindFirst(JwtParser.EmailClaim)?.Value ?? string.Empty;
+
+        _displayName = string.IsNullOrEmpty(email) ? "User" : email.Split('@')[0];
+        _role = user.FindFirst(JwtParser.RoleClaim)?.Value ?? string.Empty;
+        _initial = _displayName[..1].ToUpperInvariant();
+    }
+
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
-    }
-
-    private async Task OpenUserMenuAsync(MouseEventArgs e)
-    {
-        if (_userMenu != null)
-            await _userMenu.OpenMenuAsync(e);
     }
 
     public void Dispose()

@@ -4,6 +4,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Products.Handlers
 {
@@ -20,7 +21,7 @@ namespace Catalog.Application.Products.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("DeleteProductHandler: {ProductId}", request.Id);
+            _logger.LogInformation("DeleteProductHandler: {Request}", JsonSerializer.Serialize(request));
 
             var productId = Guid.Parse(request.Id);
             var existingProduct = await _productRepository.GetByIdAsync(productId);

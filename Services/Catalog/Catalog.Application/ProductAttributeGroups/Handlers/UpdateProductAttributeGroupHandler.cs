@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
 
         public async Task<BaseResponse<ProductAttributeGroupResponse>> Handle(UpdateProductAttributeGroupCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"UpdateProductAttributeGroupHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("UpdateProductAttributeGroupHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingProductAttributeGroup = await _productAttributeGroupRepository
                 .GetByIdAsync(Guid.Parse(request.Id));

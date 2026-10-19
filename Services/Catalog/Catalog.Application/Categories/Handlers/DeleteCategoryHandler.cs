@@ -6,6 +6,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
 {
@@ -26,7 +27,7 @@ namespace Catalog.Application.Categories.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("DeleteCategoryHandler: {CategoryId}", request.Id);
+            _logger.LogInformation("DeleteCategoryHandler: {Request}", JsonSerializer.Serialize(request));
 
             var categoryId = Guid.Parse(request.Id);
             var existingCategories = await _categoryRepository.GetAsync(

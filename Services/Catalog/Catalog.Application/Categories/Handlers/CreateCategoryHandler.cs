@@ -11,6 +11,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
 {
@@ -36,7 +37,7 @@ namespace Catalog.Application.Categories.Handlers
         public async Task<BaseResponse<CategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation("CreateCategoryHandler: {CategoryName} {ParentId}", payload.Name, payload.ParentId);
+            _logger.LogInformation("CreateCategoryHandler: {Request}", JsonSerializer.Serialize(request));
 
             Guid? parentId = string.IsNullOrEmpty(payload.ParentId) ? null : Guid.Parse(payload.ParentId);
 

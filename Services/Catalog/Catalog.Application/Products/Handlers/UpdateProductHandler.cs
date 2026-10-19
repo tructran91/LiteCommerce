@@ -12,6 +12,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Products.Handlers
 {
@@ -39,7 +40,7 @@ namespace Catalog.Application.Products.Handlers
         public async Task<BaseResponse<ProductResponse>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation("UpdateProductHandler: {ProductId} {ProductName}", request.Id, payload.Product.Name);
+            _logger.LogInformation("UpdateProductHandler: {Request}", JsonSerializer.Serialize(request));
 
             var productId = Guid.Parse(request.Id);
             var existingProduct = await _productRepository.GetProductAsync(productId);
