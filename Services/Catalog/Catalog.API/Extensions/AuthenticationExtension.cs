@@ -19,6 +19,8 @@ namespace Catalog.API.Extensions
             if (string.IsNullOrWhiteSpace(identity.Authority))
                 throw new InvalidOperationException($"'{IdentitySettings.SectionName}:Authority' is required.");
 
+            services.Configure<IdentitySettings>(configuration.GetSection(IdentitySettings.SectionName));
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -47,6 +49,21 @@ namespace Catalog.API.Extensions
                     // Every response body in this API is a BaseResponse, including 401/403.
                     options.Events = new JwtBearerEvents
                     {
+                        // The challenge only carries a short error description, which hides
+                        // why a token was rejected. Log the real exception and the key ids
+                        // that were actually available.
+                        OnAuthenticationFailed = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices
+                                .GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("Catalog.Authentication");
+
+                            logger.LogError(context.Exception,
+                                "JWT validation failed. Authority={Authority}, ValidIssuer={Issuer}, ValidAudience={Audience}",
+                                identity.Authority, identity.Issuer, identity.Audience);
+
+                            return Task.CompletedTask;
+                        },
                         OnChallenge = async context =>
                         {
                             context.HandleResponse();

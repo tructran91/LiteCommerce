@@ -28,7 +28,9 @@ namespace Identity.API.Controllers
         [HttpGet("/.well-known/openid-configuration")]
         public IActionResult GetConfiguration()
         {
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            // PathBase matters under IIS: hosted as a sub-application the service lives at
+            // /identity, and dropping it would advertise a jwks_uri that 404s.
+            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
 
             return Ok(new
             {
