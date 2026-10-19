@@ -6,6 +6,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Products.Handlers
 {
@@ -23,7 +24,7 @@ namespace Catalog.Application.Products.Handlers
         public async Task<BaseResponse<string>> Handle(UploadContentImageCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation("UploadContentImageHandler: {ProductId} {FileName}", payload.ProductId, payload.File.FileName);
+            _logger.LogInformation("UploadContentImageHandler: {Request}", JsonSerializer.Serialize(request));
 
             var id = Guid.Parse(payload.ProductId);
             string subFolder;

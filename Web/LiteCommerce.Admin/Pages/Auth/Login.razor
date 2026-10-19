@@ -1,0 +1,127 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@layout BlankLayout
+@using LiteCommerce.Admin.Models.Business.Auth
+
+<PageTitle>Sign in - CommerceAdmin</PageTitle>
+
+<div class="auth-split">
+
+    <section class="auth-hero">
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Medium" />
+            <MudText Typo="Typo.h6" Class="font-weight-bold">CommerceAdmin</MudText>
+        </div>
+
+        <div>
+            <MudText Class="auth-hero-title mb-3">
+                Run your store,<br />not your spreadsheets.
+            </MudText>
+            <MudText Typo="Typo.body1" Class="auth-hero-subtitle mb-8">
+                Products, categories, pricing and activity history — all in one console.
+            </MudText>
+
+            <div class="d-flex flex-column gap-5">
+                @foreach (var feature in Features)
+                {
+                    <div class="auth-hero-feature">
+                        <div class="auth-hero-feature-icon">
+                            <MudIcon Icon="@feature.Icon" Size="Size.Small" />
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.body1" Class="font-weight-bold">@feature.Title</MudText>
+                            <MudText Typo="Typo.body2" Style="opacity:.85">@feature.Description</MudText>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <MudText Typo="Typo.caption" Style="opacity:.7">
+            &copy; @DateTime.Now.Year CommerceAdmin
+        </MudText>
+    </section>
+
+    <section class="auth-form-panel">
+        <div class="auth-form">
+
+            <div class="auth-logo-badge mb-5 d-flex d-md-none">
+                <MudIcon Icon="@Icons.Material.Filled.Store" />
+            </div>
+
+            <MudText Typo="Typo.h4" Class="font-weight-bold mb-1">Welcome back</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-6">
+                Sign in to continue to your dashboard.
+            </MudText>
+
+            @if (_errorMessage is not null)
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true" Class="mb-4"
+                          ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
+                    @_errorMessage
+                </MudAlert>
+            }
+
+            <EditForm Model="_form" OnValidSubmit="SubmitAsync">
+                <DataAnnotationsValidator />
+
+                <MudTextField @bind-Value="_form.Email"
+                              For="@(() => _form.Email)"
+                              Label="Email"
+                              Placeholder="you@company.com"
+                              Variant="Variant.Outlined"
+                              InputType="InputType.Email"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Outlined.Email"
+                              Immediate="true"
+                              Disabled="_submitting"
+                              Class="mb-4" />
+
+                <MudTextField @bind-Value="_form.Password"
+                              For="@(() => _form.Password)"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              InputType="@(_showPassword ? InputType.Text : InputType.Password)"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@(_showPassword ? Icons.Material.Outlined.VisibilityOff : Icons.Material.Outlined.Visibility)"
+                              OnAdornmentClick="TogglePasswordVisibility"
+                              AdornmentAriaLabel="Show password"
+                              Immediate="true"
+                              Disabled="_submitting"
+                              Class="mb-2" />
+
+                <MudButton ButtonType="ButtonType.Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           Size="Size.Large"
+                           DropShadow="false"
+                           Class="mt-4 py-3"
+                           Disabled="_submitting">
+                    @if (_submitting)
+                    {
+                        <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+                        <span>Signing in...</span>
+                    }
+                    else
+                    {
+                        <span>Sign in</span>
+                    }
+                </MudButton>
+            </EditForm>
+
+        </div>
+    </section>
+
+</div>
+
+@code {
+    private record HeroFeature(string Icon, string Title, string Description);
+
+    private static readonly HeroFeature[] Features =
+    [
+        new(Icons.Material.Outlined.Inventory2, "Catalog management", "Products, variants and media in one place."),
+        new(Icons.Material.Outlined.PriceChange, "Pricing control", "Bulk updates with full price history."),
+        new(Icons.Material.Outlined.History, "Full audit trail", "Every change recorded with who and when.")
+    ];
+}

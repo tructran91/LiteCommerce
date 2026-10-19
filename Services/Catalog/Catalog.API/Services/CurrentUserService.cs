@@ -1,5 +1,7 @@
 using Catalog.Application.Services;
+using LiteCommerce.Shared.Authorization;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Catalog.API.Services
 {
@@ -16,10 +18,28 @@ namespace Catalog.API.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // No authentication yet, so Identity.Name is always null and every change is logged as "system".
-        public string UserName => _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? SystemUser;
+        // Background work (seeding, startup) has no HttpContext and stays "system".
+        public string UserName
+        {
+            get
+            {
+                var user = _httpContextAccessor.HttpContext?.User;
+                if (user?.Identity?.IsAuthenticated != true)
+                    return SystemUser;
+
+                return FirstNonEmpty(
+                    user.Identity.Name,
+                    user.FindFirstValue(AppClaimTypes.Email),
+                    user.FindFirstValue(ClaimTypes.Email),
+                    user.FindFirstValue(AppClaimTypes.Subject),
+                    user.FindFirstValue(ClaimTypes.NameIdentifier)) ?? SystemUser;
+            }
+        }
 
         // W3C trace id, not HttpContext.TraceIdentifier: Kestrel's "connectionId:requestNo" can repeat after a restart.
         public string CorrelationId => _correlationId ??= Activity.Current?.TraceId.ToString() ?? Guid.NewGuid().ToString("N");
+
+        private static string? FirstNonEmpty(params string?[] values)
+            => values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
     }
 }

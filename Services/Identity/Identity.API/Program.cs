@@ -1,8 +1,10 @@
 using Identity.Application.Options;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Data;
+using Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using LiteCommerce.Shared.Models;
@@ -48,19 +50,49 @@ builder.Services.AddOpenApi("v1", options =>
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Same policy as Catalog. Tighten to the real admin origins before production.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+});
+
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+
+// Auto-generate RSA key pair in Development if PEM files are missing
+if (builder.Environment.IsDevelopment()
+    && !string.IsNullOrWhiteSpace(jwt.PrivateKeyPath)
+    && !string.IsNullOrWhiteSpace(jwt.PublicKeyPath)
+    && (!File.Exists(jwt.PrivateKeyPath) || !File.Exists(jwt.PublicKeyPath)))
+{
+    using var rsa = RSA.Create(2048);
+    var dir = Path.GetDirectoryName(jwt.PrivateKeyPath);
+    if (!string.IsNullOrEmpty(dir))
+        Directory.CreateDirectory(dir);
+
+    File.WriteAllText(jwt.PrivateKeyPath, rsa.ExportRSAPrivateKeyPem());
+    File.WriteAllText(jwt.PublicKeyPath, rsa.ExportRSAPublicKeyPem());
+
+    Console.WriteLine($"[Identity] Dev RSA key pair generated at {jwt.PrivateKeyPath} and {jwt.PublicKeyPath}");
+}
 
 if (string.IsNullOrWhiteSpace(jwt.PublicKeyPath) || !File.Exists(jwt.PublicKeyPath))
     throw new InvalidOperationException(
         $"RSA public key not found at '{jwt.PublicKeyPath}'. Check Jwt:PublicKeyPath configuration.");
 
-var rsa = RSA.Create();
-rsa.ImportFromPem(File.ReadAllText(jwt.PublicKeyPath));
-var validationKey = new RsaSecurityKey(rsa) { KeyId = jwt.KeyId };
+var rsaPublic = RSA.Create();
+rsaPublic.ImportFromPem(File.ReadAllText(jwt.PublicKeyPath));
+var validationKey = new RsaSecurityKey(rsaPublic) { KeyId = jwt.KeyId };
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Keep claim names as they are in the token; the default map rewrites
+        // sub/email/role into the long WS-Federation URIs.
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -70,6 +102,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwt.Issuer,
             ValidAudience = jwt.Audience,
             IssuerSigningKey = validationKey,
+            RoleClaimType = JwtTokenService.RoleClaimType,
+            NameClaimType = JwtRegisteredClaimNames.Email,
             ClockSkew = TimeSpan.Zero
         };
     });
@@ -107,6 +141,8 @@ var app = builder.Build();
 //}
 app.MapOpenApi();
 app.MapScalarApiReference();
+
+app.UseCors("CorsPolicy");
 
 app.UseRateLimiter();
 

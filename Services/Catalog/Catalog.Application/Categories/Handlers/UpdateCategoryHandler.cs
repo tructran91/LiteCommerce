@@ -11,6 +11,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Categories.Handlers
 {
@@ -36,7 +37,7 @@ namespace Catalog.Application.Categories.Handlers
         public async Task<BaseResponse<CategoryResponse>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation("UpdateCategoryHandler: {CategoryId} {CategoryName}", request.Id, payload.Name);
+            _logger.LogInformation("UpdateCategoryHandler: {Request}", JsonSerializer.Serialize(request));
 
             var categoryId = Guid.Parse(request.Id);
             var existingCategory = await _categoryRepository.GetAsync(

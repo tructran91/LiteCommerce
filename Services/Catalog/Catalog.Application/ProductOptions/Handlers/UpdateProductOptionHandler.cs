@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductOptions.Handlers
 
         public async Task<BaseResponse<ProductOptionResponse>> Handle(UpdateProductOptionCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"UpdateProductOptionHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("UpdateProductOptionHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingProductOption = await _productOptionRepository
                 .GetByIdAsync(Guid.Parse(request.Id));

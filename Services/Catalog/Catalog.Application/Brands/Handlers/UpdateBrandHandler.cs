@@ -8,6 +8,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace Catalog.Application.Brands.Handlers
 {
@@ -26,7 +27,7 @@ namespace Catalog.Application.Brands.Handlers
 
         public async Task<BaseResponse<BrandResponse>> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("UpdateBrandHandler: {BrandId} {BrandName}", request.Id, request.Payload.Name);
+            _logger.LogInformation("UpdateBrandHandler: {Request}", JsonSerializer.Serialize(request));
 
             var brandId = Guid.Parse(request.Id);
             var existingBrand = await _brandRepository.GetByIdAsync(brandId);

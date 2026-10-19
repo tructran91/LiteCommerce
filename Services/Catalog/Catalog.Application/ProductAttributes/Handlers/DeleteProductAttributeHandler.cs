@@ -31,7 +31,7 @@ namespace Catalog.Application.ProductAttributes.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteProductAttributeCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"DeleteProductAttributeHandler: {JsonSerializer.Serialize(request)}");
+            _logger.LogInformation("DeleteProductAttributeHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingProductAttribute = await _productAttributeRepository
                 .GetByIdAsync(Guid.Parse(request.Id));

@@ -5,6 +5,7 @@ using Catalog.Application.Services;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Catalog.Application.Database.Handlers
 {
@@ -23,7 +24,7 @@ namespace Catalog.Application.Database.Handlers
 
         public async Task<BaseResponse<SeedDatabaseResponse>> Handle(SeedDatabaseCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("SeedDatabaseHandler: Profile={Profile}", request.Payload.Profile);
+            _logger.LogInformation("SeedDatabaseHandler: {Request}", JsonSerializer.Serialize(request));
 
             // SeedDatabaseValidator has already rejected unknown profiles.
             var result = await _seeder.SeedAsync(request.Payload.Profile, cancellationToken);

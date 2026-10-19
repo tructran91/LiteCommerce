@@ -27,7 +27,7 @@ namespace Catalog.Application.ProductTemplates.Handlers
 
         public async Task<BaseResponse<bool>> Handle(DeleteProductTemplateCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"DeleteProductTemplateHandler: {JsonSerializer.Serialize(request)}");
+            _logger.LogInformation("DeleteProductTemplateHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingTemplate = await _productTemplateRepository
                 .GetByIdAsync(Guid.Parse(request.Id));

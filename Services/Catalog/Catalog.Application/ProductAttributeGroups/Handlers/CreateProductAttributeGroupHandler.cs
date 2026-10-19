@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductAttributeGroups.Handlers
 
         public async Task<BaseResponse<ProductAttributeGroupResponse>> Handle(CreateProductAttributeGroupCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"CreateProductAttributeGroupHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("CreateProductAttributeGroupHandler: {Request}", JsonSerializer.Serialize(request));
 
             var isExistingProductAttributeGroup = await _ProductAttributeGroupRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
             if (isExistingProductAttributeGroup)

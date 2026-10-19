@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace Catalog.API.Controllers
 {
+    // Media URLs land in <img> tags, which cannot send an Authorization header,
+    // so this endpoint opts out of the fallback policy.
     [Route("api/public/files")]
     [ApiController]
+    [AllowAnonymous]
     public class PublicFilesController : ControllerBase
     {
         private readonly IConfiguration _config;

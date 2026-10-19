@@ -12,6 +12,7 @@ using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Catalog.Application.Products.Handlers
@@ -40,7 +41,7 @@ namespace Catalog.Application.Products.Handlers
         public async Task<BaseResponse<ProductResponse>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation("CreateProductHandler: {ProductName}", payload.Product.Name);
+            _logger.LogInformation("CreateProductHandler: {Request}", JsonSerializer.Serialize(request));
 
             _logger.LogInformation("CreateProductHandler => Step 1: Map data");
             var slug = payload.Product.Name.Slugify();

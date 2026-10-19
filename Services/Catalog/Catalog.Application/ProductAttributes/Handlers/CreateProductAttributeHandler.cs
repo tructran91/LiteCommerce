@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductAttributes.Handlers
 
         public async Task<BaseResponse<ProductAttributeResponse>> Handle(CreateProductAttributeCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"CreateProductAttributeHandler: {JsonSerializer.Serialize(request.Payload)}");
+            _logger.LogInformation("CreateProductAttributeHandler: {Request}", JsonSerializer.Serialize(request));
 
             var isExistingProductAttribute = await _ProductAttributeRepository.AnyAsync(t => t.Name.ToLower() == request.Payload.Name.ToLower());
             if (isExistingProductAttribute)

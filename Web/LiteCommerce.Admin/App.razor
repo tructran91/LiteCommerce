@@ -1,16 +1,42 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(LiteCommerce.Admin.Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Không tìm thấy trang</PageTitle>
-        <LayoutView Layout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
-            <MudContainer Class="mt-8 text-center">
-                <MudText Typo="Typo.h1" Color="Color.Primary" Class="font-weight-bold">404</MudText>
-                <MudText Typo="Typo.h5" Class="mb-4">Trang không tồn tại</MudText>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Về trang chủ</MudButton>
-            </MudContainer>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿@using LiteCommerce.Admin.Components
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <LayoutView Layout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
+                            <MudContainer Class="mt-8 text-center">
+                                <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error" Size="Size.Large" />
+                                <MudText Typo="Typo.h5" Class="mt-2 mb-4">You do not have access to this page</MudText>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Back to home</MudButton>
+                            </MudContainer>
+                        </LayoutView>
+                    }
+                </NotAuthorized>
+                <Authorizing>
+                    <div class="d-flex align-center justify-center" style="min-height:60vh">
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    </div>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Không tìm thấy trang</PageTitle>
+            <LayoutView Layout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
+                <MudContainer Class="mt-8 text-center">
+                    <MudText Typo="Typo.h1" Color="Color.Primary" Class="font-weight-bold">404</MudText>
+                    <MudText Typo="Typo.h5" Class="mb-4">Trang không tồn tại</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Về trang chủ</MudButton>
+                </MudContainer>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

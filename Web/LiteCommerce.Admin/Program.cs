@@ -1,6 +1,8 @@
 using LiteCommerce.Admin.ApiClients;
+using LiteCommerce.Admin.Handlers;
 using LiteCommerce.Admin.Models.Common;
 using LiteCommerce.Admin.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
@@ -26,22 +28,40 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = MudBlazor.Variant.Filled;
 });
 
+// Auth
+var identityUrl = builder.Configuration["ApiSettings:IdentityUrl"]
+    ?? builder.HostEnvironment.BaseAddress;
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<TokenStorageService>();
+builder.Services.AddScoped<JwtAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AuthHeaderHandler>();
+
 // API Clients
 var catalogUrl = builder.Configuration["ApiSettings:CatalogUrl"]
     ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(catalogUrl) });
 var refitSettings = ApiClientSettings.Create();
-builder.Services.AddRefitClient<IBrandApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<ICategoryApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductOptionApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductAttributeGroupApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductAttributeApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductTemplateApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IProductPriceApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IAuditLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
-builder.Services.AddRefitClient<IActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+
+// No AuthHeaderHandler on these two, or AuthService would depend on clients that depend
+// on AuthService. The Identity endpoints are anonymous and the session check takes its
+// token as an argument, so neither needs it.
+builder.Services.AddRefitClient<IIdentityApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl));
+builder.Services.AddRefitClient<ISessionApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl));
+
+builder.Services.AddRefitClient<IBrandApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<ICategoryApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IProductOptionApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IProductAttributeGroupApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IProductAttributeApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IProductTemplateApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IProductApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IProductPriceApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IAuditLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 
 // System Service
 var fileUploadSettings = new FileUploadSettings();

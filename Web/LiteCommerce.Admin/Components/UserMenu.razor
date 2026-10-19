@@ -1,0 +1,84 @@
+@using LiteCommerce.Admin.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<MudMenu AnchorOrigin="Origin.BottomRight"
+         TransformOrigin="Origin.TopRight"
+         Class="ml-2"
+         @ref="_userMenu">
+    <ActivatorContent>
+        <div class="d-flex align-center gap-2" style="cursor:pointer" @onclick="OpenUserMenuAsync">
+            <MudAvatar Color="Color.Primary" Size="Size.Small">@Initial</MudAvatar>
+            <div class="d-none d-md-flex flex-column" style="line-height:1.2">
+                <MudText Typo="Typo.body2" Class="font-weight-semibold" Style="font-size:0.8rem">@DisplayName</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="font-size:0.7rem">@Role</MudText>
+            </div>
+            <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Class="mud-text-secondary d-none d-md-flex" />
+        </div>
+    </ActivatorContent>
+    <ChildContent>
+        <div class="pa-2" style="min-width:210px">
+            <div class="d-flex align-center gap-3 pa-2 mb-1">
+                <MudAvatar Color="Color.Primary" Size="Size.Medium">@Initial</MudAvatar>
+                <div>
+                    <MudText Typo="Typo.body2" Class="font-weight-bold">@DisplayName</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@Email</MudText>
+                </div>
+            </div>
+            <MudDivider Class="mb-1" />
+            <MudMenuItem Icon="@Icons.Material.Filled.Person" IconColor="Color.Default" Href="/profile">
+                Profile
+            </MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Lock" IconColor="Color.Default" Href="/change-password">
+                Change password
+            </MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Notifications" IconColor="Color.Default" Href="/notifications">
+                Notifications
+            </MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.History" IconColor="Color.Default" Href="/activity">
+                Activity log
+            </MudMenuItem>
+            <MudDivider Class="my-1" />
+            <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error" OnClick="LogoutAsync">
+                <MudText Color="Color.Error">Sign out</MudText>
+            </MudMenuItem>
+        </div>
+    </ChildContent>
+</MudMenu>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private MudMenu? _userMenu;
+    private string Email { get; set; } = string.Empty;
+    private string Role { get; set; } = string.Empty;
+
+    // Identity issues no name claim, so the local part of the email stands in for one.
+    private string DisplayName =>
+        string.IsNullOrEmpty(Email) ? "User" : Email.Split('@')[0];
+
+    private string Initial =>
+        string.IsNullOrEmpty(DisplayName) ? "?" : DisplayName[..1].ToUpperInvariant();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState is null)
+            return;
+
+        var user = (await AuthState).User;
+        Email = user.FindFirst(JwtParser.EmailClaim)?.Value ?? string.Empty;
+        Role = user.FindFirst(JwtParser.RoleClaim)?.Value ?? string.Empty;
+    }
+
+    private async Task OpenUserMenuAsync(MouseEventArgs e)
+    {
+        if (_userMenu != null)
+            await _userMenu.OpenMenuAsync(e);
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login", replace: true);
+    }
+}

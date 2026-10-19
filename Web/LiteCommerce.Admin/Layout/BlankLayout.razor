@@ -1,0 +1,72 @@
+@using LiteCommerce.Admin.Services
+@inherits LayoutComponentBase
+@inject AppSettingsService SettingsService
+
+@* MainLayout cannot be reused here: its sidebar and user menu assume a signed-in user.
+   The Mud providers are still needed, or dialogs and snackbars have nowhere to render.
+   No MudLayout either: the page owns the full viewport. *@
+<MudThemeProvider Theme="_theme" IsDarkMode="@SettingsService.Settings.IsDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@Body
+
+@code {
+    private MudTheme _theme = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsService.LoadAsync();
+        BuildTheme();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // localStorage is only reachable once JS interop is up, same as in MainLayout.
+        if (firstRender)
+        {
+            await SettingsService.LoadAsync();
+            BuildTheme();
+            StateHasChanged();
+        }
+    }
+
+    // Only the parts the auth pages actually use: the hero gradient reads
+    // --mud-palette-primary/secondary, which would otherwise be MudBlazor's defaults.
+    private void BuildTheme()
+    {
+        var primary = SettingsService.Settings.PrimaryColor;
+        var secondary = SettingsService.Settings.SecondaryColor;
+        var fontFamily = SettingsService.Settings.FontFamily;
+
+        _theme = new MudTheme
+        {
+            PaletteLight = new PaletteLight
+            {
+                Primary = primary,
+                Secondary = secondary,
+                Surface = "#FFFFFF",
+                Background = "#F4F6F8",
+            },
+            PaletteDark = new PaletteDark
+            {
+                Primary = primary,
+                Secondary = secondary,
+                Surface = "#0f3460",
+                Background = "#0a0a1a",
+            },
+            Typography = new Typography
+            {
+                Default = new DefaultTypography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H4 = new H4Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                H6 = new H6Typography { FontFamily = new[] { fontFamily, "sans-serif" } },
+                Button = new ButtonTypography { FontFamily = new[] { fontFamily, "sans-serif" } },
+            },
+            LayoutProperties = new LayoutProperties
+            {
+                DefaultBorderRadius = $"{SettingsService.Settings.BorderRadius}px",
+            }
+        };
+    }
+}

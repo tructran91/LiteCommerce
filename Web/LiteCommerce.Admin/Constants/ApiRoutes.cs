@@ -2,6 +2,22 @@
 {
     public static class ApiRoutes
     {
+        // Identity service, not Catalog.
+        public static class Auth
+        {
+            private const string Base = "/api/auth";
+            public const string Login = $"{Base}/login";
+            public const string Refresh = $"{Base}/refresh";
+            public const string Revoke = $"{Base}/revoke";
+            public const string Me = $"{Base}/me";
+            public const string ChangePassword = $"{Base}/change-password";
+        }
+
+        public static class Session
+        {
+            public const string Get = "/api/admin/session";
+        }
+
         public static class Brand
         {
             private const string Base = "/api/admin/brand";

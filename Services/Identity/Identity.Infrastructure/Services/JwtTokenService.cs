@@ -12,6 +12,10 @@ namespace Identity.Infrastructure.Services
 {
     public class JwtTokenService : ITokenService
     {
+        // Short claim name. ClaimTypes.Role would be written to the token as the full
+        // WS-Federation URI, which every verifier would then have to special-case.
+        public const string RoleClaimType = "role";
+
         private readonly JwtOptions _options;
         private readonly RsaSecurityKey _signingKey;
 
@@ -36,9 +40,13 @@ namespace Identity.Infrastructure.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role?.Name ?? IdentityRoles.Customer),
+                new Claim(RoleClaimType, user.Role?.Name ?? IdentityRoles.Customer),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            var handler = new JwtSecurityTokenHandler();
+            // Keep sub/email/role as-is instead of expanding them into the long URIs.
+            handler.OutboundClaimTypeMap.Clear();
 
             var credentials = new SigningCredentials(_signingKey, SecurityAlgorithms.RsaSha256);
             var token = new JwtSecurityToken(
@@ -48,7 +56,7 @@ namespace Identity.Infrastructure.Services
                 expires: expires,
                 signingCredentials: credentials);
 
-            return (new JwtSecurityTokenHandler().WriteToken(token), expires);
+            return (handler.WriteToken(token), expires);
         }
 
         public string CreateRefreshToken()

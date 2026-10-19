@@ -26,7 +26,7 @@ namespace Catalog.Application.ProductTemplates.Handlers
         public async Task<BaseResponse<ProductTemplateResponse>> Handle(UpdateProductTemplateCommand request, CancellationToken cancellationToken)
         {
             var payload = request.Payload;
-            _logger.LogInformation($"UpdateProductTemplateHandler: {JsonSerializer.Serialize(payload)}");
+            _logger.LogInformation("UpdateProductTemplateHandler: {Request}", JsonSerializer.Serialize(request));
 
             var existingTemplates = await _productTemplateRepository.GetAsync(
                 predicate: t => t.Id == Guid.Parse(request.Id) && !t.IsDeleted,
