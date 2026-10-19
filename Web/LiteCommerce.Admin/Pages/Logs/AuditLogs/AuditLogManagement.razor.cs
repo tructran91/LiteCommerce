@@ -1,5 +1,6 @@
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
+using LiteCommerce.Admin.Enums;
 using LiteCommerce.Admin.Models.Business.AuditLog;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -10,6 +11,9 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
     {
         [Inject]
         private IAuditLogApi AuditLogApi { get; set; }
+
+        [Inject]
+        private IIdentityAuditLogApi IdentityAuditLogApi { get; set; }
 
         [Inject]
         private IDialogService DialogService { get; set; }
@@ -33,6 +37,10 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
         private MudTable<AuditLogResponse> _table = null!;
         private string? _errorMessage;
         private AuditLogQuery _query = new();
+        private LogSource _source = LogSource.Catalog;
+
+        // Both services expose the same audit endpoint shape, so only the base URL differs.
+        private IAuditLogApi CurrentApi => _source == LogSource.Identity ? IdentityAuditLogApi : AuditLogApi;
 
         private readonly DialogOptions _dialogOptions = new()
         {
@@ -47,7 +55,7 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
 
             try
             {
-                var result = await AuditLogApi.GetAuditLogsAsync(
+                var result = await CurrentApi.GetAuditLogsAsync(
                     state.Page + 1,
                     state.PageSize,
                     entityName: _query.EntityName,
@@ -98,6 +106,14 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
             await ApplyFilter();
         }
 
+        // Entity names and correlation ids belong to one service, so switching source starts from a clean filter.
+        private async Task OnSourceChanged(LogSource source)
+        {
+            _source = source;
+            _query = new();
+            await ApplyFilter();
+        }
+
         private async Task FilterByCorrelation(string correlationId)
         {
             _query = new() { CorrelationId = correlationId };
@@ -128,6 +144,7 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
             {
                 [nameof(AuditChangesDialog.Title)] = $"{auditLog.Action} {auditLog.EntityName}",
                 [nameof(AuditChangesDialog.AuditLog)] = auditLog,
+                [nameof(AuditChangesDialog.Source)] = _source,
             };
 
             await DialogService.ShowAsync<AuditChangesDialog>("", parameters, _dialogOptions);

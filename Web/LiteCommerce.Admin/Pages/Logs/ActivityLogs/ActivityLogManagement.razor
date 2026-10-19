@@ -1,5 +1,6 @@
 @page "/activity-logs"
 @using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.ActivityLog
 
 <PageTitle>Activity Logs</PageTitle>
@@ -10,7 +11,11 @@
 <div class="d-flex align-center justify-space-between mb-5">
     <div>
         <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Activity Logs</MudText>
-        <MudText Typo="Typo.body2" Class="mud-text-secondary">Successful admin actions, newest first.</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+            @(IsIdentity
+                ? "Security events (sign-in, registration, password and session changes), successful and failed, newest first."
+                : "Successful admin actions, newest first.")
+        </MudText>
     </div>
 </div>
 
@@ -30,25 +35,46 @@
 <!-- Filters -->
 <MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
     <MudGrid Spacing="2">
-        <MudItem xs="12" md="4">
-            <MudTextField T="string" @bind-Value="_query.Search" Label="Search" Placeholder="Name or description"
+        <MudItem xs="12" md="2">
+            <MudSelect T="LogSource" Value="_source" ValueChanged="OnSourceChanged" Label="Source"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
+                <MudSelectItem T="LogSource" Value="LogSource.Catalog">Catalog</MudSelectItem>
+                <MudSelectItem T="LogSource" Value="LogSource.Identity">Identity</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudTextField T="string" @bind-Value="_query.Search" Label="Search"
+                          Placeholder="@(IsIdentity ? "Email or description" : "Name or description")"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" Immediate="true"
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
                           OnKeyUp="OnSearchKeyUp" />
         </MudItem>
+        @if (IsIdentity)
+        {
+            <MudItem xs="6" md="2">
+                <MudSelect T="bool?" @bind-Value="_query.IsSuccess" Label="Result" Variant="Variant.Outlined"
+                           Margin="Margin.Dense" Clearable="true">
+                    <MudSelectItem T="bool?" Value="true">Succeeded</MudSelectItem>
+                    <MudSelectItem T="bool?" Value="false">Failed</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        }
+        else
+        {
+            <MudItem xs="6" md="2">
+                <MudSelect T="string" @bind-Value="_query.EntityName" Label="Entity" Variant="Variant.Outlined"
+                           Margin="Margin.Dense" Clearable="true">
+                    @foreach (var entityName in LogConstants.ActivityEntityNames)
+                    {
+                        <MudSelectItem T="string" Value="@entityName">@entityName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        }
         <MudItem xs="6" md="2">
-            <MudSelect T="string" @bind-Value="_query.EntityName" Label="Entity" Variant="Variant.Outlined"
+            <MudSelect T="string" @bind-Value="_query.Action" Label="@(IsIdentity ? "Event" : "Action")" Variant="Variant.Outlined"
                        Margin="Margin.Dense" Clearable="true">
-                @foreach (var entityName in LogConstants.ActivityEntityNames)
-                {
-                    <MudSelectItem T="string" Value="@entityName">@entityName</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="6" md="2">
-            <MudSelect T="string" @bind-Value="_query.Action" Label="Action" Variant="Variant.Outlined"
-                       Margin="Margin.Dense" Clearable="true">
-                @foreach (var action in LogConstants.ActivityActions)
+                @foreach (var action in LogConstants.ActivityActionsFor(_source))
                 {
                     <MudSelectItem T="string" Value="@action">@action</MudSelectItem>
                 }
@@ -85,11 +111,22 @@
               @ref="_table">
 
         <HeaderContent>
-            <MudTh Style="width:180px">Time</MudTh>
-            <MudTh Style="width:120px">Action</MudTh>
-            <MudTh Style="width:180px">Entity</MudTh>
-            <MudTh>Description</MudTh>
-            <MudTh Style="width:110px">User</MudTh>
+            <MudTh Style="width:170px">Time</MudTh>
+            @if (IsIdentity)
+            {
+                <MudTh Style="width:160px">Event</MudTh>
+                <MudTh Style="width:100px">Result</MudTh>
+                <MudTh Style="width:220px">Email</MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh Style="width:130px">IP</MudTh>
+            }
+            else
+            {
+                <MudTh Style="width:120px">Action</MudTh>
+                <MudTh Style="width:180px">Entity</MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh Style="width:110px">User</MudTh>
+            }
             <MudTh Style="width:90px; text-align:center">Changes</MudTh>
         </HeaderContent>
 
@@ -97,20 +134,54 @@
             <MudTd DataLabel="Time">
                 <MudText Typo="Typo.body2">@LogConstants.ToLocalDisplay(context.Timestamp)</MudText>
             </MudTd>
-            <MudTd DataLabel="Action">
-                <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(context.Action)" Variant="Variant.Text">
-                    @context.Action
-                </MudChip>
-            </MudTd>
-            <MudTd DataLabel="Entity">
-                <MudText Typo="Typo.body2" Class="font-weight-medium">@context.EntityName</MudText>
-            </MudTd>
-            <MudTd DataLabel="Description">
-                <MudText Typo="Typo.body2">@context.Description</MudText>
-            </MudTd>
-            <MudTd DataLabel="User">
-                <MudText Typo="Typo.body2">@context.UserName</MudText>
-            </MudTd>
+            @if (IsIdentity)
+            {
+                <MudTd DataLabel="Event">
+                    <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(context.Action)" Variant="Variant.Text">
+                        @context.Action
+                    </MudChip>
+                </MudTd>
+                <MudTd DataLabel="Result">
+                    @if (context.IsSuccess == true)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Check">OK</MudChip>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="@(context.FailureReason ?? "Failed")">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Close">Failed</MudChip>
+                        </MudTooltip>
+                    }
+                </MudTd>
+                <MudTd DataLabel="Email">
+                    <MudText Typo="Typo.body2" Class="font-weight-medium">@(context.Email ?? "—")</MudText>
+                </MudTd>
+                <MudTd DataLabel="Description">
+                    <MudText Typo="Typo.body2">@context.Description</MudText>
+                </MudTd>
+                <MudTd DataLabel="IP">
+                    <MudTooltip Text="@(context.UserAgent ?? "")">
+                        <MudText Typo="Typo.body2" Style="font-family:monospace">@(context.IpAddress ?? "—")</MudText>
+                    </MudTooltip>
+                </MudTd>
+            }
+            else
+            {
+                <MudTd DataLabel="Action">
+                    <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(context.Action)" Variant="Variant.Text">
+                        @context.Action
+                    </MudChip>
+                </MudTd>
+                <MudTd DataLabel="Entity">
+                    <MudText Typo="Typo.body2" Class="font-weight-medium">@context.EntityName</MudText>
+                </MudTd>
+                <MudTd DataLabel="Description">
+                    <MudText Typo="Typo.body2">@context.Description</MudText>
+                </MudTd>
+                <MudTd DataLabel="User">
+                    <MudText Typo="Typo.body2">@context.UserName</MudText>
+                </MudTd>
+            }
             <MudTd Style="text-align:center">
                 <MudTooltip Text="View data changes">
                     <MudIconButton Icon="@Icons.Material.Filled.History"

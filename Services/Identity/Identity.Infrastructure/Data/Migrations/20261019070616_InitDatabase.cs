@@ -14,6 +14,46 @@ namespace Identity.Infrastructure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ActivityLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Action = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    IsSuccess = table.Column<bool>(type: "bit", nullable: false),
+                    FailureReason = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IpAddress = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: true),
+                    UserAgent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    CorrelationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActivityLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuditLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EntityName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Action = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Changes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    CorrelationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -93,6 +133,41 @@ namespace Identity.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_CorrelationId",
+                table: "ActivityLogs",
+                column: "CorrelationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_Email",
+                table: "ActivityLogs",
+                column: "Email");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_Timestamp",
+                table: "ActivityLogs",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_UserId",
+                table: "ActivityLogs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_CorrelationId",
+                table: "AuditLogs",
+                column: "CorrelationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_EntityName_EntityId",
+                table: "AuditLogs",
+                columns: new[] { "EntityName", "EntityId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_Timestamp",
+                table: "AuditLogs",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_Token",
                 table: "RefreshTokens",
                 column: "Token",
@@ -126,6 +201,12 @@ namespace Identity.Infrastructure.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ActivityLogs");
+
+            migrationBuilder.DropTable(
+                name: "AuditLogs");
+
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
 
