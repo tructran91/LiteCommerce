@@ -1,5 +1,6 @@
 @page "/audit-logs"
 @using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.AuditLog
 
 <PageTitle>Audit Logs</PageTitle>
@@ -30,16 +31,23 @@
 <!-- Filters -->
 <MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
     <MudGrid Spacing="2">
-        <MudItem xs="6" md="4">
+        <MudItem xs="12" md="2">
+            <MudSelect T="LogSource" Value="_source" ValueChanged="OnSourceChanged" Label="Source"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
+                <MudSelectItem T="LogSource" Value="LogSource.Catalog">Catalog</MudSelectItem>
+                <MudSelectItem T="LogSource" Value="LogSource.Identity">Identity</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" md="3">
             <MudSelect T="string" @bind-Value="_query.EntityName" Label="Entity" Variant="Variant.Outlined"
                        Margin="Margin.Dense" Clearable="true">
-                @foreach (var entityName in LogConstants.AuditEntityNames)
+                @foreach (var entityName in LogConstants.AuditEntityNamesFor(_source))
                 {
                     <MudSelectItem T="string" Value="@entityName">@entityName</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
-        <MudItem xs="6" md="4">
+        <MudItem xs="6" md="3">
             <MudSelect T="string" @bind-Value="_query.Action" Label="Action" Variant="Variant.Outlined"
                        Margin="Margin.Dense" Clearable="true">
                 @foreach (var action in LogConstants.AuditActions)

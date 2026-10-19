@@ -1,4 +1,7 @@
+using Identity.API.Services;
+using Identity.Application.Interfaces;
 using Identity.Application.Options;
+using LiteCommerce.Shared.Authorization;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Data;
 using Identity.Infrastructure.Security;
@@ -51,6 +54,10 @@ builder.Services.AddOpenApi("v1", options =>
 });
 
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Who/where for the audit and activity logs (read by AuditLogInterceptor and ActivityLogger).
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Behind a TLS-terminating proxy: real scheme for the discovery URLs, real client IP for the
 // rate limiter. Only loopback and the listed proxies are trusted.
@@ -113,7 +120,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
     });
-builder.Services.AddAuthorization();
+// Same AdminOnly policy as Catalog; the log endpoints use it.
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AppPolicies.AdminOnly, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole(AppRoles.Admin));
+});
 
 // Per-IP throttle on the auth endpoints (the controller opts in with [EnableRateLimiting("auth")]).
 builder.Services.AddRateLimiter(options =>

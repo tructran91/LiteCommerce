@@ -23,18 +23,21 @@ There are no tests. Startup **does not migrate**. `IdentityDbInitializer.SeedAdm
 ## Layout
 
 ```
-Identity.API            → Program.cs (JWT bearer validation, Scalar/OpenAPI), AuthController
-Identity.Application    → DTOs (records), IAuthService / ITokenService, JwtOptions, FluentValidation validators
-Identity.Core           → Entities (User, Role, RefreshToken, BaseEntity), IdentityRoles constants
-Identity.Infrastructure → IdentityDbContext, EF configurations + migrations, AuthService, JwtTokenService, DI, admin seeder
+Identity.API            → Program.cs (JWT bearer validation, AdminOnly policy, Scalar/OpenAPI), AuthController,
+                          AdminAuditLogController / AdminActivityLogController, CurrentUserService
+Identity.Application    → DTOs (records), IAuthService / ITokenService / IActivityLogger / ILogQueryService /
+                          ICurrentUserService, JwtOptions, FluentValidation validators
+Identity.Core           → Entities (User, Role, RefreshToken, AuditLog, ActivityLog, BaseEntity), enums, constants
+Identity.Infrastructure → IdentityDbContext, EF configurations + migrations, AuditLogInterceptor, AuthService,
+                          ActivityLogger, LogQueryService, JwtTokenService, DI, admin seeder
 ```
 
 Dependency flow: `API → Application → Core ← Infrastructure`. `API` also references `Infrastructure` directly to call `AddInfrastructureServices`.
 
 - **No MediatR.** The controller calls `IAuthService` directly, and `AuthService` (in **Infrastructure**, not Application) holds all the business logic. It uses `IdentityDbContext` directly. There is no repository layer.
-- **Validation is manual.** `AuthService.Validate(...)` runs the FluentValidation validators and builds the same `Dictionary<string, List<string>>` error shape as Catalog (camelCase keys). There is no `ValidationBehavior` and no exception middleware, so any unexpected exception is an unhandled 500.
+- **Validation is manual.** Services run the FluentValidation validators themselves (`ValidationErrors.From`, used by `AuthService` and `LogQueryService`) and builds the same `Dictionary<string, List<string>>` error shape as Catalog (camelCase keys). There is no `ValidationBehavior` and no exception middleware, so any unexpected exception is an unhandled 500.
 - **Responses** are `BaseResponse<T>` from `LiteCommerce.Shared`. `BaseApiController.ToActionResult` sets the HTTP status from `BaseResponse.StatusCode`, so the service picks the status (`Created`, `Conflict`, `Unauthorized`, `NotFound`; the default `Failure` is 400).
-- **All DI is in `Identity.Infrastructure/DependencyInjection.cs`** (`AddInfrastructureServices`): DbContext, `JwtOptions`, `IPasswordHasher<User>`, `ITokenService`, `IAuthService`, validators. `Program.cs` additionally registers JWT bearer auth.
+- **All DI is in `Identity.Infrastructure/DependencyInjection.cs`** (`AddInfrastructureServices`): DbContext with `AuditLogInterceptor`, `JwtOptions`, `IPasswordHasher<User>`, `ITokenService`, `IAuthService`, `IActivityLogger`, `ILogQueryService`, validators. `Program.cs` additionally registers JWT bearer auth, the `AdminOnly` policy, `IHttpContextAccessor` and `ICurrentUserService` (the interceptor needs it, so it must be registered by the host).
 
 ## Endpoints (`api/auth`)
 
@@ -45,6 +48,22 @@ Dependency flow: `API → Application → Core ← Infrastructure`. `API` also r
 | `POST refresh` | public | Rotates the refresh token. Presenting an already-rotated token revokes **all** of that user's tokens. |
 | `POST revoke` | public | Logout. Idempotent, and unknown tokens still return success. |
 | `GET me` | `[Authorize]` | Reads `sub` (or `NameIdentifier`) from the JWT, then loads the user. |
+
+Log endpoints (`AdminOnly`, not rate-limited): `GET api/admin/audit-log`, `GET api/admin/activity-log`, each with `/{id}`. Paged and filtered in SQL. Same routes and response shape as Catalog's, so the Admin UI only switches the base URL.
+
+## Audit and activity log
+
+Identity is stricter than Catalog because its tables hold credentials.
+
+- **Activity log = security events**, written explicitly by `AuthService` through `IActivityLogger` (there is no MediatR pipeline). Unlike Catalog, **failures are logged too**: unknown email, wrong password, lockout, inactive account, email already registered, wrong current password, refresh-token reuse. Each row stores the event, success flag, `FailureReason`, `UserId`, the email the event is about, IP, User-Agent and correlation id. API responses stay generic; only the log has the real reason.
+  - Not logged on purpose: successful refresh (every 15 min per session), validation 400s, revoke of an unknown token, rate-limiter 429s.
+  - `ActivityLogger` saves its own row **after** the caller's `SaveChanges`, and swallows (logs) its own failures. Call it after the business save, and after `ChangeTracker.Clear()` on the register race path.
+  - **A new auth flow must call `IActivityLogger`** at each outcome, or it leaves no trace.
+- **Audit log = `AuditLogInterceptor`** on `IdentityDbContext`. It audits only `User` and `Role` (allowlist). `RefreshToken` is never audited: its rows are live session tokens.
+  - `PasswordHash` is masked: `***` for old/created values, `*** (changed)` for a new value, so a password change still reads as a change.
+  - `CreatedDate`, `LastModifiedDate`, `FailedLoginCount` and `LockoutEnd` are ignored, so a failed login leaves no audit row (it is in the activity log).
+  - A new secret column must be added to `MaskedProperties`, and a new entity to `AuditedTypes` only if it holds nothing secret.
+- `ICurrentUserService` (`Identity.API/Services`): the signed-in `email` claim, `anonymous` for login/register, `system` outside a request (the admin seeder). Correlation id is the W3C trace id, as in Catalog. IP comes after `UseForwardedHeaders`.
 
 ## Auth design
 
@@ -59,7 +78,7 @@ Dependency flow: `API → Application → Core ← Infrastructure`. `API` also r
 ## Conventions and gotchas
 
 - `BaseEntity` is a copy of Catalog's (`Id`, `CreatedDate`, `LastModifiedDate`, `IsDeleted`) with the same soft-delete global query filter, built reflectively in `IdentityDbContext.OnModelCreating`. Unique indexes use `HasFilter("[IsDeleted] = 0")`.
-- **There is no `AuditableEntityInterceptor` here.** Set `CreatedDate` and `LastModifiedDate` by hand in the service (existing code does). There is also no audit log or activity log.
+- **There is no `AuditableEntityInterceptor` here.** Set `CreatedDate` and `LastModifiedDate` by hand in the service (existing code does). The only interceptor is `AuditLogInterceptor`.
 - Emails are normalised with `Trim().ToLowerInvariant()` before storage and lookup.
 - `ExecuteUpdateAsync` (used by `RevokeAllUserTokensAsync`) bypasses the change tracker, so it does not touch `LastModifiedDate`.
 - Scalar and OpenAPI are mapped in **all** environments **on purpose** (the `IsDevelopment` guard in `Program.cs` is commented out deliberately). Do not "fix" this.

@@ -4,6 +4,7 @@ using Identity.Application.Interfaces;
 using Identity.Application.Options;
 using Identity.Core.Constants;
 using Identity.Core.Entities;
+using Identity.Core.Enums;
 using Identity.Infrastructure.Data;
 using LiteCommerce.Shared.Models;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +31,7 @@ namespace Identity.Infrastructure.Services
         private readonly IValidator<RefreshRequest> _refreshValidator;
         private readonly IValidator<RevokeRequest> _revokeValidator;
         private readonly IValidator<ChangePasswordRequest> _changePasswordValidator;
+        private readonly IActivityLogger _activityLogger;
 
         public AuthService(
             IdentityDbContext db,
@@ -40,7 +42,8 @@ namespace Identity.Infrastructure.Services
             IValidator<LoginRequest> loginValidator,
             IValidator<RefreshRequest> refreshValidator,
             IValidator<RevokeRequest> revokeValidator,
-            IValidator<ChangePasswordRequest> changePasswordValidator)
+            IValidator<ChangePasswordRequest> changePasswordValidator,
+            IActivityLogger activityLogger)
         {
             _db = db;
             _tokens = tokens;
@@ -51,6 +54,7 @@ namespace Identity.Infrastructure.Services
             _refreshValidator = refreshValidator;
             _revokeValidator = revokeValidator;
             _changePasswordValidator = changePasswordValidator;
+            _activityLogger = activityLogger;
         }
 
         public async Task<BaseResponse<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
@@ -61,7 +65,10 @@ namespace Identity.Infrastructure.Services
 
             var email = request.Email.Trim().ToLowerInvariant();
             if (await _db.Users.AnyAsync(x => x.Email == email, cancellationToken))
+            {
+                await _activityLogger.LogAsync(new(ActivityAction.Register, false, null, email, ActivityFailureReason.EmailAlreadyRegistered), cancellationToken);
                 return BaseResponse<AuthResponse>.Failure($"Email \"{email}\" is already registered.", statusCode: HttpStatusCode.Conflict);
+            }
 
             var role = await _db.Roles.FirstAsync(x => x.Name == IdentityRoles.Customer, cancellationToken);
             var now = DateTime.UtcNow;
@@ -89,10 +96,14 @@ namespace Identity.Infrastructure.Services
                 // Lost a race with a concurrent register for the same email (unique index). Anything else is a real error.
                 _db.ChangeTracker.Clear();
                 if (await _db.Users.AnyAsync(x => x.Email == email, cancellationToken))
+                {
+                    await _activityLogger.LogAsync(new(ActivityAction.Register, false, null, email, ActivityFailureReason.EmailAlreadyRegistered), cancellationToken);
                     return BaseResponse<AuthResponse>.Failure($"Email \"{email}\" is already registered.", statusCode: HttpStatusCode.Conflict);
+                }
                 throw;
             }
 
+            await _activityLogger.LogAsync(new(ActivityAction.Register, true, user.Id, email), cancellationToken);
             return BaseResponse<AuthResponse>.Success(pair, "Registered successfully", HttpStatusCode.Created);
         }
 
@@ -111,14 +122,18 @@ namespace Identity.Infrastructure.Services
             if (user is null)
             {
                 _hasher.VerifyHashedPassword(null!, DummyPasswordHash, request.Password);
+                await _activityLogger.LogAsync(new(ActivityAction.Login, false, null, email, ActivityFailureReason.UnknownEmail), cancellationToken);
                 return BaseResponse<AuthResponse>.Failure("Invalid email or password.", statusCode: HttpStatusCode.Unauthorized);
             }
 
             var now = DateTime.UtcNow;
             if (user.LockoutEnd is not null && user.LockoutEnd > now)
+            {
+                await _activityLogger.LogAsync(new(ActivityAction.Login, false, user.Id, email, ActivityFailureReason.LockedOut), cancellationToken);
                 return BaseResponse<AuthResponse>.Failure(
                     "Too many failed login attempts. Please try again later.",
                     statusCode: HttpStatusCode.TooManyRequests);
+            }
 
             var passwordOk = _hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password) != PasswordVerificationResult.Failed;
             if (!passwordOk)
@@ -131,7 +146,8 @@ namespace Identity.Infrastructure.Services
                 }
 
                 user.FailedLoginCount++;
-                if (user.FailedLoginCount >= MaxFailedLoginAttempts)
+                var lockedNow = user.FailedLoginCount >= MaxFailedLoginAttempts;
+                if (lockedNow)
                 {
                     user.LockoutEnd = now.Add(LockoutDuration);
                     user.FailedLoginCount = 0;
@@ -140,11 +156,18 @@ namespace Identity.Infrastructure.Services
                 user.LastModifiedDate = now;
                 await _db.SaveChangesAsync(cancellationToken);
 
+                await _activityLogger.LogAsync(new(ActivityAction.Login, false, user.Id, email, ActivityFailureReason.InvalidPassword), cancellationToken);
+                if (lockedNow)
+                    await _activityLogger.LogAsync(new(ActivityAction.AccountLocked, false, user.Id, email), cancellationToken);
+
                 return BaseResponse<AuthResponse>.Failure("Invalid email or password.", statusCode: HttpStatusCode.Unauthorized);
             }
 
             if (!user.IsActive)
+            {
+                await _activityLogger.LogAsync(new(ActivityAction.Login, false, user.Id, email, ActivityFailureReason.InactiveUser), cancellationToken);
                 return BaseResponse<AuthResponse>.Failure("Invalid email or password.", statusCode: HttpStatusCode.Unauthorized);
+            }
 
             if (user.FailedLoginCount != 0 || user.LockoutEnd is not null)
             {
@@ -156,6 +179,7 @@ namespace Identity.Infrastructure.Services
             var pair = IssueTokens(user, now);
             await _db.SaveChangesAsync(cancellationToken);
 
+            await _activityLogger.LogAsync(new(ActivityAction.Login, true, user.Id, email), cancellationToken);
             return BaseResponse<AuthResponse>.Success(pair, "Logged in successfully");
         }
 
@@ -178,6 +202,9 @@ namespace Identity.Infrastructure.Services
             {
                 await RevokeAllUserTokensAsync(stored.UserId, cancellationToken);
                 await _db.SaveChangesAsync(cancellationToken);
+                await _activityLogger.LogAsync(
+                    new(ActivityAction.TokenReuseDetected, false, stored.UserId, stored.User.Email, ActivityFailureReason.TokenReused),
+                    cancellationToken);
                 return BaseResponse<AuthResponse>.Failure(
                     "Refresh token was already used. All sessions have been revoked, please log in again.",
                     statusCode: HttpStatusCode.Unauthorized);
@@ -213,6 +240,7 @@ namespace Identity.Infrastructure.Services
                 return BaseResponse<bool>.Failure("One or more validation errors occurred", errors);
 
             var stored = await _db.RefreshTokens
+                .Include(x => x.User)
                 .FirstOrDefaultAsync(x => x.Token == request.RefreshToken, cancellationToken);
 
             // Idempotent: unknown tokens still return success so attackers can't probe which tokens exist.
@@ -225,6 +253,8 @@ namespace Identity.Infrastructure.Services
                 try
                 {
                     await _db.SaveChangesAsync(cancellationToken);
+                    // Only a logout that actually revoked a token is logged; unknown tokens leave no trace.
+                    await _activityLogger.LogAsync(new(ActivityAction.Logout, true, stored.UserId, stored.User.Email), cancellationToken);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -268,6 +298,9 @@ namespace Identity.Infrastructure.Services
             // Keyed under currentPassword so the client can show it on the right field.
             if (_hasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword) == PasswordVerificationResult.Failed)
             {
+                await _activityLogger.LogAsync(
+                    new(ActivityAction.ChangePassword, false, user.Id, user.Email, ActivityFailureReason.WrongCurrentPassword),
+                    cancellationToken);
                 return BaseResponse<bool>.Failure(
                     "Current password is incorrect.",
                     new Dictionary<string, List<string>>
@@ -293,6 +326,7 @@ namespace Identity.Infrastructure.Services
             await RevokeAllUserTokensAsync(user.Id, cancellationToken);
             await _db.SaveChangesAsync(cancellationToken);
 
+            await _activityLogger.LogAsync(new(ActivityAction.ChangePassword, true, user.Id, user.Email), cancellationToken);
             return BaseResponse<bool>.Success(true, "Password changed successfully. Please log in again.");
         }
 
@@ -326,20 +360,6 @@ namespace Identity.Infrastructure.Services
         }
 
         private static Dictionary<string, List<string>>? Validate<T>(IValidator<T> validator, T request)
-        {
-            var result = validator.Validate(request);
-            if (result.IsValid)
-                return null;
-
-            // Same error shape as Catalog: keyed by camelCase field name.
-            return result.Errors
-                .GroupBy(x => LowerFirst(x.PropertyName))
-                .ToDictionary(
-                    x => x.Key,
-                    x => x.Select(e => e.ErrorMessage).ToList());
-        }
-
-        private static string LowerFirst(string value)
-            => string.IsNullOrEmpty(value) ? value : char.ToLowerInvariant(value[0]) + value[1..];
+            => ValidationErrors.From(validator.Validate(request));
     }
 }

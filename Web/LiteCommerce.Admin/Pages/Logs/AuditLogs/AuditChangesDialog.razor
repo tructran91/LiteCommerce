@@ -1,6 +1,7 @@
 @using MudBlazor
 @using LiteCommerce.Admin.ApiClients
 @using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.AuditLog
 
 @* Shows one audit row (AuditLog), or every audit row written by one request (CorrelationId). *@
@@ -89,7 +90,12 @@
 
     [Inject] private IAuditLogApi AuditLogApi { get; set; } = null!;
 
+    [Inject] private IIdentityAuditLogApi IdentityAuditLogApi { get; set; } = null!;
+
     [Parameter] public string Title { get; set; } = "Data changes";
+
+    // Which service to ask when looking rows up by CorrelationId. Correlation ids never cross services.
+    [Parameter] public LogSource Source { get; set; } = LogSource.Catalog;
 
     [Parameter] public AuditLogResponse? AuditLog { get; set; }
 
@@ -113,7 +119,8 @@
         try
         {
             // One request rarely touches more than a handful of rows; 100 is the API's page size limit.
-            var result = await AuditLogApi.GetAuditLogsAsync(1, 100, correlationId: CorrelationId);
+            IAuditLogApi api = Source == LogSource.Identity ? IdentityAuditLogApi : AuditLogApi;
+            var result = await api.GetAuditLogsAsync(1, 100, correlationId: CorrelationId);
             if (result.IsSuccess)
             {
                 _auditLogs = result.Data ?? new();

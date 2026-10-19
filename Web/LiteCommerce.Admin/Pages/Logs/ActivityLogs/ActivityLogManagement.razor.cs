@@ -1,5 +1,6 @@
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Constants;
+using LiteCommerce.Admin.Enums;
 using LiteCommerce.Admin.Models.Business.ActivityLog;
 using LiteCommerce.Admin.Pages.Logs.AuditLogs;
 using Microsoft.AspNetCore.Components;
@@ -12,6 +13,9 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
     {
         [Inject]
         private IActivityLogApi ActivityLogApi { get; set; }
+
+        [Inject]
+        private IIdentityActivityLogApi IdentityActivityLogApi { get; set; }
 
         [Inject]
         private IDialogService DialogService { get; set; }
@@ -35,6 +39,9 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
         private MudTable<ActivityLogResponse> _table = null!;
         private string? _errorMessage;
         private ActivityLogQuery _query = new();
+        private LogSource _source = LogSource.Catalog;
+
+        private bool IsIdentity => _source == LogSource.Identity;
 
         private readonly DialogOptions _dialogOptions = new()
         {
@@ -49,14 +56,27 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
 
             try
             {
-                var result = await ActivityLogApi.GetActivityLogsAsync(
-                    state.Page + 1,
-                    state.PageSize,
-                    search: string.IsNullOrWhiteSpace(_query.Search) ? null : _query.Search.Trim(),
-                    entityName: _query.EntityName,
-                    action: _query.Action,
-                    fromDate: LogConstants.ToUtcStartOfDay(_query.FromDate),
-                    toDate: LogConstants.ToUtcEndOfDay(_query.ToDate));
+                var search = string.IsNullOrWhiteSpace(_query.Search) ? null : _query.Search.Trim();
+                var fromDate = LogConstants.ToUtcStartOfDay(_query.FromDate);
+                var toDate = LogConstants.ToUtcEndOfDay(_query.ToDate);
+
+                var result = IsIdentity
+                    ? await IdentityActivityLogApi.GetActivityLogsAsync(
+                        state.Page + 1,
+                        state.PageSize,
+                        search: search,
+                        action: _query.Action,
+                        isSuccess: _query.IsSuccess,
+                        fromDate: fromDate,
+                        toDate: toDate)
+                    : await ActivityLogApi.GetActivityLogsAsync(
+                        state.Page + 1,
+                        state.PageSize,
+                        search: search,
+                        entityName: _query.EntityName,
+                        action: _query.Action,
+                        fromDate: fromDate,
+                        toDate: toDate);
 
                 if (result.IsSuccess)
                 {
@@ -100,6 +120,14 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
             await ApplyFilter();
         }
 
+        // The two services have different events and columns, so switching source starts from a clean filter.
+        private async Task OnSourceChanged(LogSource source)
+        {
+            _source = source;
+            _query = new();
+            await ApplyFilter();
+        }
+
         private async Task OnSearchKeyUp(KeyboardEventArgs e)
         {
             if (e.Key == "Enter")
@@ -114,6 +142,7 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
             {
                 [nameof(AuditChangesDialog.Title)] = activityLog.Description,
                 [nameof(AuditChangesDialog.CorrelationId)] = activityLog.CorrelationId,
+                [nameof(AuditChangesDialog.Source)] = _source,
             };
 
             await DialogService.ShowAsync<AuditChangesDialog>("", parameters, _dialogOptions);

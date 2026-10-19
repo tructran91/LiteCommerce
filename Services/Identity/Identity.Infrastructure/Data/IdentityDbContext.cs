@@ -16,6 +16,10 @@ namespace Identity.Infrastructure.Data
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);

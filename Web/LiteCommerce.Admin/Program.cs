@@ -65,6 +65,10 @@ builder.Services.AddRefitClient<IProductPriceApi>(refitSettings).ConfigureHttpCl
 builder.Services.AddRefitClient<IAuditLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 builder.Services.AddRefitClient<IActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(catalogUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 
+// Identity's admin log endpoints (AdminOnly). They need the token, and AuthService does not depend on them, so no cycle.
+builder.Services.AddRefitClient<IIdentityAuditLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IIdentityActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+
 // System Service
 var fileUploadSettings = new FileUploadSettings();
 builder.Configuration.GetSection(FileUploadSettings.SectionName).Bind(fileUploadSettings);

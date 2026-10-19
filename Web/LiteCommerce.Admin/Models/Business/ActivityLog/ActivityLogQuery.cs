@@ -5,9 +5,13 @@ namespace LiteCommerce.Admin.Models.Business.ActivityLog
     {
         public string? Search { get; set; }
 
+        // Catalog only.
         public string? EntityName { get; set; }
 
         public string? Action { get; set; }
+
+        // Identity only: null = all, true = succeeded, false = failed.
+        public bool? IsSuccess { get; set; }
 
         public DateTime? FromDate { get; set; }
 
