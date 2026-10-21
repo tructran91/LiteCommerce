@@ -414,3 +414,13 @@ body {
         display: none !important;
     }
 }
+
+.import-dropzone.mud-paper {
+    border: 2px dashed var(--mud-palette-divider);
+    transition: border-color .15s ease, background-color .15s ease;
+}
+
+.import-dropzone.mud-paper:hover {
+    border-color: var(--mud-palette-primary);
+    background-color: var(--mud-palette-action-default-hover);
+}

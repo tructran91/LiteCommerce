@@ -24,5 +24,14 @@ namespace LiteCommerce.Admin.ApiClients
 
         [Post(ApiRoutes.Product.UploadContentImage)]
         Task<BaseResponse<string>> UploadContentImageAsync([Body] MultipartFormDataContent content);
+
+        [Post(ApiRoutes.Product.ImportPreview)]
+        Task<BaseResponse<ProductImportPreviewResponse>> PreviewProductImportAsync([Body] MultipartFormDataContent content);
+
+        [Post(ApiRoutes.Product.ImportCommit)]
+        Task<BaseResponse<ProductImportResultResponse>> CommitProductImportAsync([Body] MultipartFormDataContent content);
+
+        [Post(ApiRoutes.Product.ImportErrorReport)]
+        Task<HttpResponseMessage> GetProductImportErrorReportAsync([Body] MultipartFormDataContent content);
     }
 }

@@ -11,5 +11,7 @@ namespace Catalog.Core.Enums
         Upload,
 
         BulkUpdate,
+
+        Import,
     }
 }

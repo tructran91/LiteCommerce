@@ -83,5 +83,44 @@ namespace Catalog.Infrastructure.Repositories
                 .Where(l => l.ProductId == productId || l.LinkedProductId == productId)
                 .ToListAsync();
         }
+
+        public async Task<HashSet<string>> GetExistingSlugsAsync(IReadOnlyCollection<string> slugs, CancellationToken cancellationToken = default)
+        {
+            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // SQL Server allows at most 2100 parameters per statement; batch the IN list.
+            foreach (var chunk in slugs.Chunk(1000))
+            {
+                var values = chunk.ToList();
+                var existing = await _dbContext.Products
+                    .AsNoTracking()
+                    .Where(p => values.Contains(p.Slug))
+                    .Select(p => p.Slug)
+                    .ToListAsync(cancellationToken);
+
+                result.UnionWith(existing);
+            }
+
+            return result;
+        }
+
+        public async Task<HashSet<string>> GetExistingSkusAsync(IReadOnlyCollection<string> skus, CancellationToken cancellationToken = default)
+        {
+            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var chunk in skus.Chunk(1000))
+            {
+                var values = chunk.ToList();
+                var existing = await _dbContext.Products
+                    .AsNoTracking()
+                    .Where(p => p.Sku != null && values.Contains(p.Sku))
+                    .Select(p => p.Sku!)
+                    .ToListAsync(cancellationToken);
+
+                result.UnionWith(existing);
+            }
+
+            return result;
+        }
     }
 }

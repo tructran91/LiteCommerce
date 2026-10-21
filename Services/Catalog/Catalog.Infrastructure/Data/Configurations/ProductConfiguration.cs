@@ -12,6 +12,13 @@ namespace Catalog.Infrastructure.Data.Configurations
             builder.Property(x => x.Slug).HasMaxLength(FieldLength.ProductSlug);
 
             builder.HasIndex(x => x.Slug).IsUnique().HasFilter("[IsDeleted] = 0");
+
+            // Brand is optional: a product may have no brand.
+            builder.HasOne(x => x.Brand)
+                .WithMany()
+                .HasForeignKey(x => x.BrandId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

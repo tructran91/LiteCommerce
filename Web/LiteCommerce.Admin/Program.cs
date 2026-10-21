@@ -75,5 +75,6 @@ builder.Configuration.GetSection(FileUploadSettings.SectionName).Bind(fileUpload
 builder.Services.AddSingleton(fileUploadSettings);
 builder.Services.AddScoped<AppSettingsService>();
 builder.Services.AddScoped<MenuService>();
+builder.Services.AddScoped<FileDownloadService>();
 
 await builder.Build().RunAsync();

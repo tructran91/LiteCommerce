@@ -80,6 +80,31 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             NavigationManager.NavigateTo("/products/add");
         }
 
+        private async Task OpenImportDialog()
+        {
+            var options = new DialogOptions
+            {
+                MaxWidth = MaxWidth.Large,
+                FullWidth = true,
+                // Escape would bypass the dialog's own close logic (busy guard, reload after import).
+                CloseOnEscapeKey = false,
+                BackdropClick = false,
+            };
+
+            var dialog = await DialogService.ShowAsync<ProductImportDialog>("", new DialogParameters(), options);
+            var result = await dialog.Result;
+
+            if (result is null || result.Canceled || result.Data is not ProductImportDialogResult data)
+                return;
+
+            var message = data.Skipped > 0
+                ? $"Imported {data.Imported} product(s), skipped {data.Skipped}."
+                : $"Imported {data.Imported} product(s).";
+
+            Snackbar.Add(message, Severity.Success);
+            await LoadData();
+        }
+
         private void NavigateToEdit(string id)
         {
             NavigationManager.NavigateTo($"/products/edit/{id}");

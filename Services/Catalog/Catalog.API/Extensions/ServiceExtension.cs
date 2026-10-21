@@ -1,8 +1,12 @@
-﻿using Catalog.API.Middlewares;
+using Catalog.API.Middlewares;
 using Catalog.API.Services;
 using Catalog.Application;
 using Catalog.Application.Behaviors;
 using Catalog.Application.Database;
+using Catalog.Application.Products.Import;
+using Catalog.Application.Products.Import.Parsing;
+using Catalog.Application.Products.Import.Reporting;
+using Catalog.Application.Products.Import.Resolution;
 using Catalog.Application.Services;
 using Catalog.Application.Settings;
 using Catalog.Core.Repositories;
@@ -10,6 +14,7 @@ using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Data.Interceptors;
 using Catalog.Infrastructure.Data.Seeding;
 using Catalog.Infrastructure.Repositories;
+using Catalog.Infrastructure.Services;
 using FluentValidation;
 using LiteCommerce.Shared.Models;
 using MediatR;
@@ -128,6 +133,11 @@ namespace Catalog.API.Extensions
             }
 
             services.AddScoped<IProductService, ProductService>();
+
+            services.AddScoped<ExcelProductImportParser>();
+            services.AddScoped<ProductImportResolver>();
+            services.AddScoped<ProductImportFactory>();
+            services.AddScoped<ProductImportErrorReportBuilder>();
         }
 
         public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
@@ -149,6 +159,7 @@ namespace Catalog.API.Extensions
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IAuditLogRepository, AuditLogRepository>();
             services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+            services.AddScoped<IProductImportService, ProductImportService>();
 
             services.AddScoped<ISeedProfile, TechnologySeedProfile>();
             services.AddScoped<ISeedProfile, FashionSeedProfile>();

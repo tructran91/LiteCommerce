@@ -43,3 +43,18 @@ window.QuillImageUpload = {
         });
     }
 };
+
+window.liteCommerce = window.liteCommerce || {};
+
+window.liteCommerce.downloadFileFromBase64 = function (fileName, base64, contentType) {
+    var bytes = Uint8Array.from(atob(base64), function (c) { return c.charCodeAt(0); });
+    var blob = new Blob([bytes], { type: contentType || 'application/octet-stream' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+};

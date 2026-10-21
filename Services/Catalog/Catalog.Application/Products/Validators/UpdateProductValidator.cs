@@ -25,10 +25,10 @@ namespace Catalog.Application.Products.Validators
                 .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Name"))
                 .MaximumLength(FieldLength.ProductName).WithMessage(ValidationMessages.MaximumLength("Name", FieldLength.ProductName));
 
+            // Brand is optional. Validate the format only when a value was sent.
             RuleFor(x => x.Payload.Product.BrandId)
-                .NotNull().WithMessage(ValidationMessages.NotNullOrEmpty("Brand"))
-                .NotEmpty().WithMessage(ValidationMessages.NotNullOrEmpty("Brand"))
-                .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("BrandId"));
+                .Must(GuidValidator.IsValidGuid).WithMessage(ValidationMessages.MustBeAValidGuid("BrandId"))
+                .When(x => !string.IsNullOrWhiteSpace(x.Payload.Product.BrandId));
 
             RuleFor(x => x.Payload.ThumbnailImage)
                 .MustBeValidImage("ThumbnailImage", fileUpload.MaxImageSizeMB);

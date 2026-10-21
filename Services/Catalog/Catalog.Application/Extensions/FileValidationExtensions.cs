@@ -10,6 +10,8 @@ namespace Catalog.Application.Extensions
 
         private static readonly string[] DocumentExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx"];
 
+        private static readonly string[] ExcelExtensions = [".xlsx", ".xls"];
+
         public static IRuleBuilderOptions<T, IFormFile?> MustBeValidImage<T>(this IRuleBuilder<T, IFormFile?> ruleBuilder, string fieldName, int maxSizeMB)
         {
             return ruleBuilder.MustBeValidFile(fieldName, maxSizeMB, ImageExtensions);
@@ -18,6 +20,11 @@ namespace Catalog.Application.Extensions
         public static IRuleBuilderOptions<T, IFormFile?> MustBeValidDocument<T>(this IRuleBuilder<T, IFormFile?> ruleBuilder, string fieldName, int maxSizeMB)
         {
             return ruleBuilder.MustBeValidFile(fieldName, maxSizeMB, DocumentExtensions);
+        }
+
+        public static IRuleBuilderOptions<T, IFormFile?> MustBeValidExcel<T>(this IRuleBuilder<T, IFormFile?> ruleBuilder, string fieldName, int maxSizeMB)
+        {
+            return ruleBuilder.MustBeValidFile(fieldName, maxSizeMB, ExcelExtensions);
         }
 
         private static IRuleBuilderOptions<T, IFormFile?> MustBeValidFile<T>(

@@ -53,8 +53,9 @@ namespace Catalog.Application
             CreateMap<Product, ProductResponse>();
             CreateMap<ProductViewModel, Product>()
                 .ForMember(prop => prop.Id, opt => opt.Ignore())
-                .ForMember(prop => prop.BrandId, opt => opt.MapFrom(src => Guid.Parse(src.BrandId)));
-            CreateMap<Product, ProductViewModel>();
+                .ForMember(prop => prop.BrandId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.BrandId) ? (Guid?)null : Guid.Parse(src.BrandId)));
+            CreateMap<Product, ProductViewModel>()
+                .ForMember(prop => prop.BrandId, opt => opt.MapFrom(src => src.BrandId.HasValue ? src.BrandId.Value.ToString() : null));
 
             CreateMap<Product, ProductPricingResponse>();
 
