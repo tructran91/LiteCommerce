@@ -2,6 +2,9 @@
 {
     public static class FileUploadConstants
     {
+        public const string SpreadsheetContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        public const string LegacySpreadsheetContentType = "application/vnd.ms-excel";
+
         // Allowed File Types
         public static readonly string[] AllowedImageTypes = new[]
         {
@@ -15,8 +18,8 @@
             "application/pdf",
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            LegacySpreadsheetContentType,
+            SpreadsheetContentType
         };
 
         // Error Messages

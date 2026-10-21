@@ -9,8 +9,7 @@ namespace LiteCommerce.Admin.Models.Business.Product
         [Required]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Please select a brand")]
-        public string BrandId { get; set; }
+        public string? BrandId { get; set; }
 
         public string? ShortDescription { get; set; }
 

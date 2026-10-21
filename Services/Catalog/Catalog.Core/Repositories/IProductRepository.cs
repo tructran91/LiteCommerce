@@ -13,5 +13,9 @@ namespace Catalog.Core.Repositories
 
         // Tracked links where the product is either the source or the target.
         Task<List<ProductLink>> GetLinksInvolvingAsync(Guid productId);
+
+        Task<HashSet<string>> GetExistingSlugsAsync(IReadOnlyCollection<string> slugs, CancellationToken cancellationToken = default);
+
+        Task<HashSet<string>> GetExistingSkusAsync(IReadOnlyCollection<string> skus, CancellationToken cancellationToken = default);
     }
 }

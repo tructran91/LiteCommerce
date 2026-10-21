@@ -1,4 +1,4 @@
-﻿using Catalog.Application.Products.Commands;
+using Catalog.Application.Products.Commands;
 using Catalog.Application.Products.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
@@ -89,6 +89,43 @@ namespace Catalog.API.Controllers
 
             result.Data = BuildImageUrl(result.Data)!;
             return Created(result.Data, result);
+        }
+
+        [HttpPost("import/preview")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(BaseResponse<ProductImportPreviewResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<ProductImportPreviewResponse>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PreviewImport([FromForm] PreviewProductImportRequest request)
+        {
+            var command = new PreviewProductImportCommand(request);
+            var result = await _mediator.Send(command);
+            return ToActionResult(result);
+        }
+
+        [HttpPost("import/commit")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(BaseResponse<ProductImportResultResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<ProductImportResultResponse>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CommitImport([FromForm] ImportProductsRequest request)
+        {
+            var command = new ImportProductsCommand(request);
+            var result = await _mediator.Send(command);
+            return ToActionResult(result);
+        }
+
+        [HttpPost("import/error-report")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ImportErrorReport([FromForm] PreviewProductImportRequest request)
+        {
+            var query = new BuildProductImportReportQuery(request);
+            var result = await _mediator.Send(query);
+
+            if (!result.IsSuccess)
+                return ToActionResult(result);
+
+            return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
         }
 
         private void BuildMediaUrls(BaseResponse<ProductResponse> result)

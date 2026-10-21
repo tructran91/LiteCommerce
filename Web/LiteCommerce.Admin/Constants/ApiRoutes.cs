@@ -88,6 +88,9 @@
             public const string Update = $"{Base}/{{id}}";
             public const string Delete = $"{Base}/{{id}}";
             public const string UploadContentImage = $"{Base}/upload-content-image";
+            public const string ImportPreview = $"{Base}/import/preview";
+            public const string ImportCommit = $"{Base}/import/commit";
+            public const string ImportErrorReport = $"{Base}/import/error-report";
         }
 
         public static class ProductPrice

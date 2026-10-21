@@ -1,0 +1,363 @@
+@using LiteCommerce.Admin.Constants
+@using LiteCommerce.Admin.Helpers
+@using LiteCommerce.Admin.Models.Business.Product
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-2">
+                <MudIcon Icon="@Icons.Material.Filled.FileUpload" Color="Color.Primary" />
+                <MudText Typo="Typo.h6">Import products from Excel</MudText>
+            </div>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Size="Size.Small"
+                           Disabled="_busy"
+                           OnClick="CloseDialog" />
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <div class="d-flex align-center justify-center flex-wrap gap-2 mb-5">
+            <div class="d-flex align-center gap-2">
+                <MudAvatar Size="Size.Small" Color="@StepColor(1)" Variant="@StepVariant(1)">1</MudAvatar>
+                <MudText Typo="Typo.body2" Class="@StepTextClass(1)">Upload &amp; options</MudText>
+            </div>
+            <MudDivider Style="width:40px; flex:0 0 40px" />
+            <div class="d-flex align-center gap-2">
+                <MudAvatar Size="Size.Small" Color="@StepColor(2)" Variant="@StepVariant(2)">2</MudAvatar>
+                <MudText Typo="Typo.body2" Class="@StepTextClass(2)">Preview</MudText>
+            </div>
+            <MudDivider Style="width:40px; flex:0 0 40px" />
+            <div class="d-flex align-center gap-2">
+                <MudAvatar Size="Size.Small" Color="@StepColor(3)" Variant="@StepVariant(3)">3</MudAvatar>
+                <MudText Typo="Typo.body2" Class="@StepTextClass(3)">Result</MudText>
+            </div>
+        </div>
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-3" ShowCloseIcon="true" CloseIconClicked="() => _error = null">
+                @_error
+            </MudAlert>
+        }
+
+        @if (_busy && _step == 2)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-3" />
+        }
+
+        @* ---------- Step 1: upload & options ---------- *@
+        @if (_step == 1)
+        {
+            <MudFileUpload T="IBrowserFile"
+                           @ref="_fileUpload"
+                           FilesChanged="OnFileSelected"
+                           Accept=".xlsx,.xls"
+                           MaximumFileCount="1"
+                           MaxFileSize="@FileUploadSettings.MaxDocumentSize"
+                           Disabled="_busy">
+                <CustomContent Context="upload">
+                    <div @onclick="upload.OpenFilePickerAsync" style="cursor:pointer">
+                        <MudPaper Outlined="true"
+                                  Class="import-dropzone d-flex flex-column align-center justify-center pa-6 rounded-lg">
+                            <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" Color="Color.Primary" />
+                            <MudText Typo="Typo.subtitle1" Class="mt-2">Click to select an Excel file</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Error">
+                                .xlsx, .xls &middot; max @FileUploadSettings.MaxDocumentSizeMB MB
+                            </MudText>
+                        </MudPaper>
+                    </div>
+                </CustomContent>
+                <SelectedTemplate>
+                    @* Empty on purpose: suppresses the built-in chip list; the file is rendered below. *@
+                </SelectedTemplate>
+            </MudFileUpload>
+
+            <div class="d-flex align-center justify-space-between gap-2" style="min-height:40px">
+                <div class="d-flex align-center gap-2" style="min-width:0">
+                    @if (_fileName is not null)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Description" Size="Size.Small" />
+                        <MudText Typo="Typo.body2" Class="text-truncate">@_fileName</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary flex-shrink-0">@FileSizeFormatter.Format(_fileSize)</MudText>
+                        <MudIconButton Icon="@Icons.Material.Filled.Clear"
+                                       Size="Size.Small"
+                                       Disabled="_busy"
+                                       OnClick="ClearFileAsync" />
+                    }
+                </div>
+                <MudLink Href="template/ProductTemplate.xlsx"
+                         Target="_blank"
+                         Typo="Typo.body2"
+                         Class="d-flex align-center flex-shrink-0">
+                    <MudIcon Icon="@Icons.Material.Filled.Download" Size="Size.Small" Class="mr-1" />
+                    Download template
+                </MudLink>
+            </div>
+
+            <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2">Import options</MudText>
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="string"
+                               @bind-Value="_mode"
+                               Label="Mode"
+                               Variant="Variant.Outlined"
+                               Dense="true"
+                               Disabled="_busy"
+                               HelperText="@(_mode == ProductImportModes.SkipInvalid
+                                   ? "Valid rows are imported; invalid rows are skipped."
+                                   : "Any invalid row blocks the whole import.")">
+                        <MudSelectItem Value="@ProductImportModes.AllOrNothing">All or nothing</MudSelectItem>
+                        <MudSelectItem Value="@ProductImportModes.SkipInvalid">Skip invalid rows</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" Class="d-flex flex-column justify-center">
+                    <MudCheckBox T="bool"
+                                 @bind-Value="_createMissingBrands"
+                                 Label="Create missing brands"
+                                 Color="Color.Primary"
+                                 Dense="true"
+                                 Disabled="_busy"
+                                 Class="ml-n2" />
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary px-2">
+                        @(_createMissingBrands
+                            ? "Brands that do not exist yet are created during the import."
+                            : "A row with an unknown brand is invalid.")
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+        }
+
+        @* ---------- Step 2: preview ---------- *@
+        @if (_step == 2 && _preview is not null)
+        {
+            @if (_preview.FileErrors.Count > 0)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">
+                    <MudText Typo="Typo.body2" Class="font-weight-bold">The file could not be imported.</MudText>
+                    <ul class="mt-2 mb-0 pl-4">
+                        @foreach (var fileError in _preview.FileErrors)
+                        {
+                            <li>
+                                <MudText Typo="Typo.body2">
+                                    @(string.IsNullOrWhiteSpace(fileError.Column) ? "" : $"{fileError.Column}: ")@fileError.Message
+                                </MudText>
+                            </li>
+                        }
+                    </ul>
+                </MudAlert>
+            }
+            else if (!_preview.CanCommit)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mb-3">
+                    <div class="d-flex align-center justify-space-between flex-wrap gap-2">
+                        <span>
+                            @(_preview.ValidRows == 0
+                                ? "No valid rows to import. Fix the file and try again."
+                                : $"{_preview.InvalidRows} row(s) are invalid. Fix the file or import only the valid rows.")
+                        </span>
+                        @if (_mode == ProductImportModes.AllOrNothing && _preview.ValidRows > 0)
+                        {
+                            <MudButton Size="Size.Small"
+                                       Variant="Variant.Text"
+                                       Color="Color.Warning"
+                                       Disabled="_busy"
+                                       OnClick="SwitchToSkipInvalidAsync">
+                                Switch to Skip invalid
+                            </MudButton>
+                        }
+                    </div>
+                </MudAlert>
+            }
+
+            <MudGrid Spacing="2" Class="mb-4">
+                <MudItem xs="6" sm="3">
+                    <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
+                        <MudText Typo="Typo.h5">@_preview.TotalRows</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Total rows</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
+                        <MudText Typo="Typo.h5" Color="Color.Success">@_preview.ValidRows</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Valid</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
+                        <MudText Typo="Typo.h5" Color="@(_preview.InvalidRows > 0 ? Color.Error : Color.Default)">@_preview.InvalidRows</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Invalid</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
+                        <MudText Typo="Typo.h5" Color="@(_preview.NewBrands.Count > 0 ? Color.Info : Color.Default)">@_preview.NewBrands.Count</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">New brands</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+
+            <div class="d-flex align-center justify-space-between flex-wrap gap-2 mb-2">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@_fileName</MudText>
+                <MudSwitch T="bool"
+                           @bind-Value="_onlyInvalid"
+                           Label="Only invalid rows"
+                           Color="Color.Primary"
+                           Size="Size.Small" />
+            </div>
+
+            <MudPaper Outlined="true" Class="rounded-lg" Style="max-height:340px; overflow-y:auto">
+                <MudTable Items="@VisibleRows" Dense="true" Hover="true" Elevation="0">
+                    <HeaderContent>
+                        <MudTh Style="width:60px" Class="text-right">#</MudTh>
+                        <MudTh Style="width:110px">Status</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh Style="width:150px">Brand</MudTh>
+                        <MudTh Style="width:190px">Category</MudTh>
+                        <MudTh Style="width:120px" Class="text-right">Price</MudTh>
+                        <MudTh>Issues</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="#" Class="text-right">@context.RowNumber</MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="string"
+                                     Size="Size.Small"
+                                     Variant="Variant.Outlined"
+                                     Color="@(context.IsValid ? Color.Success : Color.Error)">
+                                @context.Status
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Brand">
+                            <div class="d-flex align-center flex-wrap gap-1">
+                                <span>@(string.IsNullOrWhiteSpace(context.Brand) ? "—" : context.Brand)</span>
+                                @if (context.BrandStatus == ProductImportBrandStatus.New)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info">New</MudChip>
+                                }
+                                else if (context.BrandStatus == ProductImportBrandStatus.NotFound)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error">Not found</MudChip>
+                                }
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Category">
+                            @(context.Categories.Count > 0
+                                ? string.Join(", ", context.Categories.Select(c => c.Path))
+                                : context.Category ?? "—")
+                        </MudTd>
+                        <MudTd DataLabel="Price" Class="text-right">@(context.Price?.ToString("#,0.##") ?? "—")</MudTd>
+                        <MudTd DataLabel="Issues">
+                            @if (context.Errors.Count > 0)
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Error">
+                                    @string.Join("; ", context.Errors.Select(e => e.Message))
+                                </MudText>
+                            }
+                            @if (context.Warnings.Count > 0)
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Warning">
+                                    @string.Join("; ", context.Warnings)
+                                </MudText>
+                            }
+                            @if (context.Errors.Count == 0 && context.Warnings.Count == 0)
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">—</MudText>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4" Align="Align.Center">No rows to display.</MudText>
+                    </NoRecordsContent>
+                </MudTable>
+            </MudPaper>
+        }
+
+        @* ---------- Step 3: result ---------- *@
+        @if (_step == 3 && _result is not null)
+        {
+            <div class="d-flex flex-column align-center py-4">
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Style="font-size:56px" />
+                <MudText Typo="Typo.h5" Class="mt-2">Import completed</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1 text-center">
+                    Imported @_result.Imported of @_result.TotalRows product(s)@(_result.Skipped > 0 ? $", skipped {_result.Skipped}" : "").
+                </MudText>
+
+                @if (_result.CreatedBrands.Count > 0)
+                {
+                    <div class="d-flex align-center flex-wrap justify-center gap-2 mt-4">
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Brands created:</MudText>
+                        @foreach (var brand in _result.CreatedBrands)
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info">@brand</MudChip>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (_result.Skipped > 0)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-2">
+                    <MudText Typo="Typo.body2" Class="font-weight-bold mb-1">Skipped rows</MudText>
+                    @foreach (var failure in _result.Errors)
+                    {
+                        <MudText Typo="Typo.caption">
+                            Row @failure.RowNumber (@failure.Name): @string.Join("; ", failure.Errors.Select(e => e.Message))
+                        </MudText>
+                    }
+                </MudAlert>
+            }
+        }
+    </DialogContent>
+
+    <DialogActions>
+        @if (_step == 1)
+        {
+            <MudButton Variant="Variant.Outlined" OnClick="CloseDialog" Disabled="_busy">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Search"
+                       OnClick="PreviewAsync"
+                       Disabled="@(_busy || _fileBytes is null)">
+                @(_busy ? "Reading file…" : "Preview")
+            </MudButton>
+        }
+        else if (_step == 2)
+        {
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       OnClick="BackToUpload"
+                       Disabled="_busy">
+                Back
+            </MudButton>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.Download"
+                       OnClick="DownloadReportAsync"
+                       Disabled="@(_busy || _preview is null || _preview.InvalidRows == 0)">
+                Error report
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Upload"
+                       OnClick="CommitAsync"
+                       Disabled="@(_busy || _preview is null || !_preview.CanCommit)">
+                @(_busy ? "Importing…" : $"Import {_preview?.ValidRows ?? 0} row(s)")
+            </MudButton>
+        }
+        else if (_step == 3)
+        {
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       OnClick="ResetAsync">
+                Import another file
+            </MudButton>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="CloseAfterImport">
+                View products
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>

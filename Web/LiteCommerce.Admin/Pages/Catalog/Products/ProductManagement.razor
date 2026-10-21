@@ -11,13 +11,21 @@
     <div>
         <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Products</MudText>
     </div>
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Primary"
-               StartIcon="@Icons.Material.Filled.Add"
-               OnClick="NavigateToAdd"
-               Disabled="_loading">
-        Add Product
-    </MudButton>
+    <div class="d-flex gap-2">
+        <MudButton Variant="Variant.Outlined"
+                   StartIcon="@Icons.Material.Filled.UploadFile"
+                   OnClick="OpenImportDialog"
+                   Disabled="_loading">
+            Import Excel
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="NavigateToAdd"
+                   Disabled="_loading">
+            Add Product
+        </MudButton>
+    </div>
 </div>
 
 <!-- Error Banner -->

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Catalog.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -201,7 +201,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     OgImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SchemaJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ThumbnailImageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -215,7 +215,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                         column: x => x.BrandId,
                         principalTable: "Brands",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Products_Medias_ThumbnailImageId",
                         column: x => x.ThumbnailImageId,

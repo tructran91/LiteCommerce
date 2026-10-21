@@ -293,7 +293,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnOrder(0);
 
-                    b.Property<Guid>("BrandId")
+                    b.Property<Guid?>("BrandId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CanonicalUrl")
@@ -765,8 +765,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.HasOne("Catalog.Core.Entities.Brand", "Brand")
                         .WithMany()
                         .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Catalog.Core.Entities.Media", "ThumbnailImage")
                         .WithMany()

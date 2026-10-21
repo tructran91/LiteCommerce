@@ -54,9 +54,9 @@
 
         public string? SchemaJson { get; set; }
 
-        public Guid BrandId { get; set; }
+        public Guid? BrandId { get; set; }
 
-        public Brand Brand { get; set; }
+        public Brand? Brand { get; set; }
 
         public Media? ThumbnailImage { get; set; }
 

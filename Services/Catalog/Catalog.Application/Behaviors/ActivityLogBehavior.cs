@@ -74,6 +74,7 @@ namespace Catalog.Application.Behaviors
                 ActivityAction.Delete => "Deleted",
                 ActivityAction.Upload => "Uploaded",
                 ActivityAction.BulkUpdate => "Bulk updated",
+                ActivityAction.Import => "Imported",
                 _ => action.ToString()
             };
 
