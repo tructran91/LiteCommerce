@@ -52,6 +52,19 @@ namespace Catalog.API.Controllers
             return ToCreatedResult(result, nameof(GetProductById), product => new { id = product.Id });
         }
 
+        [HttpPost("{id}/copy")]
+        [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> CopyProduct(string id)
+        {
+            var command = new CopyProductCommand(id);
+            var result = await _mediator.Send(command);
+            BuildMediaUrls(result);
+            return ToCreatedResult(result, nameof(GetProductById), product => new { id = product.Id });
+        }
+
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]

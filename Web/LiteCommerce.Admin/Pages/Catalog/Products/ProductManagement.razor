@@ -15,14 +15,14 @@
         <MudButton Variant="Variant.Outlined"
                    StartIcon="@Icons.Material.Filled.UploadFile"
                    OnClick="OpenImportDialog"
-                   Disabled="_loading">
+                   Disabled="_operationInProgress">
             Import Excel
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    StartIcon="@Icons.Material.Filled.Add"
                    OnClick="NavigateToAdd"
-                   Disabled="_loading">
+                   Disabled="_operationInProgress">
             Add Product
         </MudButton>
     </div>
@@ -35,40 +35,90 @@
         <strong>@SystemMessages.ErrorOccurred</strong> @_errorMessage
         <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
                    StartIcon="@Icons.Material.Filled.Refresh"
-                   OnClick="LoadData" Class="ml-2">
+                    OnClick="ApplyFilter" Class="ml-2">
             Try again
         </MudButton>
     </MudAlert>
 }
 
+<!-- Filters -->
+<MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
+    <MudGrid Spacing="2">
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" @bind-Value="_query.Name" Label="Product name"
+                          Placeholder="Search by name" Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Clearable="true" Immediate="true" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" OnKeyUp="OnSearchKeyUp" />
+        </MudItem>
+        <MudItem xs="6" md="2">
+            <MudSelect T="bool?" @bind-Value="_query.IsFeatured" Label="Is Featured"
+                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" md="2">
+            <MudSelect T="bool?" @bind-Value="_query.IsAllowToOrder" Label="Allow To Order"
+                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" md="2">
+            <MudSelect T="bool?" @bind-Value="_query.IsCallForPricing" Label="Call For Pricing"
+                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" md="2">
+            <MudSelect T="bool?" @bind-Value="_query.IsPublished" Label="Is Published"
+                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" Class="d-flex justify-end gap-2">
+            <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.FilterAltOff"
+                       OnClick="ClearFilter" Disabled="_operationInProgress">
+                Clear
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAlt"
+                       OnClick="ApplyFilter" Disabled="_operationInProgress">
+                Apply
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
 <!-- Data Grid -->
 <MudPaper Elevation="0" Class="rounded-lg overflow-hidden" Style="border:1px solid var(--mud-palette-divider)">
-    <MudTable Items="@_allProducts"
+    <MudTable T="BasicProductResponse"
+              ServerData="LoadServerData"
               Hover="true"
               Dense="false"
               Elevation="0"
-              Loading="@_loading"
               LoadingProgressColor="Color.Primary"
-              SortLabel="Sort by"
+              @bind-RowsPerPage="_rowsPerPage"
               @ref="_table">
 
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel T="BasicProductResponse" SortBy="@(new Func<BasicProductResponse, object>(x => x.Name))" SortDirectionChanged="OnSortChanged">Name</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="name">Name</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel T="BasicProductResponse" SortBy="@(new Func<BasicProductResponse, object>(x => x.IsFeatured))" SortDirectionChanged="OnSortChanged">Is Featured</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isFeatured">Is Featured</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:170px">
-                <MudTableSortLabel T="BasicProductResponse" SortBy="@(new Func<BasicProductResponse, object>(x => x.IsAllowToOrder))" SortDirectionChanged="OnSortChanged">Allow To Order</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isAllowToOrder">Allow To Order</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:170px">
-                <MudTableSortLabel T="BasicProductResponse" SortBy="@(new Func<BasicProductResponse, object>(x => x.IsCallForPricing))" SortDirectionChanged="OnSortChanged">Call For Pricing</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isCallForPricing">Call For Pricing</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel T="BasicProductResponse" SortBy="@(new Func<BasicProductResponse, object>(x => x.IsPublished))" SortDirectionChanged="OnSortChanged">Is Published</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isPublished">Is Published</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:120px; text-align:center">Action</MudTh>
+            <MudTh Style="width:160px; text-align:center">Action</MudTh>
         </HeaderContent>
 
         <RowTemplate>
@@ -98,12 +148,21 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Color="Color.Primary"
+                                   Disabled="_operationInProgress"
                                    OnClick="@(() => NavigateToEdit(context.Id.ToString()))" />
+                </MudTooltip>
+                <MudTooltip Text="Copy">
+                    <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                   Size="Size.Small"
+                                   Color="Color.Secondary"
+                                   Disabled="_operationInProgress"
+                                   OnClick="@(() => CopyProduct(context))" />
                 </MudTooltip>
                 <MudTooltip Text="Delete">
                     <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                    Size="Size.Small"
                                    Color="Color.Error"
+                                   Disabled="_operationInProgress"
                                    OnClick="() => OpenDeleteConfirm(context)" />
                 </MudTooltip>
             </MudTd>
@@ -117,7 +176,7 @@
         </NoRecordsContent>
 
         <PagerContent>
-            <MudTablePager />
+            <MudTablePager PageSizeOptions="_pageSizeOptions" />
         </PagerContent>
     </MudTable>
 </MudPaper>

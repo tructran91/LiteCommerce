@@ -28,14 +28,47 @@ namespace Catalog.Infrastructure.Repositories
             return product;
         }
 
-        public async Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(int currentPage, int pageSize)
+        public async Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(
+            ProductListFilter filter,
+            int currentPage,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Products.AsNoTracking();
 
-            var totalCount = await query.CountAsync();
+            if (!string.IsNullOrWhiteSpace(filter.Name))
+            {
+                var name = filter.Name.Trim();
+                query = query.Where(p => p.Name.Contains(name));
+            }
 
-            var products = await query
-                .OrderByDescending(p => p.CreatedDate)
+            if (filter.IsFeatured.HasValue)
+                query = query.Where(p => p.IsFeatured == filter.IsFeatured.Value);
+
+            if (filter.IsAllowToOrder.HasValue)
+                query = query.Where(p => p.IsAllowToOrder == filter.IsAllowToOrder.Value);
+
+            if (filter.IsCallForPricing.HasValue)
+                query = query.Where(p => p.IsCallForPricing == filter.IsCallForPricing.Value);
+
+            if (filter.IsPublished.HasValue)
+                query = query.Where(p => p.IsPublished == filter.IsPublished.Value);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var descending = filter.SortDirection?.Equals("desc", StringComparison.OrdinalIgnoreCase) == true;
+            var orderedQuery = filter.SortBy?.ToLowerInvariant() switch
+            {
+                "name" => descending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                "isfeatured" => descending ? query.OrderByDescending(p => p.IsFeatured) : query.OrderBy(p => p.IsFeatured),
+                "isallowtoorder" => descending ? query.OrderByDescending(p => p.IsAllowToOrder) : query.OrderBy(p => p.IsAllowToOrder),
+                "iscallforpricing" => descending ? query.OrderByDescending(p => p.IsCallForPricing) : query.OrderBy(p => p.IsCallForPricing),
+                "ispublished" => descending ? query.OrderByDescending(p => p.IsPublished) : query.OrderBy(p => p.IsPublished),
+                _ => query.OrderByDescending(p => p.CreatedDate)
+            };
+
+            var products = await orderedQuery
+                .ThenBy(p => p.Id)
                 .Skip((currentPage - 1) * pageSize)
                 .Take(pageSize)
                 .Select(p => new ProductListItemDto
@@ -47,7 +80,7 @@ namespace Catalog.Infrastructure.Repositories
                     IsCallForPricing = p.IsCallForPricing,
                     IsPublished = p.IsPublished
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return (products, totalCount);
         }

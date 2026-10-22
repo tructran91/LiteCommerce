@@ -15,6 +15,10 @@ namespace Catalog.Application.Services
 
         Task MoveContentImagesAsync(string tempFolderPath, string destFolderPath);
 
+        Task CopyFolderContentAsync(string sourceFolderPath, string destFolderPath);
+
         Task DeleteMediaAsync(string fileName, string? subFolder = null);
+
+        Task DeleteFolderAsync(string subFolder);
     }
 }
