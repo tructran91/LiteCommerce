@@ -16,5 +16,8 @@ namespace Catalog.Application.Behaviors
         // Null when the command carries no name; the behavior then reads Name from the response data.
         // Delete commands expose a settable EntityDisplayName that the handler fills after loading the entity.
         string? ActivityEntityDisplayName { get; }
+
+        // Null keeps the generated "{Verb} {Entity} '{name}'" description.
+        string? ActivityDescription => null;
     }
 }

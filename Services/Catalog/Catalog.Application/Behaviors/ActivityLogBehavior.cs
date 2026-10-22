@@ -45,7 +45,7 @@ namespace Catalog.Application.Behaviors
                 EntityName = loggable.ActivityEntityName,
                 EntityId = entityId,
                 EntityDisplayName = Truncate(displayName, FieldLength.LogEntityDisplayName),
-                Description = Truncate(BuildDescription(loggable.ActivityAction, loggable.ActivityEntityName, displayName, entityId), FieldLength.LogDescription)!,
+                Description = Truncate(loggable.ActivityDescription ?? BuildDescription(loggable.ActivityAction, loggable.ActivityEntityName, displayName, entityId), FieldLength.LogDescription)!,
                 RequestName = typeof(TRequest).Name,
                 UserName = _currentUserService.UserName,
                 CorrelationId = _currentUserService.CorrelationId,

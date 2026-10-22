@@ -17,6 +17,8 @@ namespace Catalog.Application.Products.Commands
 
         public string? EntityDisplayName { get; set; }
 
+        public string? LogDescription { get; set; }
+
         ActivityAction IActivityLoggable.ActivityAction => ActivityAction.Create;
 
         string IActivityLoggable.ActivityEntityName => "Product";
@@ -24,5 +26,7 @@ namespace Catalog.Application.Products.Commands
         string? IActivityLoggable.ActivityEntityId => null;
 
         string? IActivityLoggable.ActivityEntityDisplayName => EntityDisplayName;
+
+        string? IActivityLoggable.ActivityDescription => LogDescription;
     }
 }

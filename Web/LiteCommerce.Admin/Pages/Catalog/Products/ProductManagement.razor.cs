@@ -41,6 +41,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
         private async Task<TableData<BasicProductResponse>> LoadServerData(TableState state, CancellationToken cancellationToken)
         {
+            var hadError = _errorMessage != null;
             _errorMessage = null;
 
             try
@@ -66,6 +67,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
                 if (result.IsSuccess)
                 {
+                    if (hadError)
+                        StateHasChanged();
+
                     return new TableData<BasicProductResponse>
                     {
                         Items = result.Data ?? new(),
@@ -82,7 +86,22 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
 
+            // The table re-renders only itself; the page must re-render to show the error alert.
+            StateHasChanged();
             return new TableData<BasicProductResponse> { Items = new List<BasicProductResponse>(), TotalItems = 0 };
+        }
+
+        private async Task ReloadCurrentPage()
+        {
+            await _table.ReloadServerData();
+        }
+
+        private async Task ReloadAfterDelete()
+        {
+            if (_table.CurrentPage > 0 && _table.FilteredItems.Count() <= 1)
+                _table.NavigateTo(Page.Previous);
+            else
+                await _table.ReloadServerData();
         }
 
         private async Task ApplyFilter()
@@ -187,7 +206,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                     product.Id.ToString(),
                     product.Name,
                     ProductApi.DeleteProductAsync,
-                    async () => await ReloadFromFirstPage()
+                    ReloadAfterDelete
                 );
             }
             catch (Exception ex)

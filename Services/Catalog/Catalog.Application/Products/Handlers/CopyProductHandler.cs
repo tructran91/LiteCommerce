@@ -55,6 +55,7 @@ namespace Catalog.Application.Products.Handlers
 
             var copiedProduct = CreateCopy(source);
             request.EntityDisplayName = copiedProduct.Name;
+            request.LogDescription = $"Copied Product '{source.Name}' ({source.Id}) to '{copiedProduct.Name}'";
 
             if (await _productRepository.AnyAsync(p => p.Slug == copiedProduct.Slug))
             {
@@ -67,7 +68,8 @@ namespace Catalog.Application.Products.Handlers
             try
             {
                 await _mediaService.CopyFolderContentAsync(sourceFolder, destinationFolder);
-                copiedProduct.Description = RewriteDescriptionUrls(source.Description, source.Id, copiedProduct.Id, destinationFolder);
+                copiedProduct.Description = RewriteSourceUrls(source.Description, source.Id, copiedProduct.Id, destinationFolder);
+                copiedProduct.OgImage = RewriteSourceUrls(source.OgImage, source.Id, copiedProduct.Id, destinationFolder);
                 await _productRepository.AddAsync(copiedProduct);
             }
             catch
@@ -101,19 +103,19 @@ namespace Catalog.Application.Products.Handlers
                 IsFeatured = source.IsFeatured,
                 IsCallForPricing = source.IsCallForPricing,
                 IsAllowToOrder = source.IsAllowToOrder,
-                StockQuantity = source.StockQuantity,
+                StockQuantity = 0,
                 Sku = null,
                 Gtin = null,
                 DisplayOrder = source.DisplayOrder,
                 MetaTitle = source.MetaTitle,
                 MetaKeywords = source.MetaKeywords,
                 MetaDescription = source.MetaDescription,
-                CanonicalUrl = source.CanonicalUrl,
+                CanonicalUrl = null,
                 OgTitle = source.OgTitle,
                 OgDescription = source.OgDescription,
                 OgImage = source.OgImage,
-                OgUrl = source.OgUrl,
-                SchemaJson = source.SchemaJson,
+                OgUrl = null,
+                SchemaJson = null,
                 BrandId = source.BrandId,
                 ThumbnailImage = CloneMedia(source.ThumbnailImage)
             };
@@ -169,16 +171,16 @@ namespace Catalog.Application.Products.Handlers
             return product;
         }
 
-        private string? RewriteDescriptionUrls(string? description, Guid sourceId, Guid destinationId, string destinationFolder)
+        private string? RewriteSourceUrls(string? value, Guid sourceId, Guid destinationId, string destinationFolder)
         {
-            if (string.IsNullOrEmpty(description))
-                return description;
+            if (string.IsNullOrEmpty(value))
+                return value;
 
             var sourcePath = $"{StorageFolder.Product}/{sourceId}/";
             var destinationPath = $"{StorageFolder.Product}/{destinationId}/";
             var pattern = $@"(?<prefix>[^""'\s]*?){Regex.Escape(sourcePath)}(?<fileName>[^""'\s?]+)(?<suffix>\?[^""'\s]*)?";
 
-            return Regex.Replace(description, pattern, match =>
+            return Regex.Replace(value, pattern, match =>
             {
                 var fileName = match.Groups["fileName"].Value;
                 return match.Groups["suffix"].Success
@@ -215,7 +217,9 @@ namespace Catalog.Application.Products.Handlers
         private static DateTime GetVietnamTime()
         {
             var timeZoneId = OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh";
-            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(timeZoneId));
+            return TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var timeZone)
+                ? TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone)
+                : DateTime.UtcNow;
         }
     }
 }
