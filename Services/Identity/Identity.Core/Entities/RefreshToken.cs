@@ -14,6 +14,10 @@ namespace Identity.Core.Entities
 
         public string? ReplacedByToken { get; set; }
 
+        public string? IpAddress { get; set; }
+
+        public string? UserAgent { get; set; }
+
         // Concurrency token: two parallel refreshes of the same token can't both succeed.
         public byte[] RowVersion { get; set; } = null!;
 

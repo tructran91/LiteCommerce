@@ -61,6 +61,75 @@ namespace Identity.API.Controllers
             return ToActionResult(await _auth.GetMeAsync(userId, cancellationToken));
         }
 
+        [Authorize]
+        [HttpPut("me")]
+        [ProducesResponseType(typeof(BaseResponse<UserResponse>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<UserResponse>), 400)]
+        [ProducesResponseType(typeof(BaseResponse<UserResponse>), 401)]
+        [ProducesResponseType(typeof(BaseResponse<UserResponse>), 404)]
+        public async Task<IActionResult> UpdateMe([FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
+        {
+            if (!TryGetUserId(out var userId))
+                return Unauthorized();
+
+            return ToActionResult(await _auth.UpdateProfileAsync(userId, request, cancellationToken));
+        }
+
+        [Authorize]
+        [HttpGet("sessions")]
+        [ProducesResponseType(typeof(BaseResponse<List<SessionResponse>>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<List<SessionResponse>>), 401)]
+        [ProducesResponseType(typeof(BaseResponse<List<SessionResponse>>), 404)]
+        public async Task<IActionResult> GetSessions(CancellationToken cancellationToken)
+        {
+            if (!TryGetUserId(out var userId))
+                return Unauthorized();
+
+            return ToActionResult(await _auth.GetSessionsAsync(userId, cancellationToken));
+        }
+
+        [Authorize]
+        [HttpDelete("sessions/{id}")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 401)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 404)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 409)]
+        public async Task<IActionResult> RevokeSession(string id, CancellationToken cancellationToken)
+        {
+            if (!TryGetUserId(out var userId))
+                return Unauthorized();
+
+            return ToActionResult(await _auth.RevokeSessionAsync(userId, id, cancellationToken));
+        }
+
+        [Authorize]
+        [HttpDelete("sessions")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 401)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 404)]
+        public async Task<IActionResult> RevokeAllSessions(CancellationToken cancellationToken)
+        {
+            if (!TryGetUserId(out var userId))
+                return Unauthorized();
+
+            return ToActionResult(await _auth.RevokeAllSessionsAsync(userId, cancellationToken));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+            => ToActionResult(await _auth.ForgotPasswordAsync(request, cancellationToken));
+
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+            => ToActionResult(await _auth.ResetPasswordAsync(request, cancellationToken));
+
         // Revokes every refresh token of the user, so all sessions must log in again.
         [Authorize]
         [HttpPost("change-password")]

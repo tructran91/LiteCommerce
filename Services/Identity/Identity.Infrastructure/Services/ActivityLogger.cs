@@ -73,6 +73,14 @@ namespace Identity.Infrastructure.Services
 
                 (ActivityAction.TokenReuseDetected, _, _) => "Reused refresh token detected; all sessions were revoked",
 
+                (ActivityAction.UpdateProfile, true, _) => "Updated profile",
+                (ActivityAction.RevokeSession, true, _) => "Revoked a session",
+                (ActivityAction.ForgotPassword, true, _) => "Requested a password reset",
+                (ActivityAction.ResetPassword, true, _) => "Reset password; all sessions were revoked",
+                (ActivityAction.ResetPassword, false, ActivityFailureReason.InvalidResetToken) => "Password reset rejected: invalid or expired token",
+                (ActivityAction.AdminUnlockUser, true, _) => "Account unlocked by an administrator",
+                (ActivityAction.AdminRevokeSessions, true, _) => "All sessions revoked by an administrator",
+
                 _ => entry.IsSuccess ? entry.Action.ToString() : $"{entry.Action} failed: {entry.FailureReason}"
             };
         }

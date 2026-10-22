@@ -57,4 +57,32 @@ namespace Identity.Application.Validators
                 .WithMessage("Confirmation does not match the new password.");
         }
     }
+
+    public class UpdateProfileRequestValidator : AbstractValidator<UpdateProfileRequest>
+    {
+        public UpdateProfileRequestValidator()
+        {
+            RuleFor(x => x.FullName).NotEmpty().MaximumLength(100);
+        }
+    }
+
+    public class ForgotPasswordRequestValidator : AbstractValidator<ForgotPasswordRequest>
+    {
+        public ForgotPasswordRequestValidator()
+        {
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(256);
+        }
+    }
+
+    public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
+    {
+        public ResetPasswordRequestValidator()
+        {
+            RuleFor(x => x.Token).NotEmpty().MaximumLength(256);
+            RuleFor(x => x.NewPassword).NotEmpty().MinimumLength(8).MaximumLength(100);
+            RuleFor(x => x.ConfirmPassword)
+                .Equal(x => x.NewPassword)
+                .WithMessage("Confirmation does not match the new password.");
+        }
+    }
 }

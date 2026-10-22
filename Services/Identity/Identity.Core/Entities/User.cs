@@ -20,5 +20,7 @@ namespace Identity.Core.Entities
         public Role Role { get; set; } = null!;
 
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+        public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
     }
 }

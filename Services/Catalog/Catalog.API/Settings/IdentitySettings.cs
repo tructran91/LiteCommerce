@@ -13,5 +13,6 @@ namespace Catalog.API.Settings
         public string Audience { get; set; } = string.Empty;
 
         public bool RequireHttpsMetadata { get; set; } = true;
+
     }
 }

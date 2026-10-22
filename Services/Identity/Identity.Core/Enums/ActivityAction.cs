@@ -16,5 +16,17 @@ namespace Identity.Core.Enums
 
         // An already-rotated refresh token was presented; every session of the user was revoked.
         TokenReuseDetected,
+
+        UpdateProfile,
+
+        RevokeSession,
+
+        ForgotPassword,
+
+        ResetPassword,
+
+        AdminUnlockUser,
+
+        AdminRevokeSessions,
     }
 }

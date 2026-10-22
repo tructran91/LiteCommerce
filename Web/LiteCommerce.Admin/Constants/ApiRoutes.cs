@@ -11,6 +11,29 @@
             public const string Revoke = $"{Base}/revoke";
             public const string Me = $"{Base}/me";
             public const string ChangePassword = $"{Base}/change-password";
+            public const string Sessions = $"{Base}/sessions";
+            public const string SessionById = $"{Base}/sessions/{{id}}";
+            public const string ForgotPassword = $"{Base}/forgot-password";
+            public const string ResetPassword = $"{Base}/reset-password";
+        }
+
+        public static class AdminUser
+        {
+            private const string Base = "/api/admin/users";
+            public const string GetAll = Base;
+            public const string GetById = $"{Base}/{{id}}";
+            public const string Create = Base;
+            public const string Update = $"{Base}/{{id}}";
+            public const string Delete = $"{Base}/{{id}}";
+            public const string UpdateStatus = $"{Base}/{{id}}/status";
+            public const string UpdateRole = $"{Base}/{{id}}/role";
+            public const string Unlock = $"{Base}/{{id}}/unlock";
+            public const string RevokeSessions = $"{Base}/{{id}}/revoke-sessions";
+        }
+
+        public static class AdminRole
+        {
+            public const string GetAll = "/api/admin/roles";
         }
 
         public static class Session

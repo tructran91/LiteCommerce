@@ -9,6 +9,8 @@ namespace Identity.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<RefreshToken> builder)
         {
             builder.Property(x => x.Token).IsRequired().HasMaxLength(256);
+            builder.Property(x => x.IpAddress).HasMaxLength(45);
+            builder.Property(x => x.UserAgent).HasMaxLength(512);
 
             builder.HasIndex(x => x.Token).IsUnique();
 

@@ -1,0 +1,117 @@
+@using LiteCommerce.Admin.Models.Business.User
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center gap-2">
+            <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">@(IsEdit ? "Edit user" : "Create user")</MudText>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
+            <MudTextField @bind-Value="_fullName" Label="Full name" Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Required="true" MaxLength="100" Counter="100" Class="mb-3" />
+            <MudTextField @bind-Value="_email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense"
+                          InputType="InputType.Email" Required="true" MaxLength="256"
+                          Validation="@(new Func<string, string?>(ValidateEmail))" Disabled="IsEdit"
+                          HelperText="@(IsEdit ? "Email cannot be changed after the account is created." : null)" Class="mb-3" />
+            @if (!IsEdit)
+            {
+                <MudTextField @bind-Value="_password" Label="Temporary password" Variant="Variant.Outlined" Margin="Margin.Dense"
+                              InputType="@(_showPassword ? InputType.Text : InputType.Password)" Required="true"
+                              Validation="@(new Func<string, string?>(ValidatePassword))"
+                              Adornment="Adornment.End" AdornmentIcon="@(_showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                              OnAdornmentClick="@(() => _showPassword = !_showPassword)" Class="mb-3" />
+                <MudSelect T="Guid" @bind-Value="_roleId" Label="Role" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true" Class="mb-3">
+                    @foreach (var role in Roles)
+                    {
+                        <MudSelectItem T="Guid" Value="@role.Id">@role.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudPaper Elevation="0" Class="pa-3 rounded-lg d-flex align-center justify-space-between" Style="border:1px solid var(--mud-palette-divider)">
+                    <div>
+                        <MudText Typo="Typo.body2" Class="font-weight-medium">Active account</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">The user can sign in immediately.</MudText>
+                    </div>
+                    <MudSwitch T="bool" @bind-Value="_isActive" Color="Color.Success" />
+                </MudPaper>
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="Submit">
+            @(IsEdit ? "Save changes" : "Create user")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public AdminUserResponse? User { get; set; }
+    [Parameter] public List<RoleResponse> Roles { get; set; } = new();
+
+    private MudForm _form = null!;
+    private bool _formValid;
+    private bool _showPassword;
+    private string _fullName = string.Empty;
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+    private Guid _roleId;
+    private bool _isActive = true;
+
+    protected override void OnInitialized()
+    {
+        if (User is not null)
+        {
+            _fullName = User.FullName;
+            _email = User.Email;
+            _roleId = User.RoleId;
+            _isActive = User.IsActive;
+        }
+        else if (Roles.Count > 0)
+        {
+            _roleId = Roles.FirstOrDefault(x => x.Name == "Staff")?.Id ?? Roles[0].Id;
+        }
+    }
+
+    private static string? ValidatePassword(string value)
+        => value?.Length switch
+        {
+            < 8 => "Password must be at least 8 characters.",
+            > 100 => "Password cannot exceed 100 characters.",
+            _ => null
+        };
+
+    private static string? ValidateEmail(string value)
+        => new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(value?.Trim())
+            ? null
+            : "Enter a valid email address.";
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (!_formValid || string.IsNullOrWhiteSpace(_fullName)) return;
+
+        MudDialog.Close(DialogResult.Ok(new UserDialogResult
+        {
+            FullName = _fullName.Trim(),
+            Email = _email.Trim(),
+            Password = _password,
+            RoleId = _roleId,
+            IsActive = _isActive
+        }));
+    }
+
+    public class UserDialogResult
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public Guid RoleId { get; set; }
+        public bool IsActive { get; set; }
+    }
+}

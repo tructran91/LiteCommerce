@@ -20,5 +20,6 @@ namespace LiteCommerce.Admin.ApiClients
         // Takes the token explicitly: this client has no AuthHeaderHandler.
         [Post(ApiRoutes.Auth.ChangePassword)]
         Task<BaseResponse<bool>> ChangePasswordAsync([Authorize("Bearer")] string token, [Body] ChangePasswordRequest request);
+
     }
 }

@@ -29,8 +29,10 @@ namespace Identity.Infrastructure
             // Singleton: loads the PEM and builds the RSA key once, not on every request.
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAdminUserService, AdminUserService>();
             services.AddScoped<IActivityLogger, ActivityLogger>();
             services.AddScoped<ILogQueryService, LogQueryService>();
+            services.AddScoped<IPasswordResetNotifier, LoggingPasswordResetNotifier>();
 
             services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 

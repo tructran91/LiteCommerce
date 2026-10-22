@@ -16,5 +16,7 @@ namespace Identity.Core.Enums
         WrongCurrentPassword,
 
         TokenReused,
+
+        InvalidResetToken,
     }
 }

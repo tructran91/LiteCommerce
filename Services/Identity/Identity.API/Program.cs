@@ -119,6 +119,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             NameClaimType = JwtRegisteredClaimNames.Email,
             ClockSkew = TimeSpan.Zero
         };
+
     });
 // Same AdminOnly policy as Catalog; the log endpoints use it.
 builder.Services.AddAuthorization(options =>

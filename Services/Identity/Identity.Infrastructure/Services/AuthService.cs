@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using System.Data;
 
 namespace Identity.Infrastructure.Services
 {
@@ -31,7 +34,12 @@ namespace Identity.Infrastructure.Services
         private readonly IValidator<RefreshRequest> _refreshValidator;
         private readonly IValidator<RevokeRequest> _revokeValidator;
         private readonly IValidator<ChangePasswordRequest> _changePasswordValidator;
+        private readonly IValidator<UpdateProfileRequest> _updateProfileValidator;
+        private readonly IValidator<ForgotPasswordRequest> _forgotPasswordValidator;
+        private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
         private readonly IActivityLogger _activityLogger;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IPasswordResetNotifier _passwordResetNotifier;
 
         public AuthService(
             IdentityDbContext db,
@@ -43,7 +51,12 @@ namespace Identity.Infrastructure.Services
             IValidator<RefreshRequest> refreshValidator,
             IValidator<RevokeRequest> revokeValidator,
             IValidator<ChangePasswordRequest> changePasswordValidator,
-            IActivityLogger activityLogger)
+            IValidator<UpdateProfileRequest> updateProfileValidator,
+            IValidator<ForgotPasswordRequest> forgotPasswordValidator,
+            IValidator<ResetPasswordRequest> resetPasswordValidator,
+            IActivityLogger activityLogger,
+            ICurrentUserService currentUser,
+            IPasswordResetNotifier passwordResetNotifier)
         {
             _db = db;
             _tokens = tokens;
@@ -54,7 +67,12 @@ namespace Identity.Infrastructure.Services
             _refreshValidator = refreshValidator;
             _revokeValidator = revokeValidator;
             _changePasswordValidator = changePasswordValidator;
+            _updateProfileValidator = updateProfileValidator;
+            _forgotPasswordValidator = forgotPasswordValidator;
+            _resetPasswordValidator = resetPasswordValidator;
             _activityLogger = activityLogger;
+            _currentUser = currentUser;
+            _passwordResetNotifier = passwordResetNotifier;
         }
 
         public async Task<BaseResponse<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
@@ -330,6 +348,168 @@ namespace Identity.Infrastructure.Services
             return BaseResponse<bool>.Success(true, "Password changed successfully. Please log in again.");
         }
 
+        public async Task<BaseResponse<UserResponse>> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default)
+        {
+            var errors = Validate(_updateProfileValidator, request);
+            if (errors is not null)
+                return BaseResponse<UserResponse>.Failure("One or more validation errors occurred", errors);
+
+            var user = await _db.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+            if (user is null || !user.IsActive)
+                return BaseResponse<UserResponse>.Failure("User not found.", statusCode: HttpStatusCode.NotFound);
+
+            user.FullName = request.FullName.Trim();
+            user.LastModifiedDate = DateTime.UtcNow;
+            await _db.SaveChangesAsync(cancellationToken);
+            await _activityLogger.LogAsync(new(ActivityAction.UpdateProfile, true, user.Id, user.Email), cancellationToken);
+
+            return BaseResponse<UserResponse>.Success(ToUserResponse(user), "Profile updated successfully");
+        }
+
+        public async Task<BaseResponse<List<SessionResponse>>> GetSessionsAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            if (!await _db.Users.AnyAsync(x => x.Id == userId && x.IsActive, cancellationToken))
+                return BaseResponse<List<SessionResponse>>.Failure("User not found.", statusCode: HttpStatusCode.NotFound);
+
+            var now = DateTime.UtcNow;
+            var sessions = await _db.RefreshTokens.AsNoTracking()
+                .Where(x => x.UserId == userId && x.Revoked == null && x.Expires > now)
+                .OrderByDescending(x => x.CreatedDate)
+                .Select(x => new SessionResponse
+                {
+                    Id = x.Id,
+                    CreatedDate = x.CreatedDate,
+                    Expires = x.Expires,
+                    IpAddress = x.IpAddress,
+                    UserAgent = x.UserAgent
+                })
+                .ToListAsync(cancellationToken);
+
+            return BaseResponse<List<SessionResponse>>.Success(sessions);
+        }
+
+        public async Task<BaseResponse<bool>> RevokeSessionAsync(Guid userId, string sessionId, CancellationToken cancellationToken = default)
+        {
+            if (!Guid.TryParse(sessionId, out var parsedSessionId))
+                return BaseResponse<bool>.Failure("One or more validation errors occurred", InvalidId("sessionId"));
+
+            var session = await _db.RefreshTokens
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Id == parsedSessionId && x.UserId == userId, cancellationToken);
+            if (session is null)
+                return BaseResponse<bool>.Failure("Session not found.", statusCode: HttpStatusCode.NotFound);
+
+            if (session.Revoked is null)
+            {
+                var now = DateTime.UtcNow;
+                session.Revoked = now;
+                session.LastModifiedDate = now;
+                try
+                {
+                    await _db.SaveChangesAsync(cancellationToken);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return BaseResponse<bool>.Failure("Session has already changed.", statusCode: HttpStatusCode.Conflict);
+                }
+
+                await _activityLogger.LogAsync(new(ActivityAction.RevokeSession, true, userId, session.User.Email), cancellationToken);
+            }
+
+            return BaseResponse<bool>.Success(true, "Session revoked successfully");
+        }
+
+        public async Task<BaseResponse<bool>> RevokeAllSessionsAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+            if (user is null)
+                return BaseResponse<bool>.Failure("User not found.", statusCode: HttpStatusCode.NotFound);
+
+            await RevokeAllUserTokensAsync(userId, cancellationToken);
+            await _activityLogger.LogAsync(new(ActivityAction.RevokeSession, true, userId, user.Email), cancellationToken);
+            return BaseResponse<bool>.Success(true, "All sessions revoked successfully");
+        }
+
+        public async Task<BaseResponse<bool>> ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default)
+        {
+            var errors = Validate(_forgotPasswordValidator, request);
+            if (errors is not null)
+                return BaseResponse<bool>.Failure("One or more validation errors occurred", errors);
+
+            var email = request.Email.Trim().ToLowerInvariant();
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == email && x.IsActive, cancellationToken);
+            if (user is not null)
+            {
+                await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+                var now = DateTime.UtcNow;
+                await _db.PasswordResetTokens
+                    .Where(x => x.UserId == user.Id && x.UsedDate == null && x.Expires > now)
+                    .ExecuteUpdateAsync(x => x.SetProperty(t => t.UsedDate, now), cancellationToken);
+
+                var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+                _db.PasswordResetTokens.Add(new PasswordResetToken
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    TokenHash = HashToken(token),
+                    Expires = now.AddMinutes(30),
+                    CreatedDate = now
+                });
+                await _db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                await _passwordResetNotifier.SendAsync(email, token, cancellationToken);
+                await _activityLogger.LogAsync(new(ActivityAction.ForgotPassword, true, user.Id, email), cancellationToken);
+            }
+
+            return BaseResponse<bool>.Success(true, "If the email is registered, password reset instructions have been sent.");
+        }
+
+        public async Task<BaseResponse<bool>> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)
+        {
+            var errors = Validate(_resetPasswordValidator, request);
+            if (errors is not null)
+                return BaseResponse<bool>.Failure("One or more validation errors occurred", errors);
+
+            await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            var hash = HashToken(request.Token);
+            var resetToken = await _db.PasswordResetTokens
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.TokenHash == hash, cancellationToken);
+            var now = DateTime.UtcNow;
+
+            if (resetToken is null || resetToken.UsedDate is not null || resetToken.Expires <= now || !resetToken.User.IsActive)
+            {
+                await _activityLogger.LogAsync(new(ActivityAction.ResetPassword, false, resetToken?.UserId, resetToken?.User.Email, ActivityFailureReason.InvalidResetToken), cancellationToken);
+                return BaseResponse<bool>.Failure("Invalid or expired password reset token.", statusCode: HttpStatusCode.BadRequest);
+            }
+
+            resetToken.User.PasswordHash = _hasher.HashPassword(resetToken.User, request.NewPassword);
+            resetToken.User.FailedLoginCount = 0;
+            resetToken.User.LockoutEnd = null;
+            resetToken.User.LastModifiedDate = now;
+            resetToken.UsedDate = now;
+            resetToken.LastModifiedDate = now;
+            await RevokeAllUserTokensAsync(resetToken.UserId, cancellationToken);
+            await _db.PasswordResetTokens
+                .Where(x => x.UserId == resetToken.UserId && x.Id != resetToken.Id && x.UsedDate == null)
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.UsedDate, now), cancellationToken);
+
+            try
+            {
+                await _db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _db.ChangeTracker.Clear();
+                await _activityLogger.LogAsync(new(ActivityAction.ResetPassword, false, resetToken.UserId, resetToken.User.Email, ActivityFailureReason.InvalidResetToken), cancellationToken);
+                return BaseResponse<bool>.Failure("Invalid or expired password reset token.", statusCode: HttpStatusCode.BadRequest);
+            }
+
+            await _activityLogger.LogAsync(new(ActivityAction.ResetPassword, true, resetToken.UserId, resetToken.User.Email), cancellationToken);
+            return BaseResponse<bool>.Success(true, "Password reset successfully. Please log in again.");
+        }
+
         private AuthResponse IssueTokens(User user, DateTime now)
         {
             var (accessToken, expires) = _tokens.CreateAccessToken(user);
@@ -341,6 +521,8 @@ namespace Identity.Infrastructure.Services
                 UserId = user.Id,
                 Token = refreshToken,
                 Expires = now.AddDays(_jwt.RefreshTokenDays),
+                IpAddress = Truncate(_currentUser.IpAddress, 45),
+                UserAgent = Truncate(_currentUser.UserAgent, 512),
                 CreatedDate = now
             });
 
@@ -361,5 +543,23 @@ namespace Identity.Infrastructure.Services
 
         private static Dictionary<string, List<string>>? Validate<T>(IValidator<T> validator, T request)
             => ValidationErrors.From(validator.Validate(request));
+
+        private static UserResponse ToUserResponse(User user) => new()
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FullName = user.FullName,
+            Role = user.Role.Name,
+            IsActive = user.IsActive
+        };
+
+        private static string HashToken(string token)
+            => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+
+        private static string? Truncate(string? value, int maxLength)
+            => value is not null && value.Length > maxLength ? value[..maxLength] : value;
+
+        private static Dictionary<string, List<string>> InvalidId(string field)
+            => new() { [field] = ["Id must be a valid GUID."] };
     }
 }

@@ -18,7 +18,6 @@ namespace Catalog.API.Extensions
 
             if (string.IsNullOrWhiteSpace(identity.Authority))
                 throw new InvalidOperationException($"'{IdentitySettings.SectionName}:Authority' is required.");
-
             services.Configure<IdentitySettings>(configuration.GetSection(IdentitySettings.SectionName));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

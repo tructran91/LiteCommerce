@@ -48,7 +48,7 @@ namespace LiteCommerce.Admin.Services
                 },
 
                 new MenuItem { Title = "Hệ thống", Type = MenuItemType.Section },
-                new MenuItem { Title = "Nhân viên", Href = "/staff", Icon = Icons.Material.Filled.ManageAccounts, Type = MenuItemType.Link },
+                new MenuItem { Title = "Quản lý người dùng", Href = "/users", Icon = Icons.Material.Filled.ManageAccounts, Type = MenuItemType.Link },
                 new MenuItem { Title = "Activity Logs", Href = "/activity-logs", Icon = Icons.Material.Filled.Timeline, Type = MenuItemType.Link },
                 new MenuItem { Title = "Audit Logs", Href = "/audit-logs", Icon = Icons.Material.Filled.History, Type = MenuItemType.Link }
             };
@@ -93,6 +93,7 @@ namespace LiteCommerce.Admin.Services
                     Type = MenuItemType.Group,
                     Children = new List<MenuItem>
                     {
+                        new MenuItem { Title = "User Management", Href = "/users" },
                         new MenuItem { Title = "Activity Logs", Href = "/activity-logs" },
                         new MenuItem { Title = "Audit Logs", Href = "/audit-logs" },
                     }
