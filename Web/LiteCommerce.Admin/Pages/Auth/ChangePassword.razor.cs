@@ -1,4 +1,3 @@
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Auth;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components;
@@ -36,17 +35,17 @@ namespace LiteCommerce.Admin.Pages.Auth
 
                 if (!outcome.IsSuccess)
                 {
-                    _errorMessage = outcome.ErrorMessage ?? SystemMessages.ErrorOccurred;
+                    _errorMessage = outcome.ErrorMessage ?? L["Common_ErrorOccurred"];
                     return;
                 }
 
                 // The tokens are already cleared, so this page is no longer authorized.
-                Snackbar.Add(SystemMessages.ChangePasswordSuccess, Severity.Success);
+                Snackbar.Add(L["Common_ChangePasswordSuccess"], Severity.Success);
                 Navigation.NavigateTo("/login", replace: true);
             }
             catch (Exception)
             {
-                _errorMessage = SystemMessages.LoginServerUnreachable;
+                _errorMessage = L["Common_LoginServerUnreachable"];
             }
             finally
             {

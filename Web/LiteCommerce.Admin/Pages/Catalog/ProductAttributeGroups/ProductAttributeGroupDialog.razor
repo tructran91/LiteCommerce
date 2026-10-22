@@ -6,7 +6,7 @@
             <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
                      Color="Color.Primary" />
             <MudText Typo="Typo.h6">
-                @(IsEdit ? "Edit Attribute Group" : "Add New Attribute Group")
+                @(IsEdit ? L["AttributeGroup_EditTitle"] : L["AttributeGroup_AddTitle"])
             </MudText>
         </div>
     </TitleContent>
@@ -15,15 +15,15 @@
         <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
             <MudTextField T="string"
                           @bind-Value="_name"
-                          Label="Attribute Group Name"
+                          Label="@L["AttributeGroup_Name"]"
                           Variant="Variant.Outlined"
                           Margin="Margin.Normal"
                           Required="true"
-                          RequiredError="Attribute group name cannot be empty"
+                          RequiredError="@L["AttributeGroup_NameRequired"]"
                           MaxLength="100"
                           Counter="100"
                           Immediate="true"
-                          Placeholder="Ex: Specifications, Features, Dimensions..."
+                          Placeholder="@L["AttributeGroup_NamePlaceholder"]"
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Label"
                           FullWidth="true" />
@@ -34,13 +34,13 @@
         <MudButton Variant="Variant.Outlined"
                    OnClick="Cancel"
                    StartIcon="@Icons.Material.Filled.Close">
-            Hủy
+            @L["Common_Cancel"]
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    OnClick="Submit"
                    StartIcon="@Icons.Material.Filled.Save">
-            @(IsEdit ? "Save Changes" : "Add New")
+            @(IsEdit ? L["Common_SaveChanges"] : L["Common_AddNew"])
         </MudButton>
     </DialogActions>
 </MudDialog>

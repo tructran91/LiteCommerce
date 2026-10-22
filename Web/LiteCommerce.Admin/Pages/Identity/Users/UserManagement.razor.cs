@@ -14,7 +14,7 @@ namespace LiteCommerce.Admin.Pages.Identity.Users
         [Inject] private IDialogService DialogService { get; set; } = null!;
         [Inject] private ISnackbar Snackbar { get; set; } = null!;
 
-        private readonly List<BreadcrumbItem> _breadcrumbs = [new("Home", href: "/", icon: Icons.Material.Filled.Home), new("System", href: null, disabled: true), new("User Management", href: null, disabled: true)];
+        private List<BreadcrumbItem> _breadcrumbs = new();
         private readonly int[] _pageSizeOptions = [10, AppConstants.PageSize, 50, 100];
         private MudTable<AdminUserResponse> _table = null!;
         private int _rowsPerPage = AppConstants.PageSize;
@@ -26,11 +26,18 @@ namespace LiteCommerce.Admin.Pages.Identity.Users
 
         protected override async Task OnInitializedAsync()
         {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_System"], href: null, disabled: true),
+                new(L["Users_Title"], href: null, disabled: true),
+            };
+
             try
             {
                 var result = await UserApi.GetRolesAsync();
                 if (result.IsSuccess) _roles = result.Data ?? new();
-                else _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                else _errorMessage = result.GetErrorMessage(L["Common_ErrorOccurred"]);
             }
             catch (Exception ex) { _errorMessage = ex.Message; }
         }
@@ -43,7 +50,7 @@ namespace LiteCommerce.Admin.Pages.Identity.Users
                 var result = await UserApi.GetUsersAsync(state.Page + 1, state.PageSize, Trim(_appliedQuery.Search), _appliedQuery.Role, _appliedQuery.IsActive, _appliedQuery.IsLocked);
                 if (result.IsSuccess)
                     return new() { Items = result.Data ?? new(), TotalItems = result.Pagination?.TotalRecords ?? 0 };
-                _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                _errorMessage = result.GetErrorMessage(L["Common_ErrorOccurred"]);
             }
             catch (Exception ex) { _errorMessage = ex.Message; }
             if (_errorMessage is not null) Snackbar.Add(_errorMessage, Severity.Error);
@@ -67,7 +74,7 @@ namespace LiteCommerce.Admin.Pages.Identity.Users
             await RunAction(async () => isEdit && user is not null
                 ? await UserApi.UpdateUserAsync(user.Id.ToString(), new UpdateUserRequest { FullName = data.FullName })
                 : await UserApi.CreateUserAsync(new CreateUserRequest { Email = data.Email, FullName = data.FullName, Password = data.Password, RoleId = data.RoleId, IsActive = data.IsActive }),
-                isEdit ? "User updated." : "User created.");
+                isEdit ? L["Users_UserUpdated"] : L["Users_UserCreated"]);
         }
 
         private async Task OpenRoleDialog(AdminUserResponse user)
@@ -76,32 +83,37 @@ namespace LiteCommerce.Admin.Pages.Identity.Users
             var dialog = await DialogService.ShowAsync<RoleDialog>(string.Empty, parameters, DialogOptions());
             var result = await dialog.Result;
             if (result is null || result.Canceled || result.Data is not Guid roleId || roleId == user.RoleId) return;
-            await RunAction(() => UserApi.UpdateRoleAsync(user.Id.ToString(), new(roleId)), "Role changed. Existing sessions were revoked.");
+            await RunAction(() => UserApi.UpdateRoleAsync(user.Id.ToString(), new(roleId)), L["Users_RoleChanged"]);
         }
 
         private async Task ToggleStatus(AdminUserResponse user)
         {
             var activating = !user.IsActive;
-            if (!await Confirm(activating ? "Activate user" : "Deactivate user", $"{(activating ? "Activate" : "Deactivate")} {user.Email}?", activating ? null : "The user will be signed out of all devices.", activating ? "Activate" : "Deactivate", activating ? Color.Success : Color.Warning)) return;
-            await RunAction(() => UserApi.UpdateStatusAsync(user.Id.ToString(), new(activating)), activating ? "User activated." : "User deactivated.");
+            if (!await Confirm(
+                    activating ? L["Users_ActivateTitle"] : L["Users_DeactivateTitle"],
+                    activating ? L["Users_ActivateQuestion", user.Email] : L["Users_DeactivateQuestion", user.Email],
+                    activating ? null : L["Users_DeactivateDetails"],
+                    activating ? L["Users_Activate"] : L["Users_Deactivate"],
+                    activating ? Color.Success : Color.Warning)) return;
+            await RunAction(() => UserApi.UpdateStatusAsync(user.Id.ToString(), new(activating)), activating ? L["Users_UserActivated"] : L["Users_UserDeactivated"]);
         }
 
         private async Task Unlock(AdminUserResponse user)
         {
-            if (!await Confirm("Unlock account", $"Unlock {user.Email}?", null, "Unlock", Color.Primary)) return;
-            await RunAction(() => UserApi.UnlockAsync(user.Id.ToString()), "User unlocked.");
+            if (!await Confirm(L["Users_UnlockTitle"], L["Users_UnlockQuestion", user.Email], null, L["Users_Unlock"], Color.Primary)) return;
+            await RunAction(() => UserApi.UnlockAsync(user.Id.ToString()), L["Users_UserUnlocked"]);
         }
 
         private async Task RevokeSessions(AdminUserResponse user)
         {
-            if (!await Confirm("Revoke sessions", $"Sign {user.Email} out of all devices?", "Existing access tokens remain valid until they expire; refresh tokens are revoked immediately.", "Revoke sessions", Color.Warning)) return;
-            await RunAction(() => UserApi.RevokeSessionsAsync(user.Id.ToString()), "All sessions revoked.");
+            if (!await Confirm(L["Users_RevokeTitle"], L["Users_RevokeQuestion", user.Email], L["Users_RevokeDetails"], L["Users_RevokeSessions"], Color.Warning)) return;
+            await RunAction(() => UserApi.RevokeSessionsAsync(user.Id.ToString()), L["Users_AllSessionsRevoked"]);
         }
 
         private async Task DeleteUser(AdminUserResponse user)
         {
-            if (!await Confirm("Delete user", $"Delete {user.Email}?", "This action cannot be undone.", "Delete", Color.Error)) return;
-            await RunAction(() => UserApi.DeleteUserAsync(user.Id.ToString()), "User deleted.");
+            if (!await Confirm(L["Users_DeleteTitle"], L["Users_DeleteQuestion", user.Email], L["Common_ConfirmDeleteWarning"], L["Common_Delete"], Color.Error)) return;
+            await RunAction(() => UserApi.DeleteUserAsync(user.Id.ToString()), L["Users_UserDeleted"]);
         }
 
         private async Task RunAction<T>(Func<Task<Models.Common.BaseResponse<T>>> action, string success)
@@ -110,11 +122,11 @@ namespace LiteCommerce.Admin.Pages.Identity.Users
             try
             {
                 var result = await action();
-                if (!result.IsSuccess) { Snackbar.Add(result.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error); return; }
+                if (!result.IsSuccess) { Snackbar.Add(result.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error); return; }
                 Snackbar.Add(success, Severity.Success);
                 await _table.ReloadServerData();
             }
-            catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+            catch (Exception ex) { Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error); }
             finally { _operationInProgress = false; StateHasChanged(); }
         }
 

@@ -1,5 +1,4 @@
 using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Auth;
 using Microsoft.AspNetCore.Components;
 
@@ -19,10 +18,10 @@ namespace LiteCommerce.Admin.Pages.Auth
             try
             {
                 var result = await PasswordRecoveryApi.ForgotPasswordAsync(new() { Email = _form.Email.Trim() });
-                if (!result.IsSuccess) { _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred); return; }
+                if (!result.IsSuccess) { _errorMessage = result.GetErrorMessage(L["Common_ErrorOccurred"]); return; }
                 _submitted = true;
             }
-            catch { _errorMessage = SystemMessages.LoginServerUnreachable; }
+            catch { _errorMessage = L["Common_LoginServerUnreachable"]; }
             finally { _submitting = false; StateHasChanged(); }
         }
     }

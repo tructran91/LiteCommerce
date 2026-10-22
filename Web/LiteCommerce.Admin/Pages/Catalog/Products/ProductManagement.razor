@@ -1,29 +1,28 @@
 ﻿@page "/products"
-@using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Models.Business.Product
 
-<PageTitle>Products</PageTitle>
+<PageTitle>@L["Product_Title"]</PageTitle>
 
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <!-- Page Header -->
 <div class="d-flex align-center justify-space-between mb-5">
     <div>
-        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Products</MudText>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Product_Title"]</MudText>
     </div>
     <div class="d-flex gap-2">
         <MudButton Variant="Variant.Outlined"
                    StartIcon="@Icons.Material.Filled.UploadFile"
                    OnClick="OpenImportDialog"
                    Disabled="_operationInProgress">
-            Import Excel
+            @L["Product_ImportExcel"]
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    StartIcon="@Icons.Material.Filled.Add"
                    OnClick="NavigateToAdd"
                    Disabled="_operationInProgress">
-            Add Product
+            @L["Product_AddButton"]
         </MudButton>
     </div>
 </div>
@@ -32,11 +31,11 @@
 @if (_errorMessage != null)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
-        <strong>@SystemMessages.ErrorOccurred</strong> @_errorMessage
+        <strong>@L["Common_ErrorOccurred"]</strong> @_errorMessage
         <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="ReloadCurrentPage" Class="ml-2">
-            Try again
+            @L["Common_TryAgain"]
         </MudButton>
     </MudAlert>
 }
@@ -45,47 +44,47 @@
 <MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
     <MudGrid Spacing="2">
         <MudItem xs="12" md="4">
-            <MudTextField T="string" @bind-Value="_query.Name" Label="Product name"
-                          Placeholder="Search by name" Variant="Variant.Outlined" Margin="Margin.Dense"
+            <MudTextField T="string" @bind-Value="_query.Name" Label="@L["Product_FilterName"]"
+                          Placeholder="@L["Product_SearchByName"]" Variant="Variant.Outlined" Margin="Margin.Dense"
                           Clearable="true" Immediate="true" Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search" OnKeyUp="OnSearchKeyUp" />
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="bool?" @bind-Value="_query.IsFeatured" Label="Is Featured"
-                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
-                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
-                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            <MudSelect T="bool?" @bind-Value="_query.IsFeatured" Label="@L["Product_IsFeatured"]"
+                       Placeholder="@L["Product_All"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">@L["Product_Yes"]</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">@L["Product_No"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="bool?" @bind-Value="_query.IsAllowToOrder" Label="Allow To Order"
-                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
-                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
-                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            <MudSelect T="bool?" @bind-Value="_query.IsAllowToOrder" Label="@L["Product_IsAllowToOrder"]"
+                       Placeholder="@L["Product_All"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">@L["Product_Yes"]</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">@L["Product_No"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="bool?" @bind-Value="_query.IsCallForPricing" Label="Call For Pricing"
-                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
-                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
-                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            <MudSelect T="bool?" @bind-Value="_query.IsCallForPricing" Label="@L["Product_IsCallForPricing"]"
+                       Placeholder="@L["Product_All"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">@L["Product_Yes"]</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">@L["Product_No"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="bool?" @bind-Value="_query.IsPublished" Label="Is Published"
-                       Placeholder="All" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
-                <MudSelectItem T="bool?" Value="true">Yes</MudSelectItem>
-                <MudSelectItem T="bool?" Value="false">No</MudSelectItem>
+            <MudSelect T="bool?" @bind-Value="_query.IsPublished" Label="@L["Product_IsPublished"]"
+                       Placeholder="@L["Product_All"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">@L["Product_Yes"]</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">@L["Product_No"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" Class="d-flex justify-end gap-2">
             <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.FilterAltOff"
                        OnClick="ClearFilter" Disabled="_operationInProgress">
-                Clear
+                @L["Product_Clear"]
             </MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAlt"
                        OnClick="ApplyFilter" Disabled="_operationInProgress">
-                Apply
+                @L["Product_Apply"]
             </MudButton>
         </MudItem>
     </MudGrid>
@@ -104,25 +103,25 @@
 
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel T="BasicProductResponse" SortLabel="name">Name</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="name">@L["Common_Name"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel T="BasicProductResponse" SortLabel="isFeatured">Is Featured</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isFeatured">@L["Product_IsFeatured"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:170px">
-                <MudTableSortLabel T="BasicProductResponse" SortLabel="isAllowToOrder">Allow To Order</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isAllowToOrder">@L["Product_IsAllowToOrder"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:170px">
-                <MudTableSortLabel T="BasicProductResponse" SortLabel="isCallForPricing">Call For Pricing</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isCallForPricing">@L["Product_IsCallForPricing"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel T="BasicProductResponse" SortLabel="isPublished">Is Published</MudTableSortLabel>
+                <MudTableSortLabel T="BasicProductResponse" SortLabel="isPublished">@L["Product_IsPublished"]</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:160px; text-align:center">Action</MudTh>
+            <MudTh Style="width:160px; text-align:center">@L["Common_Action"]</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Name">
+            <MudTd DataLabel="@L["Common_Name"]">
                 <div class="d-flex align-center gap-3">
                     <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small"
                                Style="font-size:0.75rem; font-weight:700">
@@ -131,34 +130,34 @@
                     <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Name</MudText>
                 </div>
             </MudTd>
-            <MudTd DataLabel="Is Featured">
+            <MudTd DataLabel="@L["Product_IsFeatured"]">
                 <MudSwitch T="bool" Value="@context.IsFeatured" Color="Color.Success" Size="Size.Small" Disabled />
             </MudTd>
-            <MudTd DataLabel="Allow To Order">
+            <MudTd DataLabel="@L["Product_IsAllowToOrder"]">
                 <MudSwitch T="bool" Value="@context.IsAllowToOrder" Color="Color.Success" Size="Size.Small" Disabled />
             </MudTd>
-            <MudTd DataLabel="Call For Pricing">
+            <MudTd DataLabel="@L["Product_IsCallForPricing"]">
                 <MudSwitch T="bool" Value="@context.IsCallForPricing" Color="Color.Success" Size="Size.Small" Disabled />
             </MudTd>
-            <MudTd DataLabel="Is Published">
+            <MudTd DataLabel="@L["Product_IsPublished"]">
                 <MudSwitch T="bool" Value="@context.IsPublished" Color="Color.Success" Size="Size.Small" Disabled />
             </MudTd>
             <MudTd Style="text-align:center">
-                <MudTooltip Text="Edit">
+                <MudTooltip Text="@L["Common_Edit"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Color="Color.Primary"
                                    Disabled="_operationInProgress"
                                    OnClick="@(() => NavigateToEdit(context.Id.ToString()))" />
                 </MudTooltip>
-                <MudTooltip Text="Copy">
+                <MudTooltip Text="@L["Product_Copy"]">
                     <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
                                    Size="Size.Small"
                                    Color="Color.Secondary"
                                    Disabled="_operationInProgress"
                                    OnClick="@(() => CopyProduct(context))" />
                 </MudTooltip>
-                <MudTooltip Text="Delete">
+                <MudTooltip Text="@L["Common_Delete"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                    Size="Size.Small"
                                    Color="Color.Error"
@@ -171,7 +170,7 @@
         <NoRecordsContent>
             <div class="pa-8 text-center">
                 <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3" Style="opacity:0.3" />
-                <MudText Typo="Typo.body1" Class="mud-text-secondary">@SystemMessages.NoData</MudText>
+                <MudText Typo="Typo.body1" Class="mud-text-secondary">@L["Common_NoData"]</MudText>
             </div>
         </NoRecordsContent>
 

@@ -2,6 +2,7 @@
 @using LiteCommerce.Admin.Models.Application
 @using LiteCommerce.Admin.Services
 @inject AppSettingsService SettingsService
+@inject LocalizationService Localization
 @inject ISnackbar Snackbar
 
 <!-- Settings Overlay Drawer -->
@@ -15,7 +16,7 @@
     <MudDrawerHeader Class="pa-4 d-flex align-center justify-space-between">
         <div class="d-flex align-center gap-2">
             <MudIcon Icon="@Icons.Material.Filled.Tune" Color="Color.Primary" />
-            <MudText Typo="Typo.h6" Class="font-weight-bold">Cài đặt giao diện</MudText>
+            <MudText Typo="Typo.h6" Class="font-weight-bold">@L["Settings_Title"]</MudText>
         </div>
         <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close" Size="Size.Small" />
     </MudDrawerHeader>
@@ -24,11 +25,33 @@
 
     <div class="settings-content pa-4" style="overflow-y:auto; height:calc(100vh - 65px)">
 
+        <!-- ===== LANGUAGE ===== -->
+        <div class="settings-section mb-5">
+            <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.Translate" Size="Size.Small" Class="mr-1" />
+                @L["Settings_Language"]
+            </MudText>
+
+            <MudSelect T="string"
+                       Value="@Localization.CurrentCulture"
+                       ValueChanged="ChangeLanguage"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       Dense="true">
+                @foreach (var culture in LocalizationService.SupportedCultures)
+                {
+                    <MudSelectItem Value="@culture.Code">@culture.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <MudDivider Class="mb-4" />
+
         <!-- ===== THEME MODE ===== -->
         <div class="settings-section mb-5">
             <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.Brightness4" Size="Size.Small" Class="mr-1" />
-                Chế độ màu
+                @L["Settings_ColorMode"]
             </MudText>
 
             <div class="d-flex gap-2">
@@ -38,7 +61,7 @@
                            OnClick="() => SetDarkMode(false)"
                            FullWidth="true"
                            Size="Size.Medium">
-                    Sáng
+                    @L["Settings_Light"]
                 </MudButton>
                 <MudButton Variant="@(SettingsService.Settings.IsDarkMode? Variant.Filled: Variant.Outlined)"
                            Color="Color.Primary"
@@ -46,7 +69,7 @@
                            OnClick="() => SetDarkMode(true)"
                            FullWidth="true"
                            Size="Size.Medium">
-                    Tối
+                    @L["Settings_Dark"]
                 </MudButton>
             </div>
         </div>
@@ -57,7 +80,7 @@
         <div class="settings-section mb-5">
             <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.ViewSidebar" Size="Size.Small" Class="mr-1" />
-                Kiểu layout
+                @L["Settings_Layout"]
             </MudText>
 
             <div class="d-flex gap-2">
@@ -72,7 +95,7 @@
                             <div class="lp-content"></div>
                         </div>
                     </div>
-                    <MudText Typo="Typo.caption" Align="Align.Center">Dọc (Sidebar)</MudText>
+                    <MudText Typo="Typo.caption" Align="Align.Center">@L["Settings_LayoutVertical"]</MudText>
                 </MudPaper>
 
                 <MudPaper @onclick="() => SetLayout(LayoutDirection.Horizontal)"
@@ -83,7 +106,7 @@
                         <div class="lp-topbar"></div>
                         <div class="lp-content-full"></div>
                     </div>
-                    <MudText Typo="Typo.caption" Align="Align.Center">Ngang (Top Nav)</MudText>
+                    <MudText Typo="Typo.caption" Align="Align.Center">@L["Settings_LayoutHorizontal"]</MudText>
                 </MudPaper>
             </div>
         </div>
@@ -94,7 +117,7 @@
         <div class="settings-section mb-5">
             <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.Palette" Size="Size.Small" Class="mr-1" />
-                Màu chủ đạo (Primary)
+                @L["Settings_PrimaryColor"]
             </MudText>
 
             <div class="color-swatches">
@@ -114,7 +137,7 @@
             </div>
 
             <div class="mt-2 d-flex align-center gap-2">
-                <MudText Typo="Typo.caption">Custom:</MudText>
+                <MudText Typo="Typo.caption">@L["Settings_Custom"]</MudText>
                 <input type="color"
                        value="@SettingsService.Settings.PrimaryColor"
                        @onchange="OnPrimaryColorChange"
@@ -127,7 +150,7 @@
         <div class="settings-section mb-5">
             <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.ColorLens" Size="Size.Small" Class="mr-1" />
-                Màu phụ (Secondary)
+                @L["Settings_SecondaryColor"]
             </MudText>
 
             <div class="color-swatches">
@@ -153,7 +176,7 @@
         <div class="settings-section mb-5">
             <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.TextFields" Size="Size.Small" Class="mr-1" />
-                Font chữ
+                @L["Settings_Font"]
             </MudText>
 
             <MudSelect Value="@SettingsService.Settings.FontFamily"
@@ -174,7 +197,7 @@
         <div class="settings-section mb-5">
             <MudText Typo="Typo.subtitle2" Class="settings-section-title mb-2">
                 <MudIcon Icon="@Icons.Material.Filled.RoundedCorner" Size="Size.Small" Class="mr-1" />
-                Bo góc: @((int)SettingsService.Settings.BorderRadius)px
+                @L["Settings_BorderRadius"]: @((int)SettingsService.Settings.BorderRadius)px
             </MudText>
 
             <MudSlider T="double"
@@ -207,9 +230,9 @@
                 <div>
                     <MudText Typo="Typo.subtitle2" Class="settings-section-title">
                         <MudIcon Icon="@Icons.Material.Filled.Animation" Size="Size.Small" Class="mr-1" />
-                        Hiệu ứng chuyển động
+                        @L["Settings_Animations"]
                     </MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Bật/tắt animation toàn hệ thống</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Settings_AnimationsHint"]</MudText>
                 </div>
                 <MudSwitch T="bool"
                            Value="@_animations"
@@ -227,7 +250,7 @@
                        StartIcon="@Icons.Material.Filled.RestartAlt"
                        FullWidth="true"
                        OnClick="ResetSettings">
-                Khôi phục mặc định
+                @L["Settings_Reset"]
             </MudButton>
         </div>
 
@@ -271,22 +294,23 @@
         new("Purple", "#E040FB"),
     };
 
-    private readonly List<FontOption> _fonts = new()
-    {
-        new("Nunito (Mặc định)", "Nunito"),
-        new("Inter", "Inter"),
-        new("Roboto", "Roboto"),
-        new("Poppins", "Poppins"),
-        new("Be Vietnam Pro", "Be Vietnam Pro"),
-        new("Source Sans 3", "Source Sans 3"),
-        new("DM Sans", "DM Sans"),
-        new("Outfit", "Outfit"),
-    };
+    private readonly List<FontOption> _fonts = new();
 
     protected override void OnInitialized()
     {
         _borderRadius = SettingsService.Settings.BorderRadius;
         _animations = SettingsService.Settings.EnableAnimations;
+        _fonts.AddRange(new[]
+        {
+            new FontOption(L["Settings_FontDefault"], "Nunito"),
+            new FontOption("Inter", "Inter"),
+            new FontOption("Roboto", "Roboto"),
+            new FontOption("Poppins", "Poppins"),
+            new FontOption("Be Vietnam Pro", "Be Vietnam Pro"),
+            new FontOption("Source Sans 3", "Source Sans 3"),
+            new FontOption("DM Sans", "DM Sans"),
+            new FontOption("Outfit", "Outfit"),
+        });
     }
 
     public void Open()
@@ -298,6 +322,14 @@
     }
 
     private void Close() => _open = false;
+
+    private async Task ChangeLanguage(string culture)
+    {
+        if (string.Equals(culture, Localization.CurrentCulture, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        await Localization.ChangeCultureAsync(culture);
+    }
 
     private async Task SetDarkMode(bool dark)
     {
@@ -357,6 +389,6 @@
         });
         _borderRadius = 8;
         _animations = true;
-        Snackbar.Add("Đã khôi phục cài đặt mặc định!", Severity.Success);
+        Snackbar.Add(L["Settings_ResetDone"], Severity.Success);
     }
 }

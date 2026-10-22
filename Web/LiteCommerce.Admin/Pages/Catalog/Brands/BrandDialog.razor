@@ -6,7 +6,7 @@
             <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
                      Color="Color.Primary" />
             <MudText Typo="Typo.h6">
-                @(IsEdit ? "Edit Brand" : "Add New Brand")
+                @(IsEdit ? L["Brand_EditTitle"] : L["Brand_AddTitle"])
             </MudText>
         </div>
     </TitleContent>
@@ -15,31 +15,29 @@
         <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
             <MudTextField T="string"
                           @bind-Value="_name"
-                          Label="Brand Name"
+                          Label="@L["Brand_Name"]"
                           Variant="Variant.Outlined"
                           Margin="Margin.Normal"
                           Required="true"
-                          RequiredError="Brand name cannot be empty"
+                          RequiredError="@L["Brand_NameRequired"]"
                           MaxLength="100"
                           Counter="100"
                           Immediate="true"
-                          Placeholder="Ex: Apple, Samsung, Nike, Adidas..."
+                          Placeholder="@L["Brand_NamePlaceholder"]"
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Label"
                           FullWidth="true" />
 
             <div class="mt-4 mb-2">
-                <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">Trạng thái xuất bản</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">@L["Brand_PublishStatus"]</MudText>
                 <MudPaper Elevation="0" Class="pa-3 rounded-lg d-flex align-center justify-space-between"
                           Style="border:1px solid var(--mud-palette-divider)">
                     <div>
                         <MudText Typo="Typo.body2" Class="font-weight-medium">
-                            @(_isPublished ? "Đang xuất bản" : "Chưa xuất bản")
+                            @(_isPublished ? L["Brand_Published"] : L["Brand_Unpublished"])
                         </MudText>
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            @(_isPublished
-                                ? "The brand will be visible in the store"
-                                : "The brand will be hidden from the store")
+                            @(_isPublished ? L["Brand_PublishedHint"] : L["Brand_UnpublishedHint"])
                         </MudText>
                     </div>
                     <MudSwitch T="bool"
@@ -54,13 +52,13 @@
         <MudButton Variant="Variant.Outlined"
                    OnClick="Cancel"
                    StartIcon="@Icons.Material.Filled.Close">
-            Hủy
+            @L["Common_Cancel"]
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    OnClick="Submit"
                    StartIcon="@Icons.Material.Filled.Save">
-            @(IsEdit ? "Save Changes" : "Add New")
+            @(IsEdit ? L["Common_SaveChanges"] : L["Common_AddNew"])
         </MudButton>
     </DialogActions>
 </MudDialog>

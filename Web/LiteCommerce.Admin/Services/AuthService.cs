@@ -1,6 +1,7 @@
 using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Auth;
+using LiteCommerce.Admin.Resources;
+using Microsoft.Extensions.Localization;
 using System.Net;
 
 namespace LiteCommerce.Admin.Services
@@ -17,6 +18,7 @@ namespace LiteCommerce.Admin.Services
         private readonly IIdentityApi _identityApi;
         private readonly ISessionApi _sessionApi;
         private readonly TokenStorageService _tokenStorage;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         // One refresh at a time: parallel rotations would make Identity see a reused
         // refresh token, which it treats as theft and revokes every session.
@@ -25,11 +27,13 @@ namespace LiteCommerce.Admin.Services
         public AuthService(
             IIdentityApi identityApi,
             ISessionApi sessionApi,
-            TokenStorageService tokenStorage)
+            TokenStorageService tokenStorage,
+            IStringLocalizer<SharedResource> localizer)
         {
             _identityApi = identityApi;
             _sessionApi = sessionApi;
             _tokenStorage = tokenStorage;
+            _localizer = localizer;
         }
 
         public async Task<AuthOutcome> LoginAsync(string email, string password)
@@ -37,7 +41,7 @@ namespace LiteCommerce.Admin.Services
             var response = await _identityApi.LoginAsync(new LoginRequest { Email = email, Password = password });
 
             if (!response.IsSuccess || response.Data is null || string.IsNullOrWhiteSpace(response.Data.AccessToken))
-                return new AuthOutcome(false, response.GetErrorMessage(SystemMessages.LoginFailed));
+                return new AuthOutcome(false, response.GetErrorMessage(_localizer["Common_LoginFailed"]));
 
             // Identity authenticates every role, but this app is Admin-only. Asking Catalog
             // instead of checking the role here keeps the rejection message the API's.
@@ -46,7 +50,7 @@ namespace LiteCommerce.Admin.Services
             if (!session.IsSuccess)
             {
                 await TryRevokeAsync(response.Data.RefreshToken);
-                return new AuthOutcome(false, session.GetErrorMessage(SystemMessages.LoginFailed));
+                return new AuthOutcome(false, session.GetErrorMessage(_localizer["Common_LoginFailed"]));
             }
 
             await _tokenStorage.SetAsync(new AuthTokens
@@ -67,13 +71,13 @@ namespace LiteCommerce.Admin.Services
             if (string.IsNullOrWhiteSpace(token))
             {
                 await ClearAsync();
-                return new AuthOutcome(false, SystemMessages.SessionExpired);
+                return new AuthOutcome(false, _localizer["Common_SessionExpired"]);
             }
 
             var response = await _identityApi.ChangePasswordAsync(token, request);
 
             if (!response.IsSuccess)
-                return new AuthOutcome(false, response.GetErrorMessage(SystemMessages.ErrorOccurred));
+                return new AuthOutcome(false, response.GetErrorMessage(_localizer["Common_ErrorOccurred"]));
 
             await ClearAsync();
             return new AuthOutcome(true, null);

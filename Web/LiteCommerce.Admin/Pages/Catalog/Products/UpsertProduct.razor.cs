@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System.Globalization;
 using System.Net.Http.Headers;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Products
@@ -78,10 +79,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         {
             _breadcrumbs = new()
             {
-                new("Home", href: "/", icon: Icons.Material.Filled.Home),
-                new("Catalog", href: null, disabled: true),
-                new("Products", href: "/products"),
-                new(_isEditMode ? "Edit Product" : "Add Product", href: null, disabled: true)
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_Catalog"], href: null, disabled: true),
+                new(L["Product_Title"], href: "/products"),
+                new(_isEditMode ? L["Product_EditTitle"] : L["Product_AddTitle"], href: null, disabled: true)
             };
 
             await Task.WhenAll(
@@ -169,7 +170,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 var response = await ProductApi.UploadContentImageAsync(content);
                 if (!response.IsSuccess)
                 {
-                    Snackbar.Add($"Upload image failed: {response.GetErrorMessage(SystemMessages.ErrorOccurred)}", Severity.Error);
+                    Snackbar.Add(L["Product_UploadImageFailed", response.GetErrorMessage(L["Common_ErrorOccurred"])], Severity.Error);
                     return null;
                 }
 
@@ -177,7 +178,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Upload image failed: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Product_UploadImageFailed", ex.Message], Severity.Error);
                 return null;
             }
         }
@@ -255,14 +256,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
                 _loading = false;
                 return;
             }
 
             if (!response.IsSuccess)
             {
-                Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                Snackbar.Add(response.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                 _loading = false;
                 return;
             }
@@ -523,13 +524,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
             if (file.Size > FileUploadSettings.MaxImageSize)
             {
-                Snackbar.Add(FileUploadSettings.ImageSizeExceededMessage, Severity.Error);
+                Snackbar.Add(L["Upload_ImageSizeExceeded"], Severity.Error);
                 return;
             }
 
             if (!FileUploadConstants.AllowedImageTypes.Contains(file.ContentType))
             {
-                Snackbar.Add(FileUploadConstants.InvalidImageTypeMessage, Severity.Error);
+                Snackbar.Add(L["Upload_InvalidImageType"], Severity.Error);
                 return;
             }
 
@@ -543,7 +544,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error loading image: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Product_ImageLoadFailed", ex.Message], Severity.Error);
                 _createProductForm.ThumbnailImage = null;
                 _thumbnailPreviewUrl = null;
             }
@@ -562,13 +563,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             {
                 if (file.Size > FileUploadSettings.MaxImageSize)
                 {
-                    Snackbar.Add($"{file.Name}: {FileUploadSettings.ImageSizeExceededMessage}", Severity.Error);
+                    Snackbar.Add(L["Product_ImageTooLargeNamed", file.Name, L["Upload_ImageSizeExceeded"]], Severity.Error);
                     continue;
                 }
 
                 if (!FileUploadConstants.AllowedImageTypes.Contains(file.ContentType))
                 {
-                    Snackbar.Add($"{file.Name}: {FileUploadConstants.InvalidImageTypeMessage}", Severity.Error);
+                    Snackbar.Add(L["Product_ImageTooLargeNamed", file.Name, L["Upload_InvalidImageType"]], Severity.Error);
                     continue;
                 }
 
@@ -583,7 +584,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 }
                 catch (Exception ex)
                 {
-                    Snackbar.Add($"Error loading {file.Name}: {ex.Message}", Severity.Error);
+                    Snackbar.Add(L["Product_ImageLoadFailedNamed", file.Name, ex.Message], Severity.Error);
                 }
             }
         }
@@ -610,13 +611,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             {
                 if (file.Size > FileUploadSettings.MaxDocumentSize)
                 {
-                    Snackbar.Add($"{file.Name}: {FileUploadSettings.DocumentSizeExceededMessage}", Severity.Error);
+                    Snackbar.Add(L["Product_ImageTooLargeNamed", file.Name, L["Upload_DocumentSizeExceeded"]], Severity.Error);
                     continue;
                 }
 
                 if (!FileUploadConstants.AllowedDocumentTypes.Contains(file.ContentType))
                 {
-                    Snackbar.Add($"{file.Name}: {FileUploadConstants.InvalidDocumentTypeMessage}", Severity.Error);
+                    Snackbar.Add(L["Product_ImageTooLargeNamed", file.Name, L["Upload_InvalidDocumentType"]], Severity.Error);
                     continue;
                 }
 
@@ -655,17 +656,19 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             content.Add(new StringContent(_productForm.MetaDescription ?? string.Empty), "Product.MetaDescription");
             content.Add(new StringContent(_productForm.Sku ?? string.Empty), "Product.Sku");
             content.Add(new StringContent(_productForm.Gtin ?? string.Empty), "Product.Gtin");
-            content.Add(new StringContent((_productForm.Price ?? 0).ToString()), "Product.Price");
+            // The UI culture may be vi-VN, where the decimal separator is a comma, but the
+            // API model binder parses invariant. Without this, "1234,56" binds as 123456.
+            content.Add(new StringContent((_productForm.Price ?? 0).ToString(CultureInfo.InvariantCulture)), "Product.Price");
             content.Add(new StringContent(_productForm.IsPublished.ToString()), "Product.IsPublished");
             content.Add(new StringContent(_productForm.IsFeatured.ToString()), "Product.IsFeatured");
             content.Add(new StringContent(_productForm.IsCallForPricing.ToString()), "Product.IsCallForPricing");
             content.Add(new StringContent(_productForm.IsAllowToOrder.ToString()), "Product.IsAllowToOrder");
 
             if (_productForm.OldPrice.HasValue)
-                content.Add(new StringContent(_productForm.OldPrice.Value.ToString()), "Product.OldPrice");
+                content.Add(new StringContent(_productForm.OldPrice.Value.ToString(CultureInfo.InvariantCulture)), "Product.OldPrice");
 
             if (_productForm.SpecialPrice.HasValue)
-                content.Add(new StringContent(_productForm.SpecialPrice.Value.ToString()), "Product.SpecialPrice");
+                content.Add(new StringContent(_productForm.SpecialPrice.Value.ToString(CultureInfo.InvariantCulture)), "Product.SpecialPrice");
 
             if (_productForm.SpecialPriceStart.HasValue)
                 content.Add(new StringContent(_productForm.SpecialPriceStart.Value.ToString("o")), "Product.SpecialPriceStart");
@@ -754,20 +757,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 if (response.IsSuccess)
                 {
                     var successMessage = _isEditMode
-                        ? SystemMessages.UpdateDataSuccess
-                        : SystemMessages.AddDataSuccess;
+                        ? L["Common_UpdateDataSuccess"]
+                        : L["Common_AddDataSuccess"];
 
                     Snackbar.Add(successMessage, Severity.Success);
                     NavigationManager.NavigateTo("/products");
                 }
                 else
                 {
-                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                    Snackbar.Add(response.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {

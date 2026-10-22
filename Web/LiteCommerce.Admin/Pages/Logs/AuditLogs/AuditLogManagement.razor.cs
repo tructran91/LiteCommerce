@@ -42,6 +42,16 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
         // Both services expose the same audit endpoint shape, so only the base URL differs.
         private IAuditLogApi CurrentApi => _source == LogSource.Identity ? IdentityAuditLogApi : AuditLogApi;
 
+        protected override void OnInitialized()
+        {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_System"], href: null, disabled: true),
+                new(L["Logs_AuditTitle"], href: null, disabled: true),
+            };
+        }
+
         private readonly DialogOptions _dialogOptions = new()
         {
             MaxWidth = MaxWidth.Large,
@@ -73,14 +83,14 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
                     };
                 }
 
-                var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                var errorDetails = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                 _errorMessage = errorDetails;
                 Snackbar.Add(errorDetails, Severity.Error);
             }
             catch (Exception ex)
             {
                 _errorMessage = ex.Message;
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
 
             return new TableData<AuditLogResponse> { Items = new List<AuditLogResponse>(), TotalItems = 0 };
@@ -126,12 +136,12 @@ namespace LiteCommerce.Admin.Pages.Logs.AuditLogs
             await ApplyFilter();
         }
 
-        private static string GetChangedProperties(AuditLogResponse auditLog)
+        private string GetChangedProperties(AuditLogResponse auditLog)
         {
             // Created / Deleted rows list every column; only Modified and SoftDeleted rows have a meaningful diff.
             if (auditLog.Action is "Created" or "Deleted")
             {
-                return $"{auditLog.Changes.Count} values";
+                return L["Logs_ValuesCount", auditLog.Changes.Count];
             }
 
             var changed = auditLog.Changes.Where(c => c.IsChanged).Select(c => c.Property).ToList();

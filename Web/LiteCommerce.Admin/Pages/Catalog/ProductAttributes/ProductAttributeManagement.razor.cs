@@ -1,8 +1,6 @@
 ﻿using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.ProductAttribute;
 using LiteCommerce.Admin.Models.Business.ProductAttributeGroup;
-using LiteCommerce.Admin.Models.Common;
 using LiteCommerce.Admin.Pages.Base;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -23,14 +21,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
         [Inject]
         private ISnackbar Snackbar { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar);
+        [Inject]
+        private DeleteOperationHelper DeleteHelper { get; set; }
 
-        private List<BreadcrumbItem> _breadcrumbs = new()
-        {
-            new("Home", href: "/", icon: Icons.Material.Filled.Home),
-            new("Catalog", href: null, disabled: true),
-            new("Product Attributes", href: null, disabled: true),
-        };
+        private List<BreadcrumbItem> _breadcrumbs = new();
 
         private MudTable<ProductAttributeResponse> _table = null!;
         private List<ProductAttributeResponse> _allAttributes = new();
@@ -49,6 +43,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
 
         protected override async Task OnInitializedAsync()
         {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_Catalog"], href: null, disabled: true),
+                new(L["Attribute_Title"], href: null, disabled: true),
+            };
+
             await LoadProductAttributeGroups();
             await LoadData();
         }
@@ -67,7 +68,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
                 }
                 else
                 {
-                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                    var errorDetails = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -75,7 +76,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
             catch (Exception ex)
             {
                 _errorMessage = ex.Message;
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -132,20 +133,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
                 if (response.IsSuccess)
                 {
                     var successMessage = data.IsEdit
-                        ? SystemMessages.UpdateDataSuccess
-                        : SystemMessages.AddDataSuccess;
+                        ? L["Common_UpdateDataSuccess"]
+                        : L["Common_AddDataSuccess"];
 
                     Snackbar.Add(successMessage, Severity.Success);
                     await LoadData();
                 }
                 else
                 {
-                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                    Snackbar.Add(response.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -160,7 +161,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
 
             try
             {
-                await _deleteHelper.ExecuteDeleteOperation(
+                await DeleteHelper.ExecuteDeleteOperation(
                     attribute.Id,
                     attribute.Name,
                     ProductAttributeApi.DeleteProductAttributeAsync,
@@ -169,7 +170,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {

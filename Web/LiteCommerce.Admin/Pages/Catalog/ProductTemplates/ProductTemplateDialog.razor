@@ -8,7 +8,7 @@
             <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
                      Color="Color.Primary" />
             <MudText Typo="Typo.h6">
-                @(IsEdit ? "Edit Template" : "Add New Template")
+                @(IsEdit ? L["Template_EditTitle"] : L["Template_AddTitle"])
             </MudText>
         </div>
     </TitleContent>
@@ -16,13 +16,13 @@
     <DialogContent>
         <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
             <MudTextField @bind-Value="_name"
-                          Label="Template Name"
+                          Label="@L["Template_Name"]"
                           Required="true"
-                          RequiredError="Template name cannot be empty"
+                          RequiredError="@L["Template_NameRequired"]"
                           MaxLength="100"
                           Counter="100"
                           Immediate="true"
-                          Placeholder="Ex: Mobile, Tablet..."
+                          Placeholder="@L["Template_NamePlaceholder"]"
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Label" />
 
@@ -30,8 +30,8 @@
                        MultiSelection="true"
                        @bind-SelectedValues="_selectedAttributeIds"
                        MultiSelectionTextFunc="@(ids => string.Join(", ", ids.Select(id => AllAttributes.FirstOrDefault(a => a.Id == id)?.Name ?? id)))"
-                       Label="Attributes"
-                       Placeholder="Select attributes..."
+                       Label="@L["Template_Attributes"]"
+                       Placeholder="@L["Template_SelectAttributes"]"
                        Adornment="Adornment.Start"
                        AdornmentIcon="@Icons.Material.Filled.Category">
                 @foreach (var group in _groupedAttributes)
@@ -56,13 +56,13 @@
         <MudButton Variant="Variant.Outlined"
                    OnClick="Cancel"
                    StartIcon="@Icons.Material.Filled.Close">
-            Hủy
+            @L["Common_Cancel"]
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    OnClick="Submit"
                    StartIcon="@Icons.Material.Filled.Save">
-            @(IsEdit ? "Save Changes" : "Add New")
+            @(IsEdit ? L["Common_SaveChanges"] : L["Common_AddNew"])
         </MudButton>
     </DialogActions>
 </MudDialog>

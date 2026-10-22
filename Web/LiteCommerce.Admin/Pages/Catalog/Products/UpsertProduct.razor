@@ -1,37 +1,36 @@
 ﻿@page "/products/add"
 @page "/products/edit/{id}"
-@using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Models.Business.Product
 @using LiteCommerce.Admin.Models.Business.Brand
 @using LiteCommerce.Admin.Models.Business.Category
 @using LiteCommerce.Admin.Models.Business.ProductAttribute
 @using LiteCommerce.Admin.Models.Business.ProductTemplate
 
-<PageTitle>@(_isEditMode ? "Edit Product" : "Add Product")</PageTitle>
+<PageTitle>@(_isEditMode ? L["Product_EditTitle"] : L["Product_AddTitle"])</PageTitle>
 
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <!-- Page Header -->
 <div class="d-flex align-center justify-space-between mb-5">
-    <MudText Typo="Typo.h5" Class="font-weight-bold">@(_isEditMode ? "Edit Product" : "Add Product")</MudText>
+    <MudText Typo="Typo.h5" Class="font-weight-bold">@(_isEditMode ? L["Product_EditTitle"] : L["Product_AddTitle"])</MudText>
 </div>
 
 <!-- Tabs -->
 <MudTabs Elevation="0" Rounded="true" Border="true" Color="Color.Primary" KeepPanelsAlive="true">
 
     <!-- General Tab -->
-    <MudTabPanel Text="General" Icon="@Icons.Material.Filled.Info">
+    <MudTabPanel Text="@L["Product_GeneralTab"]" Icon="@Icons.Material.Filled.Info">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudForm @ref="_form" Model="_productForm">
                 <MudGrid>
                     <MudItem xs="12">
                         <MudTextField T="string"
                                       @bind-Value="_productForm.Name"
-                                      Label="Name"
+                                      Label="@L["Common_Name"]"
                                       Variant="Variant.Outlined"
                                       Required="true"
-                                      RequiredError="Name is required"
-                                      Placeholder="Ex: iPhone 17 Pro Max, Samsung Galaxy S21..."
+                                      RequiredError="@L["Product_NameRequired"]"
+                                      Placeholder="@L["Product_NamePlaceholder"]"
                                       Adornment="Adornment.Start"
                                       AdornmentIcon="@Icons.Material.Filled.Label" />
                     </MudItem>
@@ -39,14 +38,14 @@
                     <MudItem xs="12" md="6">
                         <MudSelect T="string"
                                    @bind-Value="_productForm.BrandId"
-                                   Label="Brand"
+                                   Label="@L["Product_Brand"]"
                                    Variant="Variant.Outlined"
                                    Clearable="true"
-                                   Placeholder="None"
-                                   HelperText="Optional"
+                                   Placeholder="@L["Product_None"]"
+                                   HelperText="@L["Product_Optional"]"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Business">
-                            <MudSelectItem Value="@((string?)null)">None</MudSelectItem>
+                            <MudSelectItem Value="@((string?)null)">@L["Product_None"]</MudSelectItem>
                             @foreach (var brand in _brands)
                             {
                                 <MudSelectItem Value="@brand.Id">@brand.Name</MudSelectItem>
@@ -57,24 +56,24 @@
                     <MudItem xs="12" md="6">
                         <MudTextField T="string"
                                       @bind-Value="_productForm.Sku"
-                                      Label="SKU"
+                                      Label="@L["Product_Sku"]"
                                       Variant="Variant.Outlined"
-                                      Placeholder="Ex: IP17-512GB-BLACK, PRD-12345..." />
+                                      Placeholder="@L["Product_SkuPlaceholder"]" />
                     </MudItem>
 
                     <MudItem xs="12" md="6">
                         <MudTextField T="string"
                                       @bind-Value="_productForm.Gtin"
-                                      Label="GTIN"
+                                      Label="@L["Product_Gtin"]"
                                       Variant="Variant.Outlined"
-                                      Placeholder="Ex: 0123456789012..." />
+                                      Placeholder="@L["Product_GtinPlaceholder"]" />
                     </MudItem>
 
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Short Description</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@L["Product_ShortDescription"]</MudText>
                         <div style="border:1px solid var(--mud-palette-divider); border-radius:4px">
                             <div class="short-desc">
-                                <BlazoredTextEditor @ref="_shortDescriptionEditor" Placeholder="Enter short description...">
+                                <BlazoredTextEditor @ref="_shortDescriptionEditor" Placeholder="@L["Product_ShortDescriptionPlaceholder"]">
                                     <ToolbarContent>
                                         <select class="ql-header">
                                             <option selected=""></option>
@@ -97,10 +96,10 @@
                     </MudItem>
 
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Description</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@L["Product_Description"]</MudText>
                         <div class="long-desc-container" style="border:1px solid var(--mud-palette-divider); border-radius:4px">
                             <div class="long-desc">
-                                <BlazoredTextEditor @ref="_descriptionEditor" Placeholder="Enter full description...">
+                                <BlazoredTextEditor @ref="_descriptionEditor" Placeholder="@L["Product_DescriptionPlaceholder"]">
                                 <ToolbarContent>
                                     <select class="ql-header">
                                         <option selected=""></option>
@@ -129,7 +128,7 @@
 
                     <!-- Thumbnail Upload -->
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Thumbnail Image</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@L["Product_ThumbnailImage"]</MudText>
                         <MudFileUpload T="IBrowserFile"
                                        Accept="image/*"
                                        OnFilesChanged="OnThumbnailSelected"
@@ -139,7 +138,7 @@
                                            Color="Color.Primary"
                                            StartIcon="@Icons.Material.Filled.CloudUpload"
                                            OnClick="@context.OpenFilePickerAsync">
-                                    Choose Image
+                                    @L["Product_ChooseImage"]
                                 </MudButton>
                             </CustomContent>
                             <SelectedTemplate>
@@ -151,7 +150,7 @@
                             <MudPaper Elevation="0" Class="mt-3 pa-3" Style="border: 1px solid var(--mud-palette-divider)">
                                 <div class="d-flex align-center gap-3">
                                     <MudImage Src="@_thumbnailPreviewUrl"
-                                              Alt="Thumbnail preview"
+                                              Alt="@L["Product_ThumbnailPreview"]"
                                               Width="150" Height="150"
                                               ObjectFit="ObjectFit.Cover"
                                               Class="rounded" />
@@ -166,7 +165,7 @@
 
                     <!-- Product Images -->
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Product Images</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@L["Product_ProductImages"]</MudText>
                         <MudFileUpload T="IReadOnlyList<IBrowserFile>"
                                        Accept="image/*"
                                        OnFilesChanged="OnProductImagesSelected"
@@ -176,7 +175,7 @@
                                            Color="Color.Primary"
                                            StartIcon="@Icons.Material.Filled.Collections"
                                            OnClick="@context.OpenFilePickerAsync">
-                                    Choose Images
+                                    @L["Product_ChooseImages"]
                                 </MudButton>
                             </CustomContent>
                             <SelectedTemplate>
@@ -200,7 +199,7 @@
                                 {
                                     var index = i;
                                     <div style="position:relative;display:inline-block">
-                                        <MudImage Src="@_productImagePreviewUrls[index]" Alt="New image" Width="120" Height="120" ObjectFit="ObjectFit.Cover" Class="rounded" Style="display:block;border:1px solid var(--mud-palette-divider)" />
+                                        <MudImage Src="@_productImagePreviewUrls[index]" Alt="@L["Product_NewImage"]" Width="120" Height="120" ObjectFit="ObjectFit.Cover" Class="rounded" Style="display:block;border:1px solid var(--mud-palette-divider)" />
                                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                                        Style="position:absolute;top:2px;right:2px;z-index:10;background:rgba(255,255,255,0.9);padding:2px;min-width:unset;width:24px;height:24px"
                                                        OnClick="() => RemoveProductImage(index)" />
@@ -212,7 +211,7 @@
 
                     <!-- Product Documents -->
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Product Documents</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@L["Product_ProductDocuments"]</MudText>
                         <MudFileUpload T="IReadOnlyList<IBrowserFile>"
                                        Accept=".pdf,.doc,.docx,.xls,.xlsx"
                                        OnFilesChanged="OnProductDocumentsSelected"
@@ -222,7 +221,7 @@
                                            Color="Color.Primary"
                                            StartIcon="@Icons.Material.Filled.AttachFile"
                                            OnClick="@context.OpenFilePickerAsync">
-                                    Choose Documents
+                                    @L["Product_ChooseDocuments"]
                                 </MudButton>
                             </CustomContent>
                             <SelectedTemplate>
@@ -261,10 +260,10 @@
                     <!-- Switches -->
                     <MudItem xs="12">
                         <MudStack>
-                            <MudSwitch T="bool" @bind-Value="_productForm.IsFeatured" Label="Is Featured" Color="Color.Primary" />
-                            <MudSwitch T="bool" @bind-Value="_productForm.IsPublished" Label="Is Published" Color="Color.Primary" />
-                            <MudSwitch T="bool" @bind-Value="_productForm.IsCallForPricing" Label="Is Call For Pricing" Color="Color.Primary" />
-                            <MudSwitch T="bool" @bind-Value="_productForm.IsAllowToOrder" Label="Is Allowed To Order" Color="Color.Primary" />
+                            <MudSwitch T="bool" @bind-Value="_productForm.IsFeatured" Label="@L["Product_IsFeatured"]" Color="Color.Primary" />
+                            <MudSwitch T="bool" @bind-Value="_productForm.IsPublished" Label="@L["Product_IsPublished"]" Color="Color.Primary" />
+                            <MudSwitch T="bool" @bind-Value="_productForm.IsCallForPricing" Label="@L["Product_IsCallForPricing"]" Color="Color.Primary" />
+                            <MudSwitch T="bool" @bind-Value="_productForm.IsAllowToOrder" Label="@L["Product_IsAllowedToOrder"]" Color="Color.Primary" />
                         </MudStack>
                     </MudItem>
                 </MudGrid>
@@ -273,13 +272,13 @@
     </MudTabPanel>
 
     <!-- Pricing Tab -->
-    <MudTabPanel Text="Pricing" Icon="@Icons.Material.Filled.AttachMoney">
+    <MudTabPanel Text="@L["Product_PricingTab"]" Icon="@Icons.Material.Filled.AttachMoney">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudGrid>
                 <MudItem xs="12" md="6">
                     <MudNumericField T="decimal?"
                                      @bind-Value="_productForm.Price"
-                                     Label="Price"
+                                     Label="@L["Product_Price"]"
                                      Variant="Variant.Outlined"
                                      Min="0m"
                                      Format="N0"
@@ -289,7 +288,7 @@
                 <MudItem xs="12" md="6">
                     <MudNumericField T="decimal?"
                                      @bind-Value="_productForm.OldPrice"
-                                     Label="Old Price"
+                                     Label="@L["Product_OldPrice"]"
                                      Variant="Variant.Outlined"
                                      Min="0m"
                                      Format="N0"
@@ -299,7 +298,7 @@
                 <MudItem xs="12" md="4">
                     <MudNumericField T="decimal?"
                                      @bind-Value="_productForm.SpecialPrice"
-                                     Label="Special Price"
+                                     Label="@L["Product_SpecialPrice"]"
                                      Variant="Variant.Outlined"
                                      Min="0m"
                                      Format="N0"
@@ -308,13 +307,13 @@
                 </MudItem>
                 <MudItem xs="12" md="4">
                     <MudDatePicker @bind-Date="_productForm.SpecialPriceStart"
-                                   Label="Special Price Start"
+                                   Label="@L["Product_SpecialPriceStart"]"
                                    Variant="Variant.Outlined"
                                    Clearable="true" />
                 </MudItem>
                 <MudItem xs="12" md="4">
                     <MudDatePicker @bind-Date="_productForm.SpecialPriceEnd"
-                                   Label="Special Price End"
+                                   Label="@L["Product_SpecialPriceEnd"]"
                                    Variant="Variant.Outlined"
                                    Clearable="true" />
                 </MudItem>
@@ -323,17 +322,17 @@
     </MudTabPanel>
 
     <!-- Product Attributes Tab -->
-    <MudTabPanel Text="Product Attributes" Icon="@Icons.Material.Filled.ListAlt">
+    <MudTabPanel Text="@L["Product_AttributesTab"]" Icon="@Icons.Material.Filled.ListAlt">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudGrid>
                 <!-- Template selector -->
                 <MudItem xs="12" md="5">
                     <MudSelect T="string"
                                @bind-Value="_selectedTemplateId"
-                               Label="Product Templates"
+                               Label="@L["Product_Templates"]"
                                Variant="Variant.Outlined"
                                Clearable="true"
-                               Placeholder="-- Select a template --">
+                               Placeholder="@L["Product_SelectTemplate"]">
                         @foreach (var template in _productTemplates)
                         {
                             <MudSelectItem Value="@template.Id">@template.Name</MudSelectItem>
@@ -341,18 +340,18 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="2" Class="d-flex align-center">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ApplyTemplate" FullWidth="true" Style="height:56px">Apply</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ApplyTemplate" FullWidth="true" Style="height:56px">@L["Product_ApplyTemplate"]</MudButton>
                 </MudItem>
 
                 <!-- Available attributes selector -->
                 <MudItem xs="12" md="3">
                     <MudSelect T="string"
                                @bind-Value="_selectedAvailableAttributeId"
-                               Label="Available Attributes"
+                               Label="@L["Product_AvailableAttributes"]"
                                Variant="Variant.Outlined"
                                Clearable="true"
-                               Placeholder="-- Select an attribute --">
-                        @foreach (var group in _availableAttributes.GroupBy(a => a.GroupName ?? "Ungrouped").OrderBy(g => g.Key))
+                               Placeholder="@L["Product_SelectAttribute"]">
+                        @foreach (var group in _availableAttributes.GroupBy(a => a.GroupName ?? L["Product_Ungrouped"].Value).OrderBy(g => g.Key))
                         {
                             <MudSelectGroup T="string" Title="@group.Key">
                                 @foreach (var attr in group)
@@ -364,7 +363,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="2" Class="d-flex align-center">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddAvailableAttribute" FullWidth="true" Style="height:56px">Add</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddAvailableAttribute" FullWidth="true" Style="height:56px">@L["Common_Add"]</MudButton>
                 </MudItem>
             </MudGrid>
 
@@ -372,7 +371,7 @@
 
             <MudText Typo="Typo.h6" Class="mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.ListAlt" Class="mr-1" />
-                Product Attributes
+                @L["Product_AttributesTab"]
                 @if (_productForm.Attributes.Count > 0)
                 {
                     <MudChip T="string" Color="Color.Primary" Size="Size.Small">@_productForm.Attributes.Count</MudChip>
@@ -381,13 +380,13 @@
 
             @if (_productForm.Attributes.Count == 0)
             {
-                <MudText Class="mud-text-secondary">No attributes added. Select a template or add attributes manually.</MudText>
+                <MudText Class="mud-text-secondary">@L["Product_NoAttributes"]</MudText>
             }
             else
             {
                 @foreach (var group in _productForm.Attributes
-                    .GroupBy(a => a.GroupName ?? "Ungrouped")
-                    .OrderBy(g => g.Key == "Ungrouped" ? 1 : 0)
+                    .GroupBy(a => a.GroupName ?? L["Product_Ungrouped"].Value)
+                    .OrderBy(g => g.Key == L["Product_Ungrouped"].Value ? 1 : 0)
                     .ThenBy(g => g.Key))
                 {
                     <MudPaper Elevation="0" Class="mb-4" Style="border: 1px solid var(--mud-palette-divider)">
@@ -399,9 +398,9 @@
                         <MudSimpleTable Dense="true" Hover="true" Elevation="0">
                             <thead>
                                 <tr>
-                                    <th style="width:35%">Attribute Name</th>
-                                    <th>Value</th>
-                                    <th style="width:60px; text-align:center">Actions</th>
+                                    <th style="width:35%">@L["Product_AttributeName"]</th>
+                                    <th>@L["Product_Value"]</th>
+                                    <th style="width:60px; text-align:center">@L["Common_Actions"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -434,11 +433,11 @@
     </MudTabPanel>
 
     <!-- Category Mapping Tab -->
-    <MudTabPanel Text="Category Mapping" Icon="@Icons.Material.Filled.Category">
+    <MudTabPanel Text="@L["Product_CategoryMappingTab"]" Icon="@Icons.Material.Filled.Category">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             @if (_basicCategories.Count == 0)
             {
-                <MudText Class="mud-text-secondary">No categories available.</MudText>
+                <MudText Class="mud-text-secondary">@L["Product_NoCategories"]</MudText>
             }
             else
             {
@@ -460,10 +459,10 @@
     </MudTabPanel>
 
     <!-- Related Products Tab -->
-    <MudTabPanel Text="Related Products" Icon="@Icons.Material.Filled.Link">
+    <MudTabPanel Text="@L["Product_RelatedTab"]" Icon="@Icons.Material.Filled.Link">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudAutocomplete T="BasicProductResponse"
-                             Label="Search products to add..."
+                             Label="@L["Product_SearchProducts"]"
                              Variant="Variant.Outlined"
                              SearchFunc="SearchRelatedProducts"
                              ToStringFunc="@(p => p?.Name ?? "")"
@@ -477,7 +476,7 @@
                 <MudDivider Class="my-4" />
                 <MudText Typo="Typo.h6" Class="mb-3">
                     <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-1" />
-                    Related Products
+                    @L["Product_RelatedTab"]
                     <MudChip T="string" Color="Color.Primary" Size="Size.Small">@_productForm.RelatedProducts.Count</MudChip>
                 </MudText>
                 @foreach (var product in _productForm.RelatedProducts)
@@ -489,11 +488,11 @@
                             <MudText Class="flex-grow-1">@product.Name</MudText>
                             @if (product.IsPublished)
                             {
-                                <MudChip T="string" Size="Size.Small" Color="Color.Success">Published</MudChip>
+                                <MudChip T="string" Size="Size.Small" Color="Color.Success">@L["Product_Published"]</MudChip>
                             }
                             else
                             {
-                                <MudChip T="string" Size="Size.Small" Color="Color.Default">Unpublished</MudChip>
+                                <MudChip T="string" Size="Size.Small" Color="Color.Default">@L["Product_Unpublished"]</MudChip>
                             }
                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                            OnClick="() => RemoveRelatedProduct(productId)" />
@@ -503,16 +502,16 @@
             }
             else
             {
-                <MudText Class="mud-text-secondary mt-4">No related products added.</MudText>
+                <MudText Class="mud-text-secondary mt-4">@L["Product_NoRelated"]</MudText>
             }
         </MudPaper>
     </MudTabPanel>
 
     <!-- Cross-sell Products Tab -->
-    <MudTabPanel Text="Cross-sell Products" Icon="@Icons.Material.Filled.SwapHoriz">
+    <MudTabPanel Text="@L["Product_CrossSellTab"]" Icon="@Icons.Material.Filled.SwapHoriz">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudAutocomplete T="BasicProductResponse"
-                             Label="Search products to add..."
+                             Label="@L["Product_SearchProducts"]"
                              Variant="Variant.Outlined"
                              SearchFunc="SearchCrossSellProducts"
                              ToStringFunc="@(p => p?.Name ?? "")"
@@ -526,7 +525,7 @@
                 <MudDivider Class="my-4" />
                 <MudText Typo="Typo.h6" Class="mb-3">
                     <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Class="mr-1" />
-                    Cross-sell Products
+                    @L["Product_CrossSellTab"]
                     <MudChip T="string" Color="Color.Primary" Size="Size.Small">@_productForm.CrossSellProducts.Count</MudChip>
                 </MudText>
                 @foreach (var product in _productForm.CrossSellProducts)
@@ -538,11 +537,11 @@
                             <MudText Class="flex-grow-1">@product.Name</MudText>
                             @if (product.IsPublished)
                             {
-                                <MudChip T="string" Size="Size.Small" Color="Color.Success">Published</MudChip>
+                                <MudChip T="string" Size="Size.Small" Color="Color.Success">@L["Product_Published"]</MudChip>
                             }
                             else
                             {
-                                <MudChip T="string" Size="Size.Small" Color="Color.Default">Unpublished</MudChip>
+                                <MudChip T="string" Size="Size.Small" Color="Color.Default">@L["Product_Unpublished"]</MudChip>
                             }
                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                            OnClick="() => RemoveCrossSellProduct(productId)" />
@@ -552,36 +551,36 @@
             }
             else
             {
-                <MudText Class="mud-text-secondary mt-4">No cross-sell products added.</MudText>
+                <MudText Class="mud-text-secondary mt-4">@L["Product_NoCrossSell"]</MudText>
             }
         </MudPaper>
     </MudTabPanel>
 
     <!-- SEO Tab -->
-    <MudTabPanel Text="SEO" Icon="@Icons.Material.Filled.TravelExplore">
+    <MudTabPanel Text="@L["Product_SeoTab"]" Icon="@Icons.Material.Filled.TravelExplore">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudGrid>
                 <MudItem xs="12">
                     <MudTextField T="string"
                                   @bind-Value="_productForm.MetaTitle"
-                                  Label="Meta Title"
+                                  Label="@L["Product_MetaTitle"]"
                                   Variant="Variant.Outlined"
-                                  Placeholder="Enter meta title for SEO" />
+                                  Placeholder="@L["Product_MetaTitlePlaceholder"]" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField T="string"
                                   @bind-Value="_productForm.MetaKeywords"
-                                  Label="Meta Keywords"
+                                  Label="@L["Product_MetaKeywords"]"
                                   Variant="Variant.Outlined"
-                                  Placeholder="keyword1, keyword2, keyword3..." />
+                                  Placeholder="@L["Product_MetaKeywordsPlaceholder"]" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField T="string"
                                   @bind-Value="_productForm.MetaDescription"
-                                  Label="Meta Description"
+                                  Label="@L["Product_MetaDescription"]"
                                   Variant="Variant.Outlined"
                                   Lines="4"
-                                  Placeholder="Enter meta description for SEO" />
+                                  Placeholder="@L["Product_MetaDescriptionPlaceholder"]" />
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -596,14 +595,14 @@
                    StartIcon="@Icons.Material.Filled.Save"
                    OnClick="FormSubmitted"
                    Disabled="_loading">
-            @(_loading ? "Saving..." : "Save")
+            @(_loading ? L["Auth_Saving"] : L["Common_Save"])
         </MudButton>
         <MudButton Variant="Variant.Outlined"
                    Color="Color.Default"
                    StartIcon="@Icons.Material.Filled.Cancel"
                    OnClick="Cancel"
                    Disabled="_loading">
-            Cancel
+            @L["Common_Cancel"]
         </MudButton>
     </MudStack>
 </MudPaper>

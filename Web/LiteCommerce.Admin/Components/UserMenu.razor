@@ -27,14 +27,14 @@
             </div>
             <MudDivider Class="mb-1" />
             <MudMenuItem Icon="@Icons.Material.Filled.Person" IconColor="Color.Default" Href="/profile">
-                Profile
+                @L["User_Profile"]
             </MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Filled.Lock" IconColor="Color.Default" Href="/change-password">
-                Change password
+                @L["User_ChangePassword"]
             </MudMenuItem>
             <MudDivider Class="my-1" />
             <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error" OnClick="LogoutAsync">
-                <MudText Color="Color.Error">Sign out</MudText>
+                <MudText Color="Color.Error">@L["User_SignOut"]</MudText>
             </MudMenuItem>
         </div>
     </ChildContent>
@@ -49,7 +49,7 @@
 
     // Identity issues no name claim, so the local part of the email stands in for one.
     private string DisplayName =>
-        string.IsNullOrEmpty(Email) ? "User" : Email.Split('@')[0];
+        string.IsNullOrEmpty(Email) ? L["Common_User"] : Email.Split('@')[0];
 
     private string Initial =>
         string.IsNullOrEmpty(DisplayName) ? "?" : DisplayName[..1].ToUpperInvariant();

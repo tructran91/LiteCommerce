@@ -9,7 +9,7 @@
     <TitleContent>
         <div class="d-flex align-center gap-2">
             <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Primary" />
-            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudText Typo="Typo.h6">@(Title ?? L["Logs_DataChanges"])</MudText>
         </div>
     </TitleContent>
 
@@ -28,7 +28,7 @@
         {
             <div class="pa-6 text-center">
                 <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                    No data changes were recorded for this action.
+                    @L["Logs_NoChanges"]
                 </MudText>
             </div>
         }
@@ -53,9 +53,9 @@
                         <MudSimpleTable Dense="true" Hover="true" Elevation="0" Style="table-layout:fixed">
                             <thead>
                                 <tr>
-                                    <th style="width:28%">Property</th>
-                                    <th style="width:36%">Old value</th>
-                                    <th style="width:36%">New value</th>
+                                    <th style="width:28%">@L["Logs_Property"]</th>
+                                    <th style="width:36%">@L["Logs_OldValue"]</th>
+                                    <th style="width:36%">@L["Logs_NewValue"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,7 +77,7 @@
 
     <DialogActions>
         <MudButton Variant="Variant.Text" OnClick="Close" StartIcon="@Icons.Material.Filled.Close">
-            Close
+            @L["Logs_DataChanges"]
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -92,7 +92,7 @@
 
     [Inject] private IIdentityAuditLogApi IdentityAuditLogApi { get; set; } = null!;
 
-    [Parameter] public string Title { get; set; } = "Data changes";
+    [Parameter] public string? Title { get; set; }
 
     // Which service to ask when looking rows up by CorrelationId. Correlation ids never cross services.
     [Parameter] public LogSource Source { get; set; } = LogSource.Catalog;
@@ -127,7 +127,7 @@
             }
             else
             {
-                _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                _errorMessage = result.GetErrorMessage(L["Common_ErrorOccurred"]);
             }
         }
         catch (Exception ex)

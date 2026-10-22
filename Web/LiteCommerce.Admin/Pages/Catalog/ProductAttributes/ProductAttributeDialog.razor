@@ -7,7 +7,7 @@
             <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.Add)"
                      Color="Color.Primary" />
             <MudText Typo="Typo.h6">
-                @(IsEdit ? "Edit Attribute" : "Add New Attribute")
+                @(IsEdit ? L["Attribute_EditTitle"] : L["Attribute_AddTitle"])
             </MudText>
         </div>
     </TitleContent>
@@ -16,27 +16,27 @@
         <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
             <MudTextField T="string"
                           @bind-Value="_name"
-                          Label="Attribute Name"
+                          Label="@L["Attribute_Name"]"
                           Variant="Variant.Outlined"
                           Margin="Margin.Normal"
                           Required="true"
-                          RequiredError="Attribute name cannot be empty"
+                          RequiredError="@L["Attribute_NameRequired"]"
                           MaxLength="100"
                           Counter="100"
                           Immediate="true"
-                          Placeholder="Ex: Color, Size, Material..."
+                          Placeholder="@L["Attribute_NamePlaceholder"]"
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Label"
                           FullWidth="true" />
 
             <MudSelect T="string"
                        @bind-Value="_groupId"
-                       Label="Attribute Group"
+                       Label="@L["Attribute_Group"]"
                        Variant="Variant.Outlined"
                        Margin="Margin.Normal"
                        Required="true"
-                       RequiredError="Please select a group"
-                       Placeholder="Select a group"
+                       RequiredError="@L["Attribute_GroupRequired"]"
+                       Placeholder="@L["Attribute_SelectGroup"]"
                        Adornment="Adornment.Start"
                        AdornmentIcon="@Icons.Material.Filled.Category"
                        FullWidth="true">
@@ -53,13 +53,13 @@
         <MudButton Variant="Variant.Outlined"
                    OnClick="Cancel"
                    StartIcon="@Icons.Material.Filled.Close">
-            Hủy
+            @L["Common_Cancel"]
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    OnClick="Submit"
                    StartIcon="@Icons.Material.Filled.Save">
-            @(IsEdit ? "Save Changes" : "Add New")
+            @(IsEdit ? L["Common_SaveChanges"] : L["Common_AddNew"])
         </MudButton>
     </DialogActions>
 </MudDialog>

@@ -1,7 +1,7 @@
 @page "/profile"
 @using LiteCommerce.Admin.Models.Business.Profile
 
-<PageTitle>Profile - CommerceAdmin</PageTitle>
+<PageTitle>@L["Profile_PageTitle"]</PageTitle>
 <MudBreadcrumbs Items="_breadcrumbs" Class="pa-0 mb-3" />
 
 @if (_loading)
@@ -10,7 +10,7 @@
 }
 else if (_errorMessage is not null && _profile is null)
 {
-    <MudAlert Severity="Severity.Error">@_errorMessage <MudButton OnClick="LoadAsync">Try again</MudButton></MudAlert>
+    <MudAlert Severity="Severity.Error">@_errorMessage <MudButton OnClick="LoadAsync">@L["Common_TryAgain"]</MudButton></MudAlert>
 }
 else if (_profile is not null)
 {
@@ -26,20 +26,20 @@ else if (_profile is not null)
     </MudPaper>
 
     <MudTabs Elevation="0" Rounded="true">
-        <MudTabPanel Text="Personal information" Icon="@Icons.Material.Filled.Person">
+        <MudTabPanel Text="@L["Profile_InfoTab"]" Icon="@Icons.Material.Filled.Person">
             <MudGrid Spacing="4">
                 <MudItem xs="12" md="8">
                     <MudPaper Elevation="0" Class="pa-6 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
                         @if (_errorMessage is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert> }
                         <EditForm Model="_profileForm" OnValidSubmit="SaveProfileAsync">
                             <DataAnnotationsValidator />
-                            <MudTextField @bind-Value="_profileForm.FullName" For="@(() => _profileForm.FullName)" Label="Full name"
+                            <MudTextField @bind-Value="_profileForm.FullName" For="@(() => _profileForm.FullName)" Label="@L["Profile_FullName"]"
                                           Variant="Variant.Outlined" MaxLength="100" Counter="100" Disabled="_saving" Class="mb-4" />
-                            <MudTextField Value="@_profile.Email" Label="Email" Variant="Variant.Outlined" ReadOnly="true" Class="mb-4" />
-                            <MudTextField Value="@_profile.Role" Label="Role" Variant="Variant.Outlined" ReadOnly="true" Class="mb-4" />
+                            <MudTextField Value="@_profile.Email" Label="@L["UserDialog_Email"]" Variant="Variant.Outlined" ReadOnly="true" Class="mb-4" />
+                            <MudTextField Value="@_profile.Role" Label="@L["Role_Role"]" Variant="Variant.Outlined" ReadOnly="true" Class="mb-4" />
                             <div class="d-flex justify-end">
                                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_saving" StartIcon="@Icons.Material.Filled.Save">
-                                    @(_saving ? "Saving..." : "Save changes")
+                                    @(_saving ? L["Auth_Saving"] : L["Profile_SaveChanges"])
                                 </MudButton>
                             </div>
                         </EditForm>
@@ -47,22 +47,31 @@ else if (_profile is not null)
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
-        <MudTabPanel Text="Sessions" Icon="@Icons.Material.Filled.Devices">
+        <MudTabPanel Text="@L["Profile_SessionsTab"]" Icon="@Icons.Material.Filled.Devices">
             <div class="d-flex flex-wrap align-center justify-space-between gap-3 mb-4">
-                <div><MudText Typo="Typo.h6" Class="font-weight-bold">Active sessions</MudText><MudText Typo="Typo.body2" Class="mud-text-secondary">Devices currently allowed to refresh your access.</MudText></div>
-                <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Logout" OnClick="RevokeAllSessionsAsync" Disabled="@(_sessionOperation || _sessions.Count == 0)">Revoke all</MudButton>
+                <div>
+                    <MudText Typo="Typo.h6" Class="font-weight-bold">@L["Profile_ActiveSessions"]</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Profile_ActiveSessionsHint"]</MudText>
+                </div>
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Logout" OnClick="RevokeAllSessionsAsync" Disabled="@(_sessionOperation || _sessions.Count == 0)">@L["Profile_RevokeAll"]</MudButton>
             </div>
             <MudPaper Elevation="0" Class="rounded-lg overflow-hidden" Style="border:1px solid var(--mud-palette-divider)">
                 <MudTable Items="_sessions" Hover="true" Elevation="0" Loading="_sessionsLoading">
-                    <HeaderContent><MudTh>Device</MudTh><MudTh>IP address</MudTh><MudTh>Created</MudTh><MudTh>Expires</MudTh><MudTh></MudTh></HeaderContent>
+                    <HeaderContent>
+                        <MudTh>@L["Profile_Device"]</MudTh>
+                        <MudTh>@L["Profile_IpAddress"]</MudTh>
+                        <MudTh>@L["Profile_Created"]</MudTh>
+                        <MudTh>@L["Profile_Expires"]</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Device"><MudTooltip Text="@context.UserAgent"><MudText Typo="Typo.body2">@DescribeDevice(context.UserAgent)</MudText></MudTooltip></MudTd>
-                        <MudTd DataLabel="IP address">@(context.IpAddress ?? "Unknown")</MudTd>
-                        <MudTd DataLabel="Created">@context.CreatedDate.ToLocalTime().ToString("g")</MudTd>
-                        <MudTd DataLabel="Expires">@context.Expires.ToLocalTime().ToString("g")</MudTd>
-                        <MudTd Style="text-align:right"><MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" OnClick="@(() => RevokeSessionAsync(context))" Disabled="_sessionOperation">Revoke</MudButton></MudTd>
+                        <MudTd DataLabel="@L["Profile_Device"]"><MudTooltip Text="@context.UserAgent"><MudText Typo="Typo.body2">@DescribeDevice(context.UserAgent)</MudText></MudTooltip></MudTd>
+                        <MudTd DataLabel="@L["Profile_IpAddress"]">@(context.IpAddress ?? L["Profile_Unknown"].Value)</MudTd>
+                        <MudTd DataLabel="@L["Profile_Created"]">@context.CreatedDate.ToLocalTime().ToString("g")</MudTd>
+                        <MudTd DataLabel="@L["Profile_Expires"]">@context.Expires.ToLocalTime().ToString("g")</MudTd>
+                        <MudTd Style="text-align:right"><MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" OnClick="@(() => RevokeSessionAsync(context))" Disabled="_sessionOperation">@L["Profile_Revoke"]</MudButton></MudTd>
                     </RowTemplate>
-                    <NoRecordsContent><div class="pa-8 text-center"><MudIcon Icon="@Icons.Material.Filled.DevicesOther" Size="Size.Large" Style="opacity:.3" /><MudText Class="mud-text-secondary">No active sessions.</MudText></div></NoRecordsContent>
+                    <NoRecordsContent><div class="pa-8 text-center"><MudIcon Icon="@Icons.Material.Filled.DevicesOther" Size="Size.Large" Style="opacity:.3" /><MudText Class="mud-text-secondary">@L["Profile_NoSessions"]</MudText></div></NoRecordsContent>
                 </MudTable>
             </MudPaper>
         </MudTabPanel>

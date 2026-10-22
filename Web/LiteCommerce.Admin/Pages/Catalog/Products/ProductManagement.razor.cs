@@ -22,14 +22,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar);
+        [Inject]
+        private DeleteOperationHelper DeleteHelper { get; set; }
 
-        private List<BreadcrumbItem> _breadcrumbs = new()
-        {
-            new("Home", href: "/", icon: Icons.Material.Filled.Home),
-            new("Catalog", href: null, disabled: true),
-            new("Products", href: null, disabled: true),
-        };
+        private List<BreadcrumbItem> _breadcrumbs = new();
 
         private MudTable<BasicProductResponse> _table = null!;
         private readonly int[] _pageSizeOptions = { 10, AppConstants.PageSize, 50, 100 };
@@ -38,6 +34,16 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private ProductQuery _appliedQuery = new();
         private bool _operationInProgress;
         private string? _errorMessage;
+
+        protected override void OnInitialized()
+        {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_Catalog"], href: null, disabled: true),
+                new(L["Product_Title"], href: null, disabled: true),
+            };
+        }
 
         private async Task<TableData<BasicProductResponse>> LoadServerData(TableState state, CancellationToken cancellationToken)
         {
@@ -77,13 +83,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                     };
                 }
 
-                _errorMessage = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                _errorMessage = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                 Snackbar.Add(_errorMessage, Severity.Error);
             }
             catch (Exception ex)
             {
                 _errorMessage = ex.Message;
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
 
             // The table re-renders only itself; the page must re-render to show the error alert.
@@ -154,8 +160,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 return;
 
             var message = data.Skipped > 0
-                ? $"Imported {data.Imported} product(s), skipped {data.Skipped}."
-                : $"Imported {data.Imported} product(s).";
+                ? L["Product_ImportToast", data.Imported, data.Skipped]
+                : L["Product_ImportToastNoSkip", data.Imported];
 
             Snackbar.Add(message, Severity.Success);
             await ReloadFromFirstPage();
@@ -178,16 +184,16 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 var result = await ProductApi.CopyProductAsync(product.Id.Value.ToString());
                 if (!result.IsSuccess)
                 {
-                    Snackbar.Add(result.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                    Snackbar.Add(result.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                     return;
                 }
 
-                Snackbar.Add($"Copied product as \"{result.Data?.Name}\".", Severity.Success);
+                Snackbar.Add(L["Product_CopiedToast", result.Data?.Name], Severity.Success);
                 await ReloadFromFirstPage();
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -202,7 +208,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
             try
             {
-                await _deleteHelper.ExecuteDeleteOperation(
+                await DeleteHelper.ExecuteDeleteOperation(
                     product.Id.ToString(),
                     product.Name,
                     ProductApi.DeleteProductAsync,
@@ -211,7 +217,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {

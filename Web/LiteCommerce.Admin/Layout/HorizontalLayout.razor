@@ -20,7 +20,7 @@
 
         <MudSpacer />
 
-        <MudTextField T="string" Placeholder="Tìm kiếm..."
+        <MudTextField T="string" Placeholder="@L["Layout_SearchPlaceholder"]"
                       Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search"
                       Variant="Variant.Outlined"
@@ -36,7 +36,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Settings"
                        Color="Color.Primary"
                        OnClick="OnSettingsClick"
-                       Title="Cài đặt hệ thống" />
+                       Title="@L["Layout_SettingsTitle"]" />
 
         <UserMenu />
     </MudAppBar>

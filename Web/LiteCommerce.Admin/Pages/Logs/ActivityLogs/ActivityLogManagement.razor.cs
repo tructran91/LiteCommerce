@@ -43,6 +43,16 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
 
         private bool IsIdentity => _source == LogSource.Identity;
 
+        protected override void OnInitialized()
+        {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_System"], href: null, disabled: true),
+                new(L["Logs_ActivityTitle"], href: null, disabled: true),
+            };
+        }
+
         private readonly DialogOptions _dialogOptions = new()
         {
             MaxWidth = MaxWidth.Large,
@@ -87,14 +97,14 @@ namespace LiteCommerce.Admin.Pages.Logs.ActivityLogs
                     };
                 }
 
-                var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                var errorDetails = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                 _errorMessage = errorDetails;
                 Snackbar.Add(errorDetails, Severity.Error);
             }
             catch (Exception ex)
             {
                 _errorMessage = ex.Message;
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
 
             return new TableData<ActivityLogResponse> { Items = new List<ActivityLogResponse>(), TotalItems = 0 };

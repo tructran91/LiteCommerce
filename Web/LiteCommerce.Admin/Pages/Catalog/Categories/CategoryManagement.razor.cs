@@ -1,7 +1,5 @@
 ﻿using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Category;
-using LiteCommerce.Admin.Models.Common;
 using LiteCommerce.Admin.Pages.Base;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -22,14 +20,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar);
+        [Inject]
+        private DeleteOperationHelper DeleteHelper { get; set; }
 
-        private List<BreadcrumbItem> _breadcrumbs = new()
-        {
-            new("Home", href: "/", icon: Icons.Material.Filled.Home),
-            new("Catalog", href: null, disabled: true),
-            new("Categories", href: null, disabled: true),
-        };
+        private List<BreadcrumbItem> _breadcrumbs = new();
 
         private MudTable<CategoryResponse> _table = null!;
         private List<CategoryResponse> _allCategories = new();
@@ -39,6 +33,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
 
         protected override async Task OnInitializedAsync()
         {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_Catalog"], href: null, disabled: true),
+                new(L["Category_Title"], href: null, disabled: true),
+            };
+
             await LoadData();
         }
 
@@ -56,7 +57,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 }
                 else
                 {
-                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                    var errorDetails = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -64,7 +65,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             catch (Exception ex)
             {
                 _errorMessage = ex.Message;
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -94,7 +95,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
 
             try
             {
-                await _deleteHelper.ExecuteDeleteOperation(
+                await DeleteHelper.ExecuteDeleteOperation(
                     category.Id,
                     category.Name,
                     CategoryApi.DeleteCategoryAsync,
@@ -103,7 +104,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {

@@ -1,6 +1,7 @@
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Common;
+using LiteCommerce.Admin.Resources;
 using LiteCommerce.Admin.Shared.Components;
+using Microsoft.Extensions.Localization;
 using MudBlazor;
 
 namespace LiteCommerce.Admin.Pages.Base
@@ -9,11 +10,16 @@ namespace LiteCommerce.Admin.Pages.Base
     {
         private readonly IDialogService _dialogService;
         private readonly ISnackbar _snackbar;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public DeleteOperationHelper(IDialogService dialogService, ISnackbar snackbar)
+        public DeleteOperationHelper(
+            IDialogService dialogService,
+            ISnackbar snackbar,
+            IStringLocalizer<SharedResource> localizer)
         {
             _dialogService = dialogService;
             _snackbar = snackbar;
+            _localizer = localizer;
         }
 
         public async Task<bool> ShowDeleteConfirmDialog(string itemName)
@@ -52,11 +58,11 @@ namespace LiteCommerce.Admin.Pages.Base
             if (deletedResult.IsSuccess)
             {
                 await onSuccess();
-                _snackbar.Add($"Đã xóa \"{itemName}\"", Severity.Success);
+                _snackbar.Add(_localizer["Common_DeletedMessage", itemName], Severity.Success);
             }
             else
             {
-                var msg = deletedResult.Message ?? SystemMessages.ErrorOccurred;
+                var msg = deletedResult.Message ?? _localizer["Common_ErrorOccurred"];
                 _snackbar.Add(msg, Severity.Error);
             }
 

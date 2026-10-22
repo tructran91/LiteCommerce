@@ -1,5 +1,4 @@
 using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Auth;
 using Microsoft.AspNetCore.Components;
 
@@ -28,10 +27,10 @@ namespace LiteCommerce.Admin.Pages.Auth
             try
             {
                 var result = await PasswordRecoveryApi.ResetPasswordAsync(new() { Token = Token, NewPassword = _form.NewPassword, ConfirmPassword = _form.ConfirmPassword });
-                if (!result.IsSuccess) { _errorMessage = result.GetErrorMessage("This reset link is invalid or has expired."); return; }
+                if (!result.IsSuccess) { _errorMessage = result.GetErrorMessage(L["Auth_ResetLinkInvalidOrExpired"]); return; }
                 _success = true;
             }
-            catch { _errorMessage = SystemMessages.LoginServerUnreachable; }
+            catch { _errorMessage = L["Common_LoginServerUnreachable"]; }
             finally { _submitting = false; StateHasChanged(); }
         }
     }
