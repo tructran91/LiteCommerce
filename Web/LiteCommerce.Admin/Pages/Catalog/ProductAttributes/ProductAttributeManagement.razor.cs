@@ -21,7 +21,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
         [Inject]
         private ISnackbar Snackbar { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar, L);
+        [Inject]
+        private DeleteOperationHelper DeleteHelper { get; set; }
 
         private List<BreadcrumbItem> _breadcrumbs = new();
 
@@ -160,7 +161,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.ProductAttributes
 
             try
             {
-                await _deleteHelper.ExecuteDeleteOperation(
+                await DeleteHelper.ExecuteDeleteOperation(
                     attribute.Id,
                     attribute.Name,
                     ProductAttributeApi.DeleteProductAttributeAsync,

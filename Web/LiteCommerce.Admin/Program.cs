@@ -1,6 +1,7 @@
 using LiteCommerce.Admin.ApiClients;
 using LiteCommerce.Admin.Handlers;
 using LiteCommerce.Admin.Models.Common;
+using LiteCommerce.Admin.Pages.Base;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -87,6 +88,7 @@ builder.Services.AddScoped<AppSettingsService>();
 builder.Services.AddScoped<LocalizationService>();
 builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<FileDownloadService>();
+builder.Services.AddScoped<DeleteOperationHelper>();
 
 var host = builder.Build();
 

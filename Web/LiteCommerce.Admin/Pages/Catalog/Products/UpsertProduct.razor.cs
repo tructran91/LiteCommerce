@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System.Globalization;
 using System.Net.Http.Headers;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Products
@@ -655,17 +656,19 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             content.Add(new StringContent(_productForm.MetaDescription ?? string.Empty), "Product.MetaDescription");
             content.Add(new StringContent(_productForm.Sku ?? string.Empty), "Product.Sku");
             content.Add(new StringContent(_productForm.Gtin ?? string.Empty), "Product.Gtin");
-            content.Add(new StringContent((_productForm.Price ?? 0).ToString()), "Product.Price");
+            // The UI culture may be vi-VN, where the decimal separator is a comma, but the
+            // API model binder parses invariant. Without this, "1234,56" binds as 123456.
+            content.Add(new StringContent((_productForm.Price ?? 0).ToString(CultureInfo.InvariantCulture)), "Product.Price");
             content.Add(new StringContent(_productForm.IsPublished.ToString()), "Product.IsPublished");
             content.Add(new StringContent(_productForm.IsFeatured.ToString()), "Product.IsFeatured");
             content.Add(new StringContent(_productForm.IsCallForPricing.ToString()), "Product.IsCallForPricing");
             content.Add(new StringContent(_productForm.IsAllowToOrder.ToString()), "Product.IsAllowToOrder");
 
             if (_productForm.OldPrice.HasValue)
-                content.Add(new StringContent(_productForm.OldPrice.Value.ToString()), "Product.OldPrice");
+                content.Add(new StringContent(_productForm.OldPrice.Value.ToString(CultureInfo.InvariantCulture)), "Product.OldPrice");
 
             if (_productForm.SpecialPrice.HasValue)
-                content.Add(new StringContent(_productForm.SpecialPrice.Value.ToString()), "Product.SpecialPrice");
+                content.Add(new StringContent(_productForm.SpecialPrice.Value.ToString(CultureInfo.InvariantCulture)), "Product.SpecialPrice");
 
             if (_productForm.SpecialPriceStart.HasValue)
                 content.Add(new StringContent(_productForm.SpecialPriceStart.Value.ToString("o")), "Product.SpecialPriceStart");

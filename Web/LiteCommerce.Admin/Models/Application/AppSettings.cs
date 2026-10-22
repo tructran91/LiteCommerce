@@ -10,7 +10,8 @@
         public string FontFamily { get; set; } = "Nunito";
         public double BorderRadius { get; set; } = 8;
         public bool EnableAnimations { get; set; } = true;
-        public string Language { get; set; } = "vi-VN";
+        // Keep in step with LocalizationService.DefaultCulture and the fallback in index.html.
+        public string Language { get; set; } = "en-US";
     }
 
     public enum LayoutDirection

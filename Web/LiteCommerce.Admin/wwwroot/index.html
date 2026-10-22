@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en-US">
 
 <head>
     <meta charset="utf-8" />
@@ -25,14 +25,15 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png" />
 
-    <!-- Applies the saved language before Blazor boots, so the shell text and <html lang> match. -->
+    <!-- Applies the saved language before Blazor boots, so the shell text and <html lang> match.
+         The fallback must equal LocalizationService.DefaultCulture. -->
     <script>
         (function () {
             try {
                 var settings = JSON.parse(localStorage.getItem('app-settings') || '{}');
-                document.documentElement.lang = settings.Language || 'vi-VN';
+                document.documentElement.lang = settings.Language || 'en-US';
             } catch (e) {
-                document.documentElement.lang = 'vi-VN';
+                document.documentElement.lang = 'en-US';
             }
         })();
     </script>
@@ -42,11 +43,11 @@
     <div id="app">
         <div style="display:flex; align-items:center; justify-content:center; height:100vh; flex-direction:column; font-family:'Nunito', sans-serif">
             <div style="width:48px; height:48px; border:4px solid #594AE2; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px"></div>
-            <span id="app-loading-text" style="color:#594AE2; font-weight:600; font-size:16px">Đang tải...</span>
+            <span id="app-loading-text" style="color:#594AE2; font-weight:600; font-size:16px">Loading...</span>
         </div>
         <script>
-            if (document.documentElement.lang.toLowerCase().indexOf('en') === 0) {
-                document.getElementById('app-loading-text').textContent = 'Loading...';
+            if (document.documentElement.lang.toLowerCase().indexOf('vi') === 0) {
+                document.getElementById('app-loading-text').textContent = 'Đang tải...';
             }
         </script>
         <style>
@@ -59,13 +60,13 @@
     </div>
 
     <div id="blazor-error-ui" style="display:none">
-        <span id="blazor-error-text">Lỗi không mong muốn xảy ra.</span> <a href="" class="reload" id="blazor-error-reload">Tải lại trang</a>
+        <span id="blazor-error-text">An unexpected error has occurred.</span> <a href="" class="reload" id="blazor-error-reload">Reload page</a>
         <a class="dismiss">🗙</a>
     </div>
     <script>
-        if (document.documentElement.lang.toLowerCase().indexOf('en') === 0) {
-            document.getElementById('blazor-error-text').textContent = 'An unexpected error has occurred.';
-            document.getElementById('blazor-error-reload').textContent = 'Reload page';
+        if (document.documentElement.lang.toLowerCase().indexOf('vi') === 0) {
+            document.getElementById('blazor-error-text').textContent = 'Lỗi không mong muốn xảy ra.';
+            document.getElementById('blazor-error-reload').textContent = 'Tải lại trang';
         }
     </script>
 

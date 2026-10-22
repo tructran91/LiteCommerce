@@ -20,7 +20,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar, L);
+        [Inject]
+        private DeleteOperationHelper DeleteHelper { get; set; }
 
         private List<BreadcrumbItem> _breadcrumbs = new();
 
@@ -94,7 +95,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
 
             try
             {
-                await _deleteHelper.ExecuteDeleteOperation(
+                await DeleteHelper.ExecuteDeleteOperation(
                     category.Id,
                     category.Name,
                     CategoryApi.DeleteCategoryAsync,

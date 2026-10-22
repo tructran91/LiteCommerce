@@ -5,6 +5,7 @@ using LiteCommerce.Admin.Models.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using System.Globalization;
 using System.Net.Http.Headers;
 
 namespace LiteCommerce.Admin.Pages.Catalog.Categories
@@ -151,7 +152,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             content.Add(new StringContent(_categoryForm.MetaDescription ?? string.Empty), "MetaDescription");
             content.Add(new StringContent(_categoryForm.IsPublished.ToString()), "IsPublished");
             content.Add(new StringContent(_categoryForm.IncludeInMenu.ToString()), "IncludeInMenu");
-            content.Add(new StringContent(_categoryForm.DisplayOrder.ToString()), "DisplayOrder");
+            content.Add(new StringContent(_categoryForm.DisplayOrder.ToString(CultureInfo.InvariantCulture)), "DisplayOrder");
 
             if (!string.IsNullOrEmpty(_categoryForm.ParentId))
                 content.Add(new StringContent(_categoryForm.ParentId), "ParentId");

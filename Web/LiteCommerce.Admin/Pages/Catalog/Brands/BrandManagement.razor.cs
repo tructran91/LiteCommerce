@@ -17,7 +17,8 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
         [Inject]
         private ISnackbar Snackbar { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar, L);
+        [Inject]
+        private DeleteOperationHelper DeleteHelper { get; set; }
 
         private List<BreadcrumbItem> _breadcrumbs = new();
 
@@ -144,7 +145,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
             try
             {
-                await _deleteHelper.ExecuteDeleteOperation(
+                await DeleteHelper.ExecuteDeleteOperation(
                     brand.Id,
                     brand.Name,
                     BrandApi.DeleteBrandAsync,
