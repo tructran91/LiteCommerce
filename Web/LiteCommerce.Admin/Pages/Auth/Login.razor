@@ -3,7 +3,7 @@
 @layout BlankLayout
 @using LiteCommerce.Admin.Models.Business.Auth
 
-<PageTitle>Sign in - CommerceAdmin</PageTitle>
+<PageTitle>@L["Auth_LoginTitle"]</PageTitle>
 
 <div class="auth-split">
 
@@ -15,10 +15,10 @@
 
         <div>
             <MudText Class="auth-hero-title mb-3">
-                Run your store,<br />not your spreadsheets.
+                @L["Auth_LoginHeroTitle1"]<br />@L["Auth_LoginHeroTitle2"]
             </MudText>
             <MudText Typo="Typo.body1" Class="auth-hero-subtitle mb-8">
-                Products, categories, pricing and activity history — all in one console.
+                @L["Auth_LoginHeroSubtitle"]
             </MudText>
 
             <div class="d-flex flex-column gap-5">
@@ -49,9 +49,9 @@
                 <MudIcon Icon="@Icons.Material.Filled.Store" />
             </div>
 
-            <MudText Typo="Typo.h4" Class="font-weight-bold mb-1">Welcome back</MudText>
+            <MudText Typo="Typo.h4" Class="font-weight-bold mb-1">@L["Auth_WelcomeBack"]</MudText>
             <MudText Typo="Typo.body2" Class="mud-text-secondary mb-6">
-                Sign in to continue to your dashboard.
+                @L["Auth_LoginSubtitle"]
             </MudText>
 
             @if (_errorMessage is not null)
@@ -67,8 +67,8 @@
 
                 <MudTextField @bind-Value="_form.Email"
                               For="@(() => _form.Email)"
-                              Label="Email"
-                              Placeholder="you@company.com"
+                              Label="@L["Auth_Email"]"
+                              Placeholder="@L["Auth_EmailPlaceholder"]"
                               Variant="Variant.Outlined"
                               InputType="InputType.Email"
                               Adornment="Adornment.Start"
@@ -79,19 +79,19 @@
 
                 <MudTextField @bind-Value="_form.Password"
                               For="@(() => _form.Password)"
-                              Label="Password"
+                              Label="@L["Auth_Password"]"
                               Variant="Variant.Outlined"
                               InputType="@(_showPassword ? InputType.Text : InputType.Password)"
                               Adornment="Adornment.End"
                               AdornmentIcon="@(_showPassword ? Icons.Material.Outlined.VisibilityOff : Icons.Material.Outlined.Visibility)"
                               OnAdornmentClick="TogglePasswordVisibility"
-                              AdornmentAriaLabel="Show password"
+                              AdornmentAriaLabel="@L["Auth_ShowPassword"]"
                               Immediate="true"
                               Disabled="_submitting"
                               Class="mb-2" />
 
                 <div class="d-flex justify-end">
-                    <MudLink Href="/forgot-password" Typo="Typo.body2">Forgot password?</MudLink>
+                    <MudLink Href="/forgot-password" Typo="Typo.body2">@L["Auth_ForgotPassword"]</MudLink>
                 </div>
 
                 <MudButton ButtonType="ButtonType.Submit"
@@ -105,11 +105,11 @@
                     @if (_submitting)
                     {
                         <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
-                        <span>Signing in...</span>
+                        <span>@L["Auth_SigningIn"]</span>
                     }
                     else
                     {
-                        <span>Sign in</span>
+                        <span>@L["Auth_SignIn"]</span>
                     }
                 </MudButton>
             </EditForm>
@@ -122,10 +122,15 @@
 @code {
     private record HeroFeature(string Icon, string Title, string Description);
 
-    private static readonly HeroFeature[] Features =
-    [
-        new(Icons.Material.Outlined.Inventory2, "Catalog management", "Products, variants and media in one place."),
-        new(Icons.Material.Outlined.PriceChange, "Pricing control", "Bulk updates with full price history."),
-        new(Icons.Material.Outlined.History, "Full audit trail", "Every change recorded with who and when.")
-    ];
+    private HeroFeature[] Features = [];
+
+    protected override void OnInitialized()
+    {
+        Features =
+        [
+            new(Icons.Material.Outlined.Inventory2, L["Auth_FeatureCatalogTitle"], L["Auth_FeatureCatalogDesc"]),
+            new(Icons.Material.Outlined.PriceChange, L["Auth_FeaturePricingTitle"], L["Auth_FeaturePricingDesc"]),
+            new(Icons.Material.Outlined.History, L["Auth_FeatureAuditTitle"], L["Auth_FeatureAuditDesc"])
+        ];
+    }
 }

@@ -1,4 +1,3 @@
-@using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Helpers
 @using LiteCommerce.Admin.Models.Business.Product
 
@@ -7,7 +6,7 @@
         <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-2">
                 <MudIcon Icon="@Icons.Material.Filled.FileUpload" Color="Color.Primary" />
-                <MudText Typo="Typo.h6">Import products from Excel</MudText>
+                <MudText Typo="Typo.h6">@L["Product_ImportTitle"]</MudText>
             </div>
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                            Size="Size.Small"
@@ -20,17 +19,17 @@
         <div class="d-flex align-center justify-center flex-wrap gap-2 mb-5">
             <div class="d-flex align-center gap-2">
                 <MudAvatar Size="Size.Small" Color="@StepColor(1)" Variant="@StepVariant(1)">1</MudAvatar>
-                <MudText Typo="Typo.body2" Class="@StepTextClass(1)">Upload &amp; options</MudText>
+                <MudText Typo="Typo.body2" Class="@StepTextClass(1)">@L["Product_ImportStepUpload"]</MudText>
             </div>
             <MudDivider Style="width:40px; flex:0 0 40px" />
             <div class="d-flex align-center gap-2">
                 <MudAvatar Size="Size.Small" Color="@StepColor(2)" Variant="@StepVariant(2)">2</MudAvatar>
-                <MudText Typo="Typo.body2" Class="@StepTextClass(2)">Preview</MudText>
+                <MudText Typo="Typo.body2" Class="@StepTextClass(2)">@L["Product_ImportStepPreview"]</MudText>
             </div>
             <MudDivider Style="width:40px; flex:0 0 40px" />
             <div class="d-flex align-center gap-2">
                 <MudAvatar Size="Size.Small" Color="@StepColor(3)" Variant="@StepVariant(3)">3</MudAvatar>
-                <MudText Typo="Typo.body2" Class="@StepTextClass(3)">Result</MudText>
+                <MudText Typo="Typo.body2" Class="@StepTextClass(3)">@L["Product_ImportStepResult"]</MudText>
             </div>
         </div>
 
@@ -61,9 +60,9 @@
                         <MudPaper Outlined="true"
                                   Class="import-dropzone d-flex flex-column align-center justify-center pa-6 rounded-lg">
                             <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" Color="Color.Primary" />
-                            <MudText Typo="Typo.subtitle1" Class="mt-2">Click to select an Excel file</MudText>
+                            <MudText Typo="Typo.subtitle1" Class="mt-2">@L["Product_ImportClickSelect"]</MudText>
                             <MudText Typo="Typo.caption" Color="Color.Error">
-                                .xlsx, .xls &middot; max @FileUploadSettings.MaxDocumentSizeMB MB
+                                @L["Product_ImportHint", FileUploadSettings.MaxDocumentSizeMB]
                             </MudText>
                         </MudPaper>
                     </div>
@@ -91,38 +90,38 @@
                          Typo="Typo.body2"
                          Class="d-flex align-center flex-shrink-0">
                     <MudIcon Icon="@Icons.Material.Filled.Download" Size="Size.Small" Class="mr-1" />
-                    Download template
+                    @L["Product_ImportDownloadTemplate"]
                 </MudLink>
             </div>
 
-            <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2">Import options</MudText>
+            <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2">@L["Product_ImportOptions"]</MudText>
             <MudGrid Spacing="3">
                 <MudItem xs="12" sm="6">
                     <MudSelect T="string"
                                @bind-Value="_mode"
-                               Label="Mode"
+                               Label="@L["Product_ImportMode"]"
                                Variant="Variant.Outlined"
                                Dense="true"
                                Disabled="_busy"
                                HelperText="@(_mode == ProductImportModes.SkipInvalid
-                                   ? "Valid rows are imported; invalid rows are skipped."
-                                   : "Any invalid row blocks the whole import.")">
-                        <MudSelectItem Value="@ProductImportModes.AllOrNothing">All or nothing</MudSelectItem>
-                        <MudSelectItem Value="@ProductImportModes.SkipInvalid">Skip invalid rows</MudSelectItem>
+                                   ? L["Product_ImportModeSkipHelper"]
+                                   : L["Product_ImportModeStrictHelper"])">
+                        <MudSelectItem Value="@ProductImportModes.AllOrNothing">@L["Product_ImportModeAllOrNothing"]</MudSelectItem>
+                        <MudSelectItem Value="@ProductImportModes.SkipInvalid">@L["Product_ImportModeSkipInvalid"]</MudSelectItem>
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6" Class="d-flex flex-column justify-center">
                     <MudCheckBox T="bool"
                                  @bind-Value="_createMissingBrands"
-                                 Label="Create missing brands"
+                                 Label="@L["Product_ImportCreateBrands"]"
                                  Color="Color.Primary"
                                  Dense="true"
                                  Disabled="_busy"
                                  Class="ml-n2" />
                     <MudText Typo="Typo.caption" Class="mud-text-secondary px-2">
                         @(_createMissingBrands
-                            ? "Brands that do not exist yet are created during the import."
-                            : "A row with an unknown brand is invalid.")
+                            ? L["Product_ImportCreateBrandsHint"]
+                            : L["Product_ImportCreateBrandsOffHint"])
                     </MudText>
                 </MudItem>
             </MudGrid>
@@ -134,7 +133,7 @@
             @if (_preview.FileErrors.Count > 0)
             {
                 <MudAlert Severity="Severity.Error" Class="mb-3">
-                    <MudText Typo="Typo.body2" Class="font-weight-bold">The file could not be imported.</MudText>
+                    <MudText Typo="Typo.body2" Class="font-weight-bold">@L["Product_ImportFileFailed"]</MudText>
                     <ul class="mt-2 mb-0 pl-4">
                         @foreach (var fileError in _preview.FileErrors)
                         {
@@ -153,8 +152,8 @@
                     <div class="d-flex align-center justify-space-between flex-wrap gap-2">
                         <span>
                             @(_preview.ValidRows == 0
-                                ? "No valid rows to import. Fix the file and try again."
-                                : $"{_preview.InvalidRows} row(s) are invalid. Fix the file or import only the valid rows.")
+                                ? L["Product_ImportNoValidRows"]
+                                : L["Product_ImportInvalidRows", _preview.InvalidRows])
                         </span>
                         @if (_mode == ProductImportModes.AllOrNothing && _preview.ValidRows > 0)
                         {
@@ -163,7 +162,7 @@
                                        Color="Color.Warning"
                                        Disabled="_busy"
                                        OnClick="SwitchToSkipInvalidAsync">
-                                Switch to Skip invalid
+                                @L["Product_ImportSwitchSkip"]
                             </MudButton>
                         }
                     </div>
@@ -174,25 +173,25 @@
                 <MudItem xs="6" sm="3">
                     <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
                         <MudText Typo="Typo.h5">@_preview.TotalRows</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Total rows</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Product_ImportTotalRows"]</MudText>
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6" sm="3">
                     <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
                         <MudText Typo="Typo.h5" Color="Color.Success">@_preview.ValidRows</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Valid</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Product_ImportValid"]</MudText>
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6" sm="3">
                     <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
                         <MudText Typo="Typo.h5" Color="@(_preview.InvalidRows > 0 ? Color.Error : Color.Default)">@_preview.InvalidRows</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Invalid</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Product_ImportInvalid"]</MudText>
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6" sm="3">
                     <MudPaper Outlined="true" Class="pa-3 rounded-lg text-center">
                         <MudText Typo="Typo.h5" Color="@(_preview.NewBrands.Count > 0 ? Color.Info : Color.Default)">@_preview.NewBrands.Count</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">New brands</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Product_ImportNewBrands"]</MudText>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -201,7 +200,7 @@
                 <MudText Typo="Typo.body2" Class="mud-text-secondary">@_fileName</MudText>
                 <MudSwitch T="bool"
                            @bind-Value="_onlyInvalid"
-                           Label="Only invalid rows"
+                           Label="@L["Product_ImportOnlyInvalid"]"
                            Color="Color.Primary"
                            Size="Size.Small" />
             </div>
@@ -210,16 +209,16 @@
                 <MudTable Items="@VisibleRows" Dense="true" Hover="true" Elevation="0">
                     <HeaderContent>
                         <MudTh Style="width:60px" Class="text-right">#</MudTh>
-                        <MudTh Style="width:110px">Status</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh Style="width:150px">Brand</MudTh>
-                        <MudTh Style="width:190px">Category</MudTh>
-                        <MudTh Style="width:120px" Class="text-right">Price</MudTh>
-                        <MudTh>Issues</MudTh>
+                        <MudTh Style="width:110px">@L["Product_ImportColStatus"]</MudTh>
+                        <MudTh>@L["Common_Name"]</MudTh>
+                        <MudTh Style="width:150px">@L["Product_ImportColBrand"]</MudTh>
+                        <MudTh Style="width:190px">@L["Product_ImportColCategory"]</MudTh>
+                        <MudTh Style="width:120px" Class="text-right">@L["Product_ImportColPrice"]</MudTh>
+                        <MudTh>@L["Product_ImportColIssues"]</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="#" Class="text-right">@context.RowNumber</MudTd>
-                        <MudTd DataLabel="Status">
+                        <MudTd DataLabel="@L["Product_ImportColStatus"]">
                             <MudChip T="string"
                                      Size="Size.Small"
                                      Variant="Variant.Outlined"
@@ -227,27 +226,27 @@
                                 @context.Status
                             </MudChip>
                         </MudTd>
-                        <MudTd DataLabel="Name">@context.Name</MudTd>
-                        <MudTd DataLabel="Brand">
+                        <MudTd DataLabel="@L["Common_Name"]">@context.Name</MudTd>
+                        <MudTd DataLabel="@L["Product_ImportColBrand"]">
                             <div class="d-flex align-center flex-wrap gap-1">
                                 <span>@(string.IsNullOrWhiteSpace(context.Brand) ? "—" : context.Brand)</span>
                                 @if (context.BrandStatus == ProductImportBrandStatus.New)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info">New</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info">@L["Product_ImportNew"]</MudChip>
                                 }
                                 else if (context.BrandStatus == ProductImportBrandStatus.NotFound)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error">Not found</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error">@L["Product_ImportNotFound"]</MudChip>
                                 }
                             </div>
                         </MudTd>
-                        <MudTd DataLabel="Category">
+                        <MudTd DataLabel="@L["Product_ImportColCategory"]">
                             @(context.Categories.Count > 0
                                 ? string.Join(", ", context.Categories.Select(c => c.Path))
                                 : context.Category ?? "—")
                         </MudTd>
-                        <MudTd DataLabel="Price" Class="text-right">@(context.Price?.ToString("#,0.##") ?? "—")</MudTd>
-                        <MudTd DataLabel="Issues">
+                        <MudTd DataLabel="@L["Product_ImportColPrice"]" Class="text-right">@(context.Price?.ToString("#,0.##") ?? "—")</MudTd>
+                        <MudTd DataLabel="@L["Product_ImportColIssues"]">
                             @if (context.Errors.Count > 0)
                             {
                                 <MudText Typo="Typo.caption" Color="Color.Error">
@@ -267,7 +266,7 @@
                         </MudTd>
                     </RowTemplate>
                     <NoRecordsContent>
-                        <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4" Align="Align.Center">No rows to display.</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4" Align="Align.Center">@L["Product_ImportNoRows"]</MudText>
                     </NoRecordsContent>
                 </MudTable>
             </MudPaper>
@@ -278,15 +277,17 @@
         {
             <div class="d-flex flex-column align-center py-4">
                 <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Style="font-size:56px" />
-                <MudText Typo="Typo.h5" Class="mt-2">Import completed</MudText>
+                <MudText Typo="Typo.h5" Class="mt-2">@L["Product_ImportCompleted"]</MudText>
                 <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1 text-center">
-                    Imported @_result.Imported of @_result.TotalRows product(s)@(_result.Skipped > 0 ? $", skipped {_result.Skipped}" : "").
+                    @(_result.Skipped > 0
+                        ? L["Product_ImportSummary", _result.Imported, _result.TotalRows, _result.Skipped]
+                        : L["Product_ImportSummaryNoSkip", _result.Imported, _result.TotalRows])
                 </MudText>
 
                 @if (_result.CreatedBrands.Count > 0)
                 {
                     <div class="d-flex align-center flex-wrap justify-center gap-2 mt-4">
-                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Brands created:</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Product_ImportBrandsCreated"]</MudText>
                         @foreach (var brand in _result.CreatedBrands)
                         {
                             <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info">@brand</MudChip>
@@ -298,11 +299,11 @@
             @if (_result.Skipped > 0)
             {
                 <MudAlert Severity="Severity.Warning" Class="mt-2">
-                    <MudText Typo="Typo.body2" Class="font-weight-bold mb-1">Skipped rows</MudText>
+                    <MudText Typo="Typo.body2" Class="font-weight-bold mb-1">@L["Product_ImportSkippedRows"]</MudText>
                     @foreach (var failure in _result.Errors)
                     {
                         <MudText Typo="Typo.caption">
-                            Row @failure.RowNumber (@failure.Name): @string.Join("; ", failure.Errors.Select(e => e.Message))
+                            @L["Product_ImportRow", failure.RowNumber, failure.Name, string.Join("; ", failure.Errors.Select(e => e.Message))]
                         </MudText>
                     }
                 </MudAlert>
@@ -313,13 +314,13 @@
     <DialogActions>
         @if (_step == 1)
         {
-            <MudButton Variant="Variant.Outlined" OnClick="CloseDialog" Disabled="_busy">Cancel</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="CloseDialog" Disabled="_busy">@L["Common_Cancel"]</MudButton>
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.Search"
                        OnClick="PreviewAsync"
                        Disabled="@(_busy || _fileBytes is null)">
-                @(_busy ? "Reading file…" : "Preview")
+                @(_busy ? L["Product_ImportReading"] : L["Product_ImportPreview"])
             </MudButton>
         }
         else if (_step == 2)
@@ -328,21 +329,21 @@
                        StartIcon="@Icons.Material.Filled.ArrowBack"
                        OnClick="BackToUpload"
                        Disabled="_busy">
-                Back
+                @L["Product_ImportBack"]
             </MudButton>
             <MudSpacer />
             <MudButton Variant="Variant.Outlined"
                        StartIcon="@Icons.Material.Filled.Download"
                        OnClick="DownloadReportAsync"
                        Disabled="@(_busy || _preview is null || _preview.InvalidRows == 0)">
-                Error report
+                @L["Product_ImportErrorReport"]
             </MudButton>
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.Upload"
                        OnClick="CommitAsync"
                        Disabled="@(_busy || _preview is null || !_preview.CanCommit)">
-                @(_busy ? "Importing…" : $"Import {_preview?.ValidRows ?? 0} row(s)")
+                @(_busy ? L["Product_ImportImporting"] : L["Product_ImportImportRows", _preview?.ValidRows ?? 0])
             </MudButton>
         }
         else if (_step == 3)
@@ -350,13 +351,13 @@
             <MudButton Variant="Variant.Text"
                        StartIcon="@Icons.Material.Filled.Refresh"
                        OnClick="ResetAsync">
-                Import another file
+                @L["Product_ImportAnother"]
             </MudButton>
             <MudSpacer />
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        OnClick="CloseAfterImport">
-                View products
+                @L["Product_ImportViewProducts"]
             </MudButton>
         }
     </DialogActions>

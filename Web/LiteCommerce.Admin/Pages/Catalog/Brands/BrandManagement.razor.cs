@@ -1,5 +1,4 @@
 ﻿using LiteCommerce.Admin.ApiClients;
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Brand;
 using LiteCommerce.Admin.Pages.Base;
 using Microsoft.AspNetCore.Components;
@@ -18,14 +17,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
         [Inject]
         private ISnackbar Snackbar { get; set; }
 
-        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar);
+        private DeleteOperationHelper _deleteHelper => new(DialogService, Snackbar, L);
 
-        private List<BreadcrumbItem> _breadcrumbs = new()
-        {
-            new("Home", href: "/", icon: Icons.Material.Filled.Home),
-            new("Catalog", href: null, disabled: true),
-            new("Brands", href: null, disabled: true),
-        };
+        private List<BreadcrumbItem> _breadcrumbs = new();
 
         private MudTable<BrandResponse> _table = null!;
         private List<BrandResponse> _allBrands = new();
@@ -43,6 +37,13 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
 
         protected override async Task OnInitializedAsync()
         {
+            _breadcrumbs = new()
+            {
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_Catalog"], href: null, disabled: true),
+                new(L["Brand_Title"], href: null, disabled: true),
+            };
+
             await LoadData();
         }
 
@@ -60,7 +61,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
                 }
                 else
                 {
-                    var errorDetails = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                    var errorDetails = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                     _errorMessage = errorDetails;
                     Snackbar.Add(errorDetails, Severity.Error);
                 }
@@ -68,7 +69,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             catch (Exception ex)
             {
                 _errorMessage = ex.Message;
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -115,20 +116,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
                 if (response.IsSuccess)
                 {
                     var successMessage = data.IsEdit
-                        ? SystemMessages.UpdateDataSuccess
-                        : SystemMessages.AddDataSuccess;
+                        ? L["Common_UpdateDataSuccess"]
+                        : L["Common_AddDataSuccess"];
 
                     Snackbar.Add(successMessage, Severity.Success);
                     await LoadData();
                 }
                 else
                 {
-                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                    Snackbar.Add(response.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -152,7 +153,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Brands
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {

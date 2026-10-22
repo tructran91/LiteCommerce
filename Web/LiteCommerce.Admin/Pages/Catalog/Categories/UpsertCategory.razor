@@ -1,21 +1,20 @@
 ﻿@page "/categories/add"
 @page "/categories/edit/{id}"
-@using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Models.Business.Category
 
-<PageTitle>@(_isEditMode ? "Edit Category" : "Add Category")</PageTitle>
+<PageTitle>@(_isEditMode ? L["Category_EditTitle"] : L["Category_AddTitle"])</PageTitle>
 
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <!-- Page Header -->
 <div class="d-flex align-center justify-space-between mb-5">
-    <MudText Typo="Typo.h5" Class="font-weight-bold">@(_isEditMode ? "Edit Category" : "Add Category")</MudText>
+    <MudText Typo="Typo.h5" Class="font-weight-bold">@(_isEditMode ? L["Category_EditTitle"] : L["Category_AddTitle"])</MudText>
 </div>
 
 <!-- Tabs -->
 <MudTabs Elevation="0" Rounded="true" Border="true" Color="Color.Primary">
     <!-- General Information Tab -->
-    <MudTabPanel Text="General Information" Icon="@Icons.Material.Filled.Info">
+    <MudTabPanel Text="@L["Category_GeneralTab"]" Icon="@Icons.Material.Filled.Info">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
             <MudForm @ref="_form" Model="_categoryForm">
                 <MudGrid>
@@ -23,11 +22,11 @@
                     <MudItem xs="12">
                         <MudTextField T="string"
                                       @bind-Value="_categoryForm.Name"
-                                      Label="Name"
+                                      Label="@L["Common_Name"]"
                                       Variant="Variant.Outlined"
                                       Required="true"
-                                      RequiredError="Name is required"
-                                      Placeholder="Ex: Accessories, Computers, Phones..."
+                                      RequiredError="@L["Category_NameRequired"]"
+                                      Placeholder="@L["Category_NamePlaceholder"]"
                                       Adornment="Adornment.Start"
                                       AdornmentIcon="@Icons.Material.Filled.Label" />
                     </MudItem>
@@ -36,13 +35,13 @@
                     <MudItem xs="12" md="6">
                         <MudSelect T="string"
                                    @bind-Value="_categoryForm.ParentId"
-                                   Label="Parent Category"
+                                   Label="@L["Category_Parent"]"
                                    Variant="Variant.Outlined"
                                    Clearable="true"
-                                   Placeholder="None"
+                                   Placeholder="@L["Category_None"]"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Category">
-                            <MudSelectItem Value="@((string?)null)">None</MudSelectItem>
+                            <MudSelectItem Value="@((string?)null)">@L["Category_None"]</MudSelectItem>
                             @foreach (var category in _basicCategories)
                             {
                                 <MudSelectItem Value="@category.Id">@category.DisplayName</MudSelectItem>
@@ -54,7 +53,7 @@
                     <MudItem xs="12" md="6">
                         <MudNumericField T="int"
                                          @bind-Value="_categoryForm.DisplayOrder"
-                                         Label="Display Order"
+                                         Label="@L["Category_DisplayOrderLabel"]"
                                          Variant="Variant.Outlined"
                                          Min="0"
                                          Adornment="Adornment.Start"
@@ -65,43 +64,43 @@
                     <MudItem xs="12">
                         <MudTextField T="string"
                                       @bind-Value="_categoryForm.Description"
-                                      Label="Description"
+                                      Label="@L["Common_Description"]"
                                       Variant="Variant.Outlined"
                                       Lines="4"
-                                      Placeholder="Enter category description..." />
+                                      Placeholder="@L["Category_DescriptionPlaceholder"]" />
                     </MudItem>
 
                     <!-- Meta Title -->
                     <MudItem xs="12">
                         <MudTextField T="string"
                                       @bind-Value="_categoryForm.MetaTitle"
-                                      Label="Meta Title"
+                                      Label="@L["Category_MetaTitle"]"
                                       Variant="Variant.Outlined"
-                                      Placeholder="SEO meta title..." />
+                                      Placeholder="@L["Category_MetaTitlePlaceholder"]" />
                     </MudItem>
 
                     <!-- Meta Keywords -->
                     <MudItem xs="12">
                         <MudTextField T="string"
                                       @bind-Value="_categoryForm.MetaKeywords"
-                                      Label="Meta Keywords"
+                                      Label="@L["Category_MetaKeywords"]"
                                       Variant="Variant.Outlined"
-                                      Placeholder="keyword1, keyword2, keyword3..." />
+                                      Placeholder="@L["Category_MetaKeywordsPlaceholder"]" />
                     </MudItem>
 
                     <!-- Meta Description -->
                     <MudItem xs="12">
                         <MudTextField T="string"
                                       @bind-Value="_categoryForm.MetaDescription"
-                                      Label="Meta Description"
+                                      Label="@L["Category_MetaDescription"]"
                                       Variant="Variant.Outlined"
                                       Lines="3"
-                                      Placeholder="SEO meta description..." />
+                                      Placeholder="@L["Category_MetaDescriptionPlaceholder"]" />
                     </MudItem>
 
                     <!-- Thumbnail Upload -->
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Thumbnail Image</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@L["Category_Thumbnail"]</MudText>
                         <MudFileUpload T="IBrowserFile"
                                        Accept="image/*"
                                        OnFilesChanged="OnThumbnailSelected"
@@ -110,7 +109,7 @@
                                 <MudButton Variant="Variant.Outlined"
                                            Color="Color.Primary"
                                            StartIcon="@Icons.Material.Filled.CloudUpload">
-                                    Choose Image
+                                    @L["Category_ChooseImage"]
                                 </MudButton>
                             </ActivatorContent>
                         </MudFileUpload>
@@ -120,7 +119,7 @@
                             <MudPaper Elevation="0" Class="mt-3 pa-3" Style="border: 1px solid var(--mud-palette-divider)">
                                 <div class="d-flex align-center gap-3">
                                     <MudImage Src="@_thumbnailPreviewUrl"
-                                              Alt="Thumbnail preview"
+                                              Alt="@L["Category_ThumbnailPreview"]"
                                               Width="150"
                                               Height="150"
                                               ObjectFit="ObjectFit.Cover"
@@ -139,11 +138,11 @@
                         <MudStack>
                             <MudSwitch T="bool"
                                        @bind-Value="_categoryForm.IncludeInMenu"
-                                       Label="Include in Menu"
+                                       Label="@L["Category_IncludeInMenuLabel"]"
                                        Color="Color.Primary" />
                             <MudSwitch T="bool"
                                        @bind-Value="_categoryForm.IsPublished"
-                                       Label="Is Published"
+                                       Label="@L["Category_IsPublished"]"
                                        Color="Color.Primary" />
                         </MudStack>
                     </MudItem>
@@ -156,14 +155,14 @@
                                        StartIcon="@Icons.Material.Filled.Save"
                                        OnClick="FormSubmitted"
                                        Disabled="_loading">
-                                @(_loading ? "Saving..." : "Save")
+                                @(_loading ? L["Auth_Saving"] : L["Common_Save"])
                             </MudButton>
                             <MudButton Variant="Variant.Outlined"
                                        Color="Color.Default"
                                        StartIcon="@Icons.Material.Filled.Cancel"
                                        OnClick="Cancel"
                                        Disabled="_loading">
-                                Cancel
+                                @L["Common_Cancel"]
                             </MudButton>
                         </MudStack>
                     </MudItem>
@@ -173,11 +172,11 @@
     </MudTabPanel>
 
     <!-- Products Tab -->
-    <MudTabPanel Text="Products" Icon="@Icons.Material.Filled.Inventory">
+    <MudTabPanel Text="@L["Category_ProductsTab"]" Icon="@Icons.Material.Filled.Inventory">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
-            <MudText Typo="Typo.h6">Products</MudText>
+            <MudText Typo="Typo.h6">@L["Category_ProductsTab"]</MudText>
             <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2">
-                Products associated with this category will be listed here.
+                @L["Category_ProductsHint"]
             </MudText>
         </MudPaper>
     </MudTabPanel>

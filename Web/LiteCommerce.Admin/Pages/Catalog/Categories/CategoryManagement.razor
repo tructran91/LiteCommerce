@@ -1,22 +1,21 @@
 @page "/categories"
-@using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Models.Business.Category
 
-<PageTitle>Categories</PageTitle>
+<PageTitle>@L["Category_Title"]</PageTitle>
 
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <!-- Page Header -->
 <div class="d-flex align-center justify-space-between mb-5">
     <div>
-        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Categories</MudText>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Category_Title"]</MudText>
     </div>
     <MudButton Variant="Variant.Filled"
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="NavigateToAdd"
                Disabled="_loading">
-        Add Category
+        @L["Category_AddButton"]
     </MudButton>
 </div>
 
@@ -24,11 +23,11 @@
 @if (_errorMessage != null)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
-        <strong>@SystemMessages.ErrorOccurred</strong> @_errorMessage
+        <strong>@L["Common_ErrorOccurred"]</strong> @_errorMessage
         <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="LoadData" Class="ml-2">
-            Try again
+            @L["Common_TryAgain"]
         </MudButton>
     </MudAlert>
 }
@@ -41,27 +40,27 @@
               Elevation="0"
               Loading="@_loading"
               LoadingProgressColor="Color.Primary"
-              SortLabel="Sort by"
+              SortLabel="@L["Common_SortBy"]"
               @ref="_table">
 
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.DisplayName))" SortDirectionChanged="OnSortChanged">Category Name</MudTableSortLabel>
+                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.DisplayName))" SortDirectionChanged="OnSortChanged">@L["Category_Name"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:180px">
-                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.IncludeInMenu))" SortDirectionChanged="OnSortChanged">Include in menu</MudTableSortLabel>
+                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.IncludeInMenu))" SortDirectionChanged="OnSortChanged">@L["Category_IncludeInMenu"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.DisplayOrder))" SortDirectionChanged="OnSortChanged">Display order</MudTableSortLabel>
+                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.DisplayOrder))" SortDirectionChanged="OnSortChanged">@L["Category_DisplayOrder"]</MudTableSortLabel>
             </MudTh>
             <MudTh Style="width:150px">
-                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.IsPublished))" SortDirectionChanged="OnSortChanged">Is Published</MudTableSortLabel>
+                <MudTableSortLabel T="CategoryResponse" SortBy="@(new Func<CategoryResponse, object>(x => x.IsPublished))" SortDirectionChanged="OnSortChanged">@L["Category_IsPublished"]</MudTableSortLabel>
             </MudTh>
-            <MudTh Style="width:120px; text-align:center">Action</MudTh>
+            <MudTh Style="width:120px; text-align:center">@L["Common_Action"]</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Category Name">
+            <MudTd DataLabel="@L["Category_Name"]">
                 <div class="d-flex align-center gap-3">
                     <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small"
                                Style="font-size:0.75rem; font-weight:700">
@@ -70,17 +69,17 @@
                     <MudText Typo="Typo.body2" Class="font-weight-medium">@context.DisplayName</MudText>
                 </div>
             </MudTd>
-            <MudTd DataLabel="Include in menu">
+            <MudTd DataLabel="@L["Category_IncludeInMenu"]">
                 <MudSwitch T="bool"
                            Value="@context.IncludeInMenu"
                            Color="Color.Success"
                            Size="Size.Small"
                            Disabled />
             </MudTd>
-            <MudTd DataLabel="Display order">
+            <MudTd DataLabel="@L["Category_DisplayOrder"]">
                 @context.DisplayOrder
             </MudTd>
-            <MudTd DataLabel="Is Published">
+            <MudTd DataLabel="@L["Category_IsPublished"]">
                 <MudSwitch T="bool"
                            Value="@context.IsPublished"
                            Color="Color.Success"
@@ -88,13 +87,13 @@
                            Disabled />
             </MudTd>
             <MudTd Style="text-align:center">
-                <MudTooltip Text="Edit">
+                <MudTooltip Text="@L["Common_Edit"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Color="Color.Primary"
                                    OnClick="@(() => NavigateToEdit(context.Id))" />
                 </MudTooltip>
-                <MudTooltip Text="Delete">
+                <MudTooltip Text="@L["Common_Delete"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                    Size="Size.Small"
                                    Color="Color.Error"
@@ -106,7 +105,7 @@
         <NoRecordsContent>
             <div class="pa-8 text-center">
                 <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3" Style="opacity:0.3" />
-                <MudText Typo="Typo.body1" Class="mud-text-secondary">@SystemMessages.NoData</MudText>
+                <MudText Typo="Typo.body1" Class="mud-text-secondary">@L["Common_NoData"]</MudText>
             </div>
         </NoRecordsContent>
 

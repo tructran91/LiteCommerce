@@ -1,51 +1,51 @@
 ﻿@page "/"
 @using MudBlazor
 
-<PageTitle>Dashboard - CommerceAdmin</PageTitle>
+<PageTitle>@L["Home_PageTitle"]</PageTitle>
 
 <!-- Breadcrumb -->
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
-<MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Dashboard</MudText>
-<MudText Typo="Typo.body2" Class="mud-text-secondary mb-5">Chào mừng trở lại! Đây là tổng quan hôm nay.</MudText>
+<MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Menu_Dashboard"]</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-5">@L["Home_Welcome"]</MudText>
 
 <!-- Stats Cards -->
 <MudGrid Spacing="3" Class="mb-6">
     <MudItem xs="12" sm="6" md="3">
-        <StatCard Title="Doanh thu hôm nay"
+        <StatCard Title="@L["Home_RevenueToday"]"
                   Value="₫24,680,000"
                   Change="+12.5%"
                   ChangePositive="true"
                   Icon="@Icons.Material.Filled.TrendingUp"
                   Color="Color.Primary"
-                  SubText="So với hôm qua" />
+                  SubText="@L["Home_ComparedYesterday"]" />
     </MudItem>
     <MudItem xs="12" sm="6" md="3">
-        <StatCard Title="Đơn hàng mới"
+        <StatCard Title="@L["Home_NewOrders"]"
                   Value="142"
                   Change="+8.2%"
                   ChangePositive="true"
                   Icon="@Icons.Material.Filled.ShoppingBag"
                   Color="Color.Success"
-                  SubText="So với hôm qua" />
+                  SubText="@L["Home_ComparedYesterday"]" />
     </MudItem>
     <MudItem xs="12" sm="6" md="3">
-        <StatCard Title="Khách hàng mới"
+        <StatCard Title="@L["Home_NewCustomers"]"
                   Value="38"
                   Change="-3.1%"
                   ChangePositive="false"
                   Icon="@Icons.Material.Filled.PersonAdd"
                   Color="Color.Warning"
-                  SubText="So với hôm qua" />
+                  SubText="@L["Home_ComparedYesterday"]" />
     </MudItem>
     <MudItem xs="12" sm="6" md="3">
-        <StatCard Title="Tỷ lệ hoàn trả"
+        <StatCard Title="@L["Home_ReturnRate"]"
                   Value="2.4%"
                   Change="-0.8%"
                   ChangePositive="true"
                   Icon="@Icons.Material.Filled.AssignmentReturn"
                   Color="Color.Error"
-                  SubText="So với tuần trước" />
+                  SubText="@L["Home_ComparedLastWeek"]" />
     </MudItem>
 </MudGrid>
 
@@ -55,21 +55,21 @@
         <MudPaper Elevation="0" Class="dashboard-card pa-4" Style="border:1px solid var(--mud-palette-divider)">
             <div class="d-flex align-center justify-space-between mb-4">
                 <div>
-                    <MudText Typo="Typo.h6" Class="font-weight-bold">Doanh thu 7 ngày qua</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Cập nhật lúc 08:00 sáng nay</MudText>
+                    <MudText Typo="Typo.h6" Class="font-weight-bold">@L["Home_Revenue7Days"]</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Home_UpdatedAt"]</MudText>
                 </div>
                 <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
-                    <MudButton>Ngày</MudButton>
-                    <MudButton Color="Color.Primary">Tuần</MudButton>
-                    <MudButton>Tháng</MudButton>
+                    <MudButton>@L["Home_Day"]</MudButton>
+                    <MudButton Color="Color.Primary">@L["Home_Week"]</MudButton>
+                    <MudButton>@L["Home_Month"]</MudButton>
                 </MudButtonGroup>
             </div>
             <!-- Fake chart placeholder -->
             <div style="height:220px; background: linear-gradient(135deg, rgba(89,74,226,0.05) 0%, rgba(89,74,226,0.02) 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; border:2px dashed var(--mud-palette-divider)">
                 <div class="text-center">
                     <MudIcon Icon="@Icons.Material.Filled.BarChart" Size="Size.Large" Color="Color.Primary" Class="mb-2" />
-                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Chart sẽ được render ở đây</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">(Tích hợp ApexCharts hoặc ChartJs)</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Home_ChartPlaceholder"]</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["Home_ChartPlaceholderHint"]</MudText>
                 </div>
             </div>
         </MudPaper>
@@ -77,8 +77,8 @@
 
     <MudItem xs="12" md="4">
         <MudPaper Elevation="0" Class="dashboard-card pa-4" Style="border:1px solid var(--mud-palette-divider); height:100%">
-            <MudText Typo="Typo.h6" Class="font-weight-bold mb-1">Danh mục bán chạy</MudText>
-            <MudText Typo="Typo.caption" Class="mud-text-secondary mb-4">Tuần này</MudText>
+            <MudText Typo="Typo.h6" Class="font-weight-bold mb-1">@L["Home_TopCategories"]</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary mb-4">@L["Home_ThisWeek"]</MudText>
 
             @foreach (var cat in _topCategories)
             {
@@ -97,38 +97,38 @@
 <!-- Recent Orders Table -->
 <MudPaper Elevation="0" Class="dashboard-card pa-4" Style="border:1px solid var(--mud-palette-divider)">
     <div class="d-flex align-center justify-space-between mb-4">
-        <MudText Typo="Typo.h6" Class="font-weight-bold">Đơn hàng gần đây</MudText>
+        <MudText Typo="Typo.h6" Class="font-weight-bold">@L["Home_RecentOrders"]</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
-            Xem tất cả
+            @L["Home_ViewAll"]
         </MudButton>
     </div>
 
     <MudTable Items="_recentOrders" Hover="true" Dense="true" Elevation="0" Striped="false">
         <HeaderContent>
-            <MudTh>Mã đơn</MudTh>
-            <MudTh>Khách hàng</MudTh>
-            <MudTh>Sản phẩm</MudTh>
-            <MudTh>Tổng tiền</MudTh>
-            <MudTh>Trạng thái</MudTh>
-            <MudTh>Thao tác</MudTh>
+            <MudTh>@L["Home_OrderId"]</MudTh>
+            <MudTh>@L["Home_Customer"]</MudTh>
+            <MudTh>@L["Home_Product"]</MudTh>
+            <MudTh>@L["Home_Total"]</MudTh>
+            <MudTh>@L["Common_Status"]</MudTh>
+            <MudTh>@L["Common_Actions"]</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Mã đơn">
+            <MudTd DataLabel="@L["Home_OrderId"]">
                 <MudText Typo="Typo.body2" Class="font-weight-bold" Color="Color.Primary">@context.Id</MudText>
             </MudTd>
-            <MudTd DataLabel="Khách hàng">
+            <MudTd DataLabel="@L["Home_Customer"]">
                 <div class="d-flex align-center gap-2">
                     <MudAvatar Size="Size.Small" Color="Color.Primary">@context.Customer[0]</MudAvatar>
                     <MudText Typo="Typo.body2">@context.Customer</MudText>
                 </div>
             </MudTd>
-            <MudTd DataLabel="Sản phẩm">
+            <MudTd DataLabel="@L["Home_Product"]">
                 <MudText Typo="Typo.body2">@context.Product</MudText>
             </MudTd>
-            <MudTd DataLabel="Tổng tiền">
+            <MudTd DataLabel="@L["Home_Total"]">
                 <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Total</MudText>
             </MudTd>
-            <MudTd DataLabel="Trạng thái">
+            <MudTd DataLabel="@L["Common_Status"]">
                 <MudChip T="string" Size="Size.Small" Color="@context.StatusColor" Variant="Variant.Filled">
                     @context.Status
                 </MudChip>
@@ -142,29 +142,37 @@
 </MudPaper>
 
 @code {
-    private List<BreadcrumbItem> _breadcrumbs = new()
-    {
-        new("Trang chủ", href: "/", icon: Icons.Material.Filled.Home),
-        new("Dashboard", href: null, disabled: true)
-    };
+    private List<BreadcrumbItem> _breadcrumbs = new();
 
     record CategoryItem(string Name, double Percent, Color Color);
     record OrderItem(string Id, string Customer, string Product, string Total, string Status, Color StatusColor);
 
-    private List<CategoryItem> _topCategories = new()
-    {
-        new("Điện thoại & Phụ kiện", 42, Color.Primary),
-        new("Thời trang", 28, Color.Secondary),
-        new("Đồ gia dụng", 18, Color.Success),
-        new("Thực phẩm & Đồ uống", 12, Color.Warning),
-    };
+    private List<CategoryItem> _topCategories = new();
+    private List<OrderItem> _recentOrders = new();
 
-    private List<OrderItem> _recentOrders = new()
+    protected override void OnInitialized()
     {
-        new("#DH-10234", "Nguyễn Văn An", "iPhone 15 Pro Max", "₫28,990,000", "Đang giao", Color.Info),
-        new("#DH-10233", "Trần Thị Bình", "MacBook Air M3", "₫32,500,000", "Chờ xử lý", Color.Warning),
-        new("#DH-10232", "Lê Hoàng Cường", "AirPods Pro 2", "₫6,290,000", "Hoàn thành", Color.Success),
-        new("#DH-10231", "Phạm Minh Đức", "Samsung Galaxy S24", "₫22,490,000", "Hoàn thành", Color.Success),
-        new("#DH-10230", "Võ Thị Em", "iPad Pro 12.9", "₫25,990,000", "Đã hủy", Color.Error),
-    };
+        _breadcrumbs = new()
+        {
+            new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+            new(L["Menu_Dashboard"], href: null, disabled: true)
+        };
+
+        _topCategories = new()
+        {
+            new(L["Home_CategoryPhones"], 42, Color.Primary),
+            new(L["Home_CategoryFashion"], 28, Color.Secondary),
+            new(L["Home_CategoryHome"], 18, Color.Success),
+            new(L["Home_CategoryFood"], 12, Color.Warning),
+        };
+
+        _recentOrders = new()
+        {
+            new("#DH-10234", "Nguyễn Văn An", "iPhone 15 Pro Max", "₫28,990,000", L["Home_OrderStatusShipping"], Color.Info),
+            new("#DH-10233", "Trần Thị Bình", "MacBook Air M3", "₫32,500,000", L["Home_OrderStatusPending"], Color.Warning),
+            new("#DH-10232", "Lê Hoàng Cường", "AirPods Pro 2", "₫6,290,000", L["Home_OrderStatusCompleted"], Color.Success),
+            new("#DH-10231", "Phạm Minh Đức", "Samsung Galaxy S24", "₫22,490,000", L["Home_OrderStatusCompleted"], Color.Success),
+            new("#DH-10230", "Võ Thị Em", "iPad Pro 12.9", "₫25,990,000", L["Home_OrderStatusCancelled"], Color.Error),
+        };
+    }
 }

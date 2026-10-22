@@ -24,14 +24,31 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png" />
+
+    <!-- Applies the saved language before Blazor boots, so the shell text and <html lang> match. -->
+    <script>
+        (function () {
+            try {
+                var settings = JSON.parse(localStorage.getItem('app-settings') || '{}');
+                document.documentElement.lang = settings.Language || 'vi-VN';
+            } catch (e) {
+                document.documentElement.lang = 'vi-VN';
+            }
+        })();
+    </script>
 </head>
 
 <body>
     <div id="app">
         <div style="display:flex; align-items:center; justify-content:center; height:100vh; flex-direction:column; font-family:'Nunito', sans-serif">
             <div style="width:48px; height:48px; border:4px solid #594AE2; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px"></div>
-            <span style="color:#594AE2; font-weight:600; font-size:16px">Đang tải...</span>
+            <span id="app-loading-text" style="color:#594AE2; font-weight:600; font-size:16px">Đang tải...</span>
         </div>
+        <script>
+            if (document.documentElement.lang.toLowerCase().indexOf('en') === 0) {
+                document.getElementById('app-loading-text').textContent = 'Loading...';
+            }
+        </script>
         <style>
             @keyframes spin {
                 to {
@@ -42,9 +59,15 @@
     </div>
 
     <div id="blazor-error-ui" style="display:none">
-        Lỗi không mong muốn xảy ra. <a href="" class="reload">Tải lại trang</a>
+        <span id="blazor-error-text">Lỗi không mong muốn xảy ra.</span> <a href="" class="reload" id="blazor-error-reload">Tải lại trang</a>
         <a class="dismiss">🗙</a>
     </div>
+    <script>
+        if (document.documentElement.lang.toLowerCase().indexOf('en') === 0) {
+            document.getElementById('blazor-error-text').textContent = 'An unexpected error has occurred.';
+            document.getElementById('blazor-error-reload').textContent = 'Reload page';
+        }
+    </script>
 
     <!-- Quill.js (Rich Text Editor) -->
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.js"></script>

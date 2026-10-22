@@ -4,25 +4,25 @@
     <TitleContent>
         <div class="d-flex align-center gap-2">
             <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" />
-            <MudText Typo="Typo.h6">@(IsEdit ? "Edit user" : "Create user")</MudText>
+            <MudText Typo="Typo.h6">@(IsEdit ? L["UserDialog_EditTitle"] : L["UserDialog_CreateTitle"])</MudText>
         </div>
     </TitleContent>
     <DialogContent>
         <MudForm @ref="_form" @bind-IsValid="_formValid" Class="pt-2">
-            <MudTextField @bind-Value="_fullName" Label="Full name" Variant="Variant.Outlined" Margin="Margin.Dense"
+            <MudTextField @bind-Value="_fullName" Label="@L["UserDialog_FullName"]" Variant="Variant.Outlined" Margin="Margin.Dense"
                           Required="true" MaxLength="100" Counter="100" Class="mb-3" />
-            <MudTextField @bind-Value="_email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense"
+            <MudTextField @bind-Value="_email" Label="@L["UserDialog_Email"]" Variant="Variant.Outlined" Margin="Margin.Dense"
                           InputType="InputType.Email" Required="true" MaxLength="256"
                           Validation="@(new Func<string, string?>(ValidateEmail))" Disabled="IsEdit"
-                          HelperText="@(IsEdit ? "Email cannot be changed after the account is created." : null)" Class="mb-3" />
+                          HelperText="@(IsEdit ? L["UserDialog_EmailLocked"] : null)" Class="mb-3" />
             @if (!IsEdit)
             {
-                <MudTextField @bind-Value="_password" Label="Temporary password" Variant="Variant.Outlined" Margin="Margin.Dense"
+                <MudTextField @bind-Value="_password" Label="@L["UserDialog_Password"]" Variant="Variant.Outlined" Margin="Margin.Dense"
                               InputType="@(_showPassword ? InputType.Text : InputType.Password)" Required="true"
                               Validation="@(new Func<string, string?>(ValidatePassword))"
                               Adornment="Adornment.End" AdornmentIcon="@(_showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
                               OnAdornmentClick="@(() => _showPassword = !_showPassword)" Class="mb-3" />
-                <MudSelect T="Guid" @bind-Value="_roleId" Label="Role" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true" Class="mb-3">
+                <MudSelect T="Guid" @bind-Value="_roleId" Label="@L["UserDialog_Role"]" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true" Class="mb-3">
                     @foreach (var role in Roles)
                     {
                         <MudSelectItem T="Guid" Value="@role.Id">@role.Name</MudSelectItem>
@@ -30,8 +30,8 @@
                 </MudSelect>
                 <MudPaper Elevation="0" Class="pa-3 rounded-lg d-flex align-center justify-space-between" Style="border:1px solid var(--mud-palette-divider)">
                     <div>
-                        <MudText Typo="Typo.body2" Class="font-weight-medium">Active account</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">The user can sign in immediately.</MudText>
+                        <MudText Typo="Typo.body2" Class="font-weight-medium">@L["UserDialog_Active"]</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@L["UserDialog_ActiveHint"]</MudText>
                     </div>
                     <MudSwitch T="bool" @bind-Value="_isActive" Color="Color.Success" />
                 </MudPaper>
@@ -39,9 +39,9 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Text" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">@L["Common_Cancel"]</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="Submit">
-            @(IsEdit ? "Save changes" : "Create user")
+            @(IsEdit ? L["UserDialog_SaveChanges"] : L["UserDialog_CreateTitle"])
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -76,18 +76,18 @@
         }
     }
 
-    private static string? ValidatePassword(string value)
+    private string? ValidatePassword(string value)
         => value?.Length switch
         {
-            < 8 => "Password must be at least 8 characters.",
-            > 100 => "Password cannot exceed 100 characters.",
+            < 8 => L["UserDialog_PasswordTooShort"],
+            > 100 => L["UserDialog_PasswordTooLong"],
             _ => null
         };
 
-    private static string? ValidateEmail(string value)
+    private string? ValidateEmail(string value)
         => new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(value?.Trim())
             ? null
-            : "Enter a valid email address.";
+            : L["UserDialog_EmailInvalid"];
 
     private void Cancel() => MudDialog.Cancel();
 

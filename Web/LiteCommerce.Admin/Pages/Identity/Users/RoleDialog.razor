@@ -1,10 +1,10 @@
 @using LiteCommerce.Admin.Models.Business.User
 
 <MudDialog>
-    <TitleContent><MudText Typo="Typo.h6">Change role</MudText></TitleContent>
+    <TitleContent><MudText Typo="Typo.h6">@L["Role_ChangeTitle"]</MudText></TitleContent>
     <DialogContent>
-        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">Changing the role signs this user out of all sessions.</MudText>
-        <MudSelect T="Guid" @bind-Value="_roleId" Label="Role" Variant="Variant.Outlined" Required="true" FullWidth="true">
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">@L["Role_ChangeHint"]</MudText>
+        <MudSelect T="Guid" @bind-Value="_roleId" Label="@L["Role_Role"]" Variant="Variant.Outlined" Required="true" FullWidth="true">
             @foreach (var role in Roles)
             {
                 <MudSelectItem T="Guid" Value="@role.Id">@role.Name</MudSelectItem>
@@ -12,8 +12,8 @@
         </MudSelect>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Text" OnClick="Cancel">Cancel</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Change role</MudButton>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">@L["Common_Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">@L["Role_ChangeTitle"]</MudButton>
     </DialogActions>
 </MudDialog>
 

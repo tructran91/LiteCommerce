@@ -40,10 +40,10 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
         {
             _breadcrumbs = new()
             {
-                new("Home", href: "/", icon: Icons.Material.Filled.Home),
-                new("Catalog", href: null, disabled: true),
-                new("Categories", href: "/categories"),
-                new(_isEditMode ? "Edit Category" : "Add Category", href: null, disabled: true)
+                new(L["Common_Home"], href: "/", icon: Icons.Material.Filled.Home),
+                new(L["Menu_Catalog"], href: null, disabled: true),
+                new(L["Category_Title"], href: "/categories"),
+                new(_isEditMode ? L["Category_EditTitle"] : L["Category_AddTitle"], href: null, disabled: true)
             };
 
             await LoadBasicCategories();
@@ -82,12 +82,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 }
                 else
                 {
-                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                    Snackbar.Add(response.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {
@@ -103,14 +103,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
             {
                 if (_thumbnailFile.Size > FileUploadSettings.MaxImageSize)
                 {
-                    Snackbar.Add(FileUploadSettings.ImageSizeExceededMessage, Severity.Error);
+                    Snackbar.Add(L["Upload_ImageSizeExceeded"], Severity.Error);
                     _thumbnailFile = null;
                     return;
                 }
 
                 if (!FileUploadConstants.AllowedImageTypes.Contains(_thumbnailFile.ContentType))
                 {
-                    Snackbar.Add(FileUploadConstants.InvalidImageTypeMessage, Severity.Error);
+                    Snackbar.Add(L["Upload_InvalidImageType"], Severity.Error);
                     _thumbnailFile = null;
                     return;
                 }
@@ -124,7 +124,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 }
                 catch (Exception ex)
                 {
-                    Snackbar.Add($"Error loading image: {ex.Message}", Severity.Error);
+                    Snackbar.Add(L["Category_ImageLoadFailed", ex.Message], Severity.Error);
                     _thumbnailFile = null;
                     _thumbnailPreviewUrl = null;
                 }
@@ -188,20 +188,20 @@ namespace LiteCommerce.Admin.Pages.Catalog.Categories
                 if (response.IsSuccess)
                 {
                     var successMessage = _isEditMode
-                        ? SystemMessages.UpdateDataSuccess
-                        : SystemMessages.AddDataSuccess;
+                        ? L["Common_UpdateDataSuccess"]
+                        : L["Common_AddDataSuccess"];
 
                     Snackbar.Add(successMessage, Severity.Success);
                     NavigationManager.NavigateTo("/categories");
                 }
                 else
                 {
-                    Snackbar.Add(response.GetErrorMessage(SystemMessages.ErrorOccurred), Severity.Error);
+                    Snackbar.Add(response.GetErrorMessage(L["Common_ErrorOccurred"]), Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+                Snackbar.Add(L["Common_ErrorWithDetail", ex.Message], Severity.Error);
             }
             finally
             {

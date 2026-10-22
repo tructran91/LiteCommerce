@@ -3,18 +3,16 @@
 @using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.ActivityLog
 
-<PageTitle>Activity Logs</PageTitle>
+<PageTitle>@L["Logs_ActivityTitle"]</PageTitle>
 
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <!-- Page Header -->
 <div class="d-flex align-center justify-space-between mb-5">
     <div>
-        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Activity Logs</MudText>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Logs_ActivityTitle"]</MudText>
         <MudText Typo="Typo.body2" Class="mud-text-secondary">
-            @(IsIdentity
-                ? "Security events (sign-in, registration, password and session changes), successful and failed, newest first."
-                : "Successful admin actions, newest first.")
+            @(IsIdentity ? L["Logs_ActivityHintIdentity"] : L["Logs_ActivityHintCatalog"])
         </MudText>
     </div>
 </div>
@@ -23,11 +21,11 @@
 @if (_errorMessage != null)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
-        <strong>@SystemMessages.ErrorOccurred</strong> @_errorMessage
+        <strong>@L["Common_ErrorOccurred"]</strong> @_errorMessage
         <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="ApplyFilter" Class="ml-2">
-            Try again
+            @L["Common_TryAgain"]
         </MudButton>
     </MudAlert>
 }
@@ -36,15 +34,15 @@
 <MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
     <MudGrid Spacing="2">
         <MudItem xs="12" md="2">
-            <MudSelect T="LogSource" Value="_source" ValueChanged="OnSourceChanged" Label="Source"
+            <MudSelect T="LogSource" Value="_source" ValueChanged="OnSourceChanged" Label="@L["Logs_Source"]"
                        Variant="Variant.Outlined" Margin="Margin.Dense">
-                <MudSelectItem T="LogSource" Value="LogSource.Catalog">Catalog</MudSelectItem>
-                <MudSelectItem T="LogSource" Value="LogSource.Identity">Identity</MudSelectItem>
+                <MudSelectItem T="LogSource" Value="LogSource.Catalog">@L["Logs_Catalog"]</MudSelectItem>
+                <MudSelectItem T="LogSource" Value="LogSource.Identity">@L["Logs_Identity"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="2">
-            <MudTextField T="string" @bind-Value="_query.Search" Label="Search"
-                          Placeholder="@(IsIdentity ? "Email or description" : "Name or description")"
+            <MudTextField T="string" @bind-Value="_query.Search" Label="@L["Logs_Search"]"
+                          Placeholder="@(IsIdentity ? L["Logs_EmailOrDescription"] : L["Logs_NameOrDescription"])"
                           Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" Immediate="true"
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
                           OnKeyUp="OnSearchKeyUp" />
@@ -52,17 +50,17 @@
         @if (IsIdentity)
         {
             <MudItem xs="6" md="2">
-                <MudSelect T="bool?" @bind-Value="_query.IsSuccess" Label="Result" Variant="Variant.Outlined"
+                <MudSelect T="bool?" @bind-Value="_query.IsSuccess" Label="@L["Logs_Result"]" Variant="Variant.Outlined"
                            Margin="Margin.Dense" Clearable="true">
-                    <MudSelectItem T="bool?" Value="true">Succeeded</MudSelectItem>
-                    <MudSelectItem T="bool?" Value="false">Failed</MudSelectItem>
+                    <MudSelectItem T="bool?" Value="true">@L["Logs_Succeeded"]</MudSelectItem>
+                    <MudSelectItem T="bool?" Value="false">@L["Logs_Failed"]</MudSelectItem>
                 </MudSelect>
             </MudItem>
         }
         else
         {
             <MudItem xs="6" md="2">
-                <MudSelect T="string" @bind-Value="_query.EntityName" Label="Entity" Variant="Variant.Outlined"
+                <MudSelect T="string" @bind-Value="_query.EntityName" Label="@L["Logs_Entity"]" Variant="Variant.Outlined"
                            Margin="Margin.Dense" Clearable="true">
                     @foreach (var entityName in LogConstants.ActivityEntityNames)
                     {
@@ -72,7 +70,7 @@
             </MudItem>
         }
         <MudItem xs="6" md="2">
-            <MudSelect T="string" @bind-Value="_query.Action" Label="@(IsIdentity ? "Event" : "Action")" Variant="Variant.Outlined"
+            <MudSelect T="string" @bind-Value="_query.Action" Label="@(IsIdentity ? L["Logs_Event"] : L["Logs_Action"])" Variant="Variant.Outlined"
                        Margin="Margin.Dense" Clearable="true">
                 @foreach (var action in LogConstants.ActivityActionsFor(_source))
                 {
@@ -81,19 +79,19 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudDatePicker @bind-Date="_query.FromDate" Label="From" Variant="Variant.Outlined"
+            <MudDatePicker @bind-Date="_query.FromDate" Label="@L["Logs_From"]" Variant="Variant.Outlined"
                            Margin="Margin.Dense" Clearable="true" DateFormat="dd/MM/yyyy" />
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudDatePicker @bind-Date="_query.ToDate" Label="To" Variant="Variant.Outlined"
+            <MudDatePicker @bind-Date="_query.ToDate" Label="@L["Logs_To"]" Variant="Variant.Outlined"
                            Margin="Margin.Dense" Clearable="true" DateFormat="dd/MM/yyyy" />
         </MudItem>
         <MudItem xs="12" Class="d-flex justify-end gap-2">
             <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.FilterAltOff" OnClick="ClearFilter">
-                Clear
+                @L["Logs_Clear"]
             </MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAlt" OnClick="ApplyFilter">
-                Apply
+                @L["Logs_Apply"]
             </MudButton>
         </MudItem>
     </MudGrid>
@@ -111,55 +109,55 @@
               @ref="_table">
 
         <HeaderContent>
-            <MudTh Style="width:170px">Time</MudTh>
+            <MudTh Style="width:170px">@L["Logs_Time"]</MudTh>
             @if (IsIdentity)
             {
-                <MudTh Style="width:160px">Event</MudTh>
-                <MudTh Style="width:100px">Result</MudTh>
-                <MudTh Style="width:220px">Email</MudTh>
-                <MudTh>Description</MudTh>
-                <MudTh Style="width:130px">IP</MudTh>
+                <MudTh Style="width:160px">@L["Logs_Event"]</MudTh>
+                <MudTh Style="width:100px">@L["Logs_Result"]</MudTh>
+                <MudTh Style="width:220px">@L["Logs_Email"]</MudTh>
+                <MudTh>@L["Logs_Description"]</MudTh>
+                <MudTh Style="width:130px">@L["Logs_Ip"]</MudTh>
             }
             else
             {
-                <MudTh Style="width:120px">Action</MudTh>
-                <MudTh Style="width:180px">Entity</MudTh>
-                <MudTh>Description</MudTh>
-                <MudTh Style="width:110px">User</MudTh>
+                <MudTh Style="width:120px">@L["Logs_Action"]</MudTh>
+                <MudTh Style="width:180px">@L["Logs_Entity"]</MudTh>
+                <MudTh>@L["Logs_Description"]</MudTh>
+                <MudTh Style="width:110px">@L["Logs_User"]</MudTh>
             }
-            <MudTh Style="width:90px; text-align:center">Changes</MudTh>
+            <MudTh Style="width:90px; text-align:center">@L["Logs_Changes"]</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Time">
+            <MudTd DataLabel="@L["Logs_Time"]">
                 <MudText Typo="Typo.body2">@LogConstants.ToLocalDisplay(context.Timestamp)</MudText>
             </MudTd>
             @if (IsIdentity)
             {
-                <MudTd DataLabel="Event">
+                <MudTd DataLabel="@L["Logs_Event"]">
                     <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(context.Action)" Variant="Variant.Text">
                         @context.Action
                     </MudChip>
                 </MudTd>
-                <MudTd DataLabel="Result">
+                <MudTd DataLabel="@L["Logs_Result"]">
                     @if (context.IsSuccess == true)
                     {
-                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Check">OK</MudChip>
+                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Check">@L["Logs_Ok"]</MudChip>
                     }
                     else
                     {
-                        <MudTooltip Text="@(context.FailureReason ?? "Failed")">
-                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Close">Failed</MudChip>
+                        <MudTooltip Text="@(context.FailureReason ?? L["Logs_Failed"].Value)">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Close">@L["Logs_Failed"]</MudChip>
                         </MudTooltip>
                     }
                 </MudTd>
-                <MudTd DataLabel="Email">
+                <MudTd DataLabel="@L["Logs_Email"]">
                     <MudText Typo="Typo.body2" Class="font-weight-medium">@(context.Email ?? "—")</MudText>
                 </MudTd>
-                <MudTd DataLabel="Description">
+                <MudTd DataLabel="@L["Logs_Description"]">
                     <MudText Typo="Typo.body2">@context.Description</MudText>
                 </MudTd>
-                <MudTd DataLabel="IP">
+                <MudTd DataLabel="@L["Logs_Ip"]">
                     <MudTooltip Text="@(context.UserAgent ?? "")">
                         <MudText Typo="Typo.body2" Style="font-family:monospace">@(context.IpAddress ?? "—")</MudText>
                     </MudTooltip>
@@ -167,23 +165,23 @@
             }
             else
             {
-                <MudTd DataLabel="Action">
+                <MudTd DataLabel="@L["Logs_Action"]">
                     <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(context.Action)" Variant="Variant.Text">
                         @context.Action
                     </MudChip>
                 </MudTd>
-                <MudTd DataLabel="Entity">
+                <MudTd DataLabel="@L["Logs_Entity"]">
                     <MudText Typo="Typo.body2" Class="font-weight-medium">@context.EntityName</MudText>
                 </MudTd>
-                <MudTd DataLabel="Description">
+                <MudTd DataLabel="@L["Logs_Description"]">
                     <MudText Typo="Typo.body2">@context.Description</MudText>
                 </MudTd>
-                <MudTd DataLabel="User">
+                <MudTd DataLabel="@L["Logs_User"]">
                     <MudText Typo="Typo.body2">@context.UserName</MudText>
                 </MudTd>
             }
             <MudTd Style="text-align:center">
-                <MudTooltip Text="View data changes">
+                <MudTooltip Text="@L["Logs_ViewChanges"]">
                     <MudIconButton Icon="@Icons.Material.Filled.History"
                                    Size="Size.Small"
                                    Color="Color.Primary"
@@ -195,7 +193,7 @@
         <NoRecordsContent>
             <div class="pa-8 text-center">
                 <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3" Style="opacity:0.3" />
-                <MudText Typo="Typo.body1" Class="mud-text-secondary">@SystemMessages.NoData</MudText>
+                <MudText Typo="Typo.body1" Class="mud-text-secondary">@L["Common_NoData"]</MudText>
             </div>
         </NoRecordsContent>
 

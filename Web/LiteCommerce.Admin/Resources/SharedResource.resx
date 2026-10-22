@@ -1,0 +1,1690 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=neutral, VersionCode=4.0.0.0</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=neutral, VersionCode=4.0.0.0</value></resheader>
+  <data name="App_BackHome" xml:space="preserve">
+    <value>Back to home</value>
+  </data>
+  <data name="App_NoAccess" xml:space="preserve">
+    <value>You do not have access to this page</value>
+  </data>
+  <data name="App_NotFoundHeading" xml:space="preserve">
+    <value>This page does not exist</value>
+  </data>
+  <data name="App_NotFoundTitle" xml:space="preserve">
+    <value>Page not found - CommerceAdmin</value>
+  </data>
+  <data name="Attribute_AddButton" xml:space="preserve">
+    <value>Add Attribute</value>
+  </data>
+  <data name="Attribute_AddTitle" xml:space="preserve">
+    <value>Add New Attribute</value>
+  </data>
+  <data name="Attribute_EditTitle" xml:space="preserve">
+    <value>Edit Attribute</value>
+  </data>
+  <data name="Attribute_Group" xml:space="preserve">
+    <value>Attribute Group</value>
+  </data>
+  <data name="Attribute_GroupRequired" xml:space="preserve">
+    <value>Please select a group</value>
+  </data>
+  <data name="Attribute_Name" xml:space="preserve">
+    <value>Attribute Name</value>
+  </data>
+  <data name="Attribute_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Color, Size, Material...</value>
+  </data>
+  <data name="Attribute_NameRequired" xml:space="preserve">
+    <value>Attribute name cannot be empty</value>
+  </data>
+  <data name="Attribute_SelectGroup" xml:space="preserve">
+    <value>Select a group</value>
+  </data>
+  <data name="Attribute_Title" xml:space="preserve">
+    <value>Product Attributes</value>
+  </data>
+  <data name="AttributeGroup_AddButton" xml:space="preserve">
+    <value>Add Attribute Group</value>
+  </data>
+  <data name="AttributeGroup_AddTitle" xml:space="preserve">
+    <value>Add New Attribute Group</value>
+  </data>
+  <data name="AttributeGroup_EditTitle" xml:space="preserve">
+    <value>Edit Attribute Group</value>
+  </data>
+  <data name="AttributeGroup_Name" xml:space="preserve">
+    <value>Attribute Group Name</value>
+  </data>
+  <data name="AttributeGroup_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Specifications, Features, Dimensions...</value>
+  </data>
+  <data name="AttributeGroup_NameRequired" xml:space="preserve">
+    <value>Attribute group name cannot be empty</value>
+  </data>
+  <data name="AttributeGroup_Title" xml:space="preserve">
+    <value>Product Attribute Groups</value>
+  </data>
+  <data name="Auth_BackToSignIn" xml:space="preserve">
+    <value>Back to sign in</value>
+  </data>
+  <data name="Auth_BeforeYouContinue" xml:space="preserve">
+    <value>Before you continue</value>
+  </data>
+  <data name="Auth_ChangePasswordHeading" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="Auth_ChangePasswordSubtitle" xml:space="preserve">
+    <value>Update the password used to sign in to the admin console.</value>
+  </data>
+  <data name="Auth_ChangePasswordTitle" xml:space="preserve">
+    <value>Change password - CommerceAdmin</value>
+  </data>
+  <data name="Auth_ConfirmNewPassword" xml:space="preserve">
+    <value>Confirm new password</value>
+  </data>
+  <data name="Auth_ConfirmPassword" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="Auth_CurrentPassword" xml:space="preserve">
+    <value>Current password</value>
+  </data>
+  <data name="Auth_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Auth_EmailPlaceholder" xml:space="preserve">
+    <value>you@company.com</value>
+  </data>
+  <data name="Auth_FeatureAuditDesc" xml:space="preserve">
+    <value>Every change recorded with who and when.</value>
+  </data>
+  <data name="Auth_FeatureAuditTitle" xml:space="preserve">
+    <value>Full audit trail</value>
+  </data>
+  <data name="Auth_FeatureCatalogDesc" xml:space="preserve">
+    <value>Products, variants and media in one place.</value>
+  </data>
+  <data name="Auth_FeatureCatalogTitle" xml:space="preserve">
+    <value>Catalog management</value>
+  </data>
+  <data name="Auth_FeaturePricingDesc" xml:space="preserve">
+    <value>Bulk updates with full price history.</value>
+  </data>
+  <data name="Auth_FeaturePricingTitle" xml:space="preserve">
+    <value>Pricing control</value>
+  </data>
+  <data name="Auth_ForgotPassword" xml:space="preserve">
+    <value>Forgot password?</value>
+  </data>
+  <data name="Auth_ForgotSubtitle" xml:space="preserve">
+    <value>Enter the email address associated with your account.</value>
+  </data>
+  <data name="Auth_ForgotTitle" xml:space="preserve">
+    <value>Forgot password - CommerceAdmin</value>
+  </data>
+  <data name="Auth_LoginHeroSubtitle" xml:space="preserve">
+    <value>Products, categories, pricing and activity history — all in one console.</value>
+  </data>
+  <data name="Auth_LoginHeroTitle1" xml:space="preserve">
+    <value>Run your store,</value>
+  </data>
+  <data name="Auth_LoginHeroTitle2" xml:space="preserve">
+    <value>not your spreadsheets.</value>
+  </data>
+  <data name="Auth_LoginSubtitle" xml:space="preserve">
+    <value>Sign in to continue to your dashboard.</value>
+  </data>
+  <data name="Auth_LoginTitle" xml:space="preserve">
+    <value>Sign in - CommerceAdmin</value>
+  </data>
+  <data name="Auth_NewPassword" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="Auth_NewPasswordHelper" xml:space="preserve">
+    <value>At least 8 characters</value>
+  </data>
+  <data name="Auth_Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Auth_RecoverAccessSubtitle" xml:space="preserve">
+    <value>We&apos;ll send a time-limited password reset link if your account exists.</value>
+  </data>
+  <data name="Auth_RecoverAccessTitle1" xml:space="preserve">
+    <value>Recover access,</value>
+  </data>
+  <data name="Auth_RecoverAccessTitle2" xml:space="preserve">
+    <value>securely.</value>
+  </data>
+  <data name="Auth_RepeatNewPassword" xml:space="preserve">
+    <value>Repeat the new password</value>
+  </data>
+  <data name="Auth_RequestAnotherLink" xml:space="preserve">
+    <value>Request another link</value>
+  </data>
+  <data name="Auth_ResetHeading" xml:space="preserve">
+    <value>Reset password</value>
+  </data>
+  <data name="Auth_ResetHeroSubtitle" xml:space="preserve">
+    <value>Reset links expire after 30 minutes and can only be used once.</value>
+  </data>
+  <data name="Auth_ResetHeroTitle1" xml:space="preserve">
+    <value>Choose a new,</value>
+  </data>
+  <data name="Auth_ResetHeroTitle2" xml:space="preserve">
+    <value>strong password.</value>
+  </data>
+  <data name="Auth_ResetInstruction" xml:space="preserve">
+    <value>Enter and confirm your new password.</value>
+  </data>
+  <data name="Auth_ResetInvalidLink" xml:space="preserve">
+    <value>This password reset link is invalid.</value>
+  </data>
+  <data name="Auth_ResetLinkInvalidOrExpired" xml:space="preserve">
+    <value>This reset link is invalid or has expired.</value>
+  </data>
+  <data name="Auth_ResetSent" xml:space="preserve">
+    <value>If the email is registered, password reset instructions have been sent.</value>
+  </data>
+  <data name="Auth_ResetSuccess" xml:space="preserve">
+    <value>Password reset successfully. You can now sign in.</value>
+  </data>
+  <data name="Auth_Resetting" xml:space="preserve">
+    <value>Resetting...</value>
+  </data>
+  <data name="Auth_ResetTitle" xml:space="preserve">
+    <value>Reset password - CommerceAdmin</value>
+  </data>
+  <data name="Auth_Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="Auth_Sending" xml:space="preserve">
+    <value>Sending...</value>
+  </data>
+  <data name="Auth_SendReset" xml:space="preserve">
+    <value>Send reset instructions</value>
+  </data>
+  <data name="Auth_ShowCurrentPassword" xml:space="preserve">
+    <value>Show current password</value>
+  </data>
+  <data name="Auth_ShowNewPassword" xml:space="preserve">
+    <value>Show new password</value>
+  </data>
+  <data name="Auth_ShowPassword" xml:space="preserve">
+    <value>Show password</value>
+  </data>
+  <data name="Auth_SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Auth_SigningIn" xml:space="preserve">
+    <value>Signing in...</value>
+  </data>
+  <data name="Auth_TipOtherDevicesDesc" xml:space="preserve">
+    <value>Anyone signed in elsewhere has to sign in again with the new password.</value>
+  </data>
+  <data name="Auth_TipOtherDevicesTitle" xml:space="preserve">
+    <value>Other devices too</value>
+  </data>
+  <data name="Auth_TipSignedOutDesc" xml:space="preserve">
+    <value>Changing the password ends every session, including this one.</value>
+  </data>
+  <data name="Auth_TipSignedOutTitle" xml:space="preserve">
+    <value>You will be signed out</value>
+  </data>
+  <data name="Auth_TipStrongDesc" xml:space="preserve">
+    <value>Use at least 8 characters and avoid a password used on another site.</value>
+  </data>
+  <data name="Auth_TipStrongTitle" xml:space="preserve">
+    <value>Pick something strong</value>
+  </data>
+  <data name="Auth_WelcomeBack" xml:space="preserve">
+    <value>Welcome back</value>
+  </data>
+  <data name="Brand_AddButton" xml:space="preserve">
+    <value>Add Brand</value>
+  </data>
+  <data name="Brand_AddTitle" xml:space="preserve">
+    <value>Add New Brand</value>
+  </data>
+  <data name="Brand_EditTitle" xml:space="preserve">
+    <value>Edit Brand</value>
+  </data>
+  <data name="Brand_IsPublished" xml:space="preserve">
+    <value>Is Published</value>
+  </data>
+  <data name="Brand_Name" xml:space="preserve">
+    <value>Brand Name</value>
+  </data>
+  <data name="Brand_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Apple, Samsung, Nike, Adidas...</value>
+  </data>
+  <data name="Brand_NameRequired" xml:space="preserve">
+    <value>Brand name cannot be empty</value>
+  </data>
+  <data name="Brand_Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Brand_PublishedHint" xml:space="preserve">
+    <value>The brand will be visible in the store</value>
+  </data>
+  <data name="Brand_PublishStatus" xml:space="preserve">
+    <value>Publish status</value>
+  </data>
+  <data name="Brand_Title" xml:space="preserve">
+    <value>Brands</value>
+  </data>
+  <data name="Brand_Unpublished" xml:space="preserve">
+    <value>Unpublished</value>
+  </data>
+  <data name="Brand_UnpublishedHint" xml:space="preserve">
+    <value>The brand will be hidden from the store</value>
+  </data>
+  <data name="Category_AddButton" xml:space="preserve">
+    <value>Add Category</value>
+  </data>
+  <data name="Category_AddTitle" xml:space="preserve">
+    <value>Add Category</value>
+  </data>
+  <data name="Category_ChooseImage" xml:space="preserve">
+    <value>Choose Image</value>
+  </data>
+  <data name="Category_DescriptionPlaceholder" xml:space="preserve">
+    <value>Enter category description...</value>
+  </data>
+  <data name="Category_DisplayOrder" xml:space="preserve">
+    <value>Display order</value>
+  </data>
+  <data name="Category_DisplayOrderLabel" xml:space="preserve">
+    <value>Display Order</value>
+  </data>
+  <data name="Category_EditTitle" xml:space="preserve">
+    <value>Edit Category</value>
+  </data>
+  <data name="Category_GeneralTab" xml:space="preserve">
+    <value>General Information</value>
+  </data>
+  <data name="Category_ImageLoadFailed" xml:space="preserve">
+    <value>Error loading image: {0}</value>
+  </data>
+  <data name="Category_IncludeInMenu" xml:space="preserve">
+    <value>Include in menu</value>
+  </data>
+  <data name="Category_IncludeInMenuLabel" xml:space="preserve">
+    <value>Include in Menu</value>
+  </data>
+  <data name="Category_IsPublished" xml:space="preserve">
+    <value>Is Published</value>
+  </data>
+  <data name="Category_MetaDescription" xml:space="preserve">
+    <value>Meta Description</value>
+  </data>
+  <data name="Category_MetaDescriptionPlaceholder" xml:space="preserve">
+    <value>SEO meta description...</value>
+  </data>
+  <data name="Category_MetaKeywords" xml:space="preserve">
+    <value>Meta Keywords</value>
+  </data>
+  <data name="Category_MetaKeywordsPlaceholder" xml:space="preserve">
+    <value>keyword1, keyword2, keyword3...</value>
+  </data>
+  <data name="Category_MetaTitle" xml:space="preserve">
+    <value>Meta Title</value>
+  </data>
+  <data name="Category_MetaTitlePlaceholder" xml:space="preserve">
+    <value>SEO meta title...</value>
+  </data>
+  <data name="Category_Name" xml:space="preserve">
+    <value>Category Name</value>
+  </data>
+  <data name="Category_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Accessories, Computers, Phones...</value>
+  </data>
+  <data name="Category_NameRequired" xml:space="preserve">
+    <value>Name is required</value>
+  </data>
+  <data name="Category_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Category_Parent" xml:space="preserve">
+    <value>Parent Category</value>
+  </data>
+  <data name="Category_ProductsHint" xml:space="preserve">
+    <value>Products associated with this category will be listed here.</value>
+  </data>
+  <data name="Category_ProductsTab" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Category_Thumbnail" xml:space="preserve">
+    <value>Thumbnail Image</value>
+  </data>
+  <data name="Category_ThumbnailPreview" xml:space="preserve">
+    <value>Thumbnail preview</value>
+  </data>
+  <data name="Category_Title" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="Common_Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Common_Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Common_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Common_AddDataSuccess" xml:space="preserve">
+    <value>Data was added successfully.</value>
+  </data>
+  <data name="Common_AddNew" xml:space="preserve">
+    <value>Add New</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_ChangePasswordSuccess" xml:space="preserve">
+    <value>Password changed. Please sign in again.</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Common_ConfirmActionDefault" xml:space="preserve">
+    <value>Confirm action</value>
+  </data>
+  <data name="Common_ConfirmDefault" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Common_ConfirmDeletePrefix" xml:space="preserve">
+    <value>Are you sure you want to delete </value>
+  </data>
+  <data name="Common_ConfirmDeleteSuffix" xml:space="preserve">
+    <value>?</value>
+  </data>
+  <data name="Common_ConfirmDeleteTitle" xml:space="preserve">
+    <value>Confirm delete</value>
+  </data>
+  <data name="Common_ConfirmDeleteWarning" xml:space="preserve">
+    <value>This action cannot be undone.</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common_DeletedMessage" xml:space="preserve">
+    <value>Deleted &quot;{0}&quot;</value>
+  </data>
+  <data name="Common_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Common_ErrorOccurred" xml:space="preserve">
+    <value>An error occurred.</value>
+  </data>
+  <data name="Common_ErrorPrefix" xml:space="preserve">
+    <value>Error:</value>
+  </data>
+  <data name="Common_ErrorWithDetail" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="Common_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Common_LoginFailed" xml:space="preserve">
+    <value>Sign in failed.</value>
+  </data>
+  <data name="Common_LoginServerUnreachable" xml:space="preserve">
+    <value>Cannot reach the server. Please try again.</value>
+  </data>
+  <data name="Common_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Common_NoData" xml:space="preserve">
+    <value>No data found.</value>
+  </data>
+  <data name="Common_NotFound" xml:space="preserve">
+    <value>Not Found</value>
+  </data>
+  <data name="Common_NotFoundMessage" xml:space="preserve">
+    <value>Sorry, the content you are looking for does not exist.</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common_SaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="Common_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Common_SessionExpired" xml:space="preserve">
+    <value>Your session has expired. Please sign in again.</value>
+  </data>
+  <data name="Common_SortBy" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="Common_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Common_TryAgain" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Common_UpdateDataSuccess" xml:space="preserve">
+    <value>Data was updated successfully.</value>
+  </data>
+  <data name="Common_User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Home_CategoryFashion" xml:space="preserve">
+    <value>Fashion</value>
+  </data>
+  <data name="Home_CategoryFood" xml:space="preserve">
+    <value>Food &amp; Beverage</value>
+  </data>
+  <data name="Home_CategoryHome" xml:space="preserve">
+    <value>Home appliances</value>
+  </data>
+  <data name="Home_CategoryPhones" xml:space="preserve">
+    <value>Phones &amp; Accessories</value>
+  </data>
+  <data name="Home_ChartPlaceholder" xml:space="preserve">
+    <value>Chart will be rendered here</value>
+  </data>
+  <data name="Home_ChartPlaceholderHint" xml:space="preserve">
+    <value>(ApexCharts or ChartJs integration)</value>
+  </data>
+  <data name="Home_ComparedLastWeek" xml:space="preserve">
+    <value>Compared to last week</value>
+  </data>
+  <data name="Home_ComparedYesterday" xml:space="preserve">
+    <value>Compared to yesterday</value>
+  </data>
+  <data name="Home_Customer" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+  <data name="Home_Day" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Home_Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Home_NewCustomers" xml:space="preserve">
+    <value>New customers</value>
+  </data>
+  <data name="Home_NewOrders" xml:space="preserve">
+    <value>New orders</value>
+  </data>
+  <data name="Home_OrderId" xml:space="preserve">
+    <value>Order ID</value>
+  </data>
+  <data name="Home_OrderStatusCancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Home_OrderStatusCompleted" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Home_OrderStatusPending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Home_OrderStatusShipping" xml:space="preserve">
+    <value>Shipping</value>
+  </data>
+  <data name="Home_PageTitle" xml:space="preserve">
+    <value>Dashboard - CommerceAdmin</value>
+  </data>
+  <data name="Home_Product" xml:space="preserve">
+    <value>Product</value>
+  </data>
+  <data name="Home_RecentOrders" xml:space="preserve">
+    <value>Recent orders</value>
+  </data>
+  <data name="Home_ReturnRate" xml:space="preserve">
+    <value>Return rate</value>
+  </data>
+  <data name="Home_Revenue7Days" xml:space="preserve">
+    <value>Revenue in the last 7 days</value>
+  </data>
+  <data name="Home_RevenueToday" xml:space="preserve">
+    <value>Today&apos;s revenue</value>
+  </data>
+  <data name="Home_ThisWeek" xml:space="preserve">
+    <value>This week</value>
+  </data>
+  <data name="Home_TopCategories" xml:space="preserve">
+    <value>Top selling categories</value>
+  </data>
+  <data name="Home_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Home_UpdatedAt" xml:space="preserve">
+    <value>Updated at 08:00 this morning</value>
+  </data>
+  <data name="Home_ViewAll" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="Home_Week" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="Home_Welcome" xml:space="preserve">
+    <value>Welcome back! Here is today&apos;s overview.</value>
+  </data>
+  <data name="Layout_CollapseMenu" xml:space="preserve">
+    <value>Collapse menu</value>
+  </data>
+  <data name="Layout_ExpandMenu" xml:space="preserve">
+    <value>Expand menu</value>
+  </data>
+  <data name="Layout_SearchPlaceholder" xml:space="preserve">
+    <value>Search...</value>
+  </data>
+  <data name="Layout_SettingsTitle" xml:space="preserve">
+    <value>System settings</value>
+  </data>
+  <data name="Logs_Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Logs_ActivityHintCatalog" xml:space="preserve">
+    <value>Successful admin actions, newest first.</value>
+  </data>
+  <data name="Logs_ActivityHintIdentity" xml:space="preserve">
+    <value>Security events (sign-in, registration, password and session changes), successful and failed, newest first.</value>
+  </data>
+  <data name="Logs_ActivityTitle" xml:space="preserve">
+    <value>Activity Logs</value>
+  </data>
+  <data name="Logs_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Logs_AuditHint" xml:space="preserve">
+    <value>Row-level data changes with old and new values, newest first.</value>
+  </data>
+  <data name="Logs_AuditTitle" xml:space="preserve">
+    <value>Audit Logs</value>
+  </data>
+  <data name="Logs_Catalog" xml:space="preserve">
+    <value>Catalog</value>
+  </data>
+  <data name="Logs_ChangedProperties" xml:space="preserve">
+    <value>Changed properties</value>
+  </data>
+  <data name="Logs_Changes" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="Logs_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Logs_DataChanges" xml:space="preserve">
+    <value>Data changes</value>
+  </data>
+  <data name="Logs_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Logs_Detail" xml:space="preserve">
+    <value>Detail</value>
+  </data>
+  <data name="Logs_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Logs_EmailOrDescription" xml:space="preserve">
+    <value>Email or description</value>
+  </data>
+  <data name="Logs_Entity" xml:space="preserve">
+    <value>Entity</value>
+  </data>
+  <data name="Logs_Event" xml:space="preserve">
+    <value>Event</value>
+  </data>
+  <data name="Logs_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Logs_From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Logs_Identity" xml:space="preserve">
+    <value>Identity</value>
+  </data>
+  <data name="Logs_Ip" xml:space="preserve">
+    <value>IP</value>
+  </data>
+  <data name="Logs_NameOrDescription" xml:space="preserve">
+    <value>Name or description</value>
+  </data>
+  <data name="Logs_NewValue" xml:space="preserve">
+    <value>New value</value>
+  </data>
+  <data name="Logs_NoChanges" xml:space="preserve">
+    <value>No data changes were recorded for this action.</value>
+  </data>
+  <data name="Logs_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Logs_OldValue" xml:space="preserve">
+    <value>Old value</value>
+  </data>
+  <data name="Logs_Property" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="Logs_Result" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="Logs_SameRequest" xml:space="preserve">
+    <value>Same request: {0}</value>
+  </data>
+  <data name="Logs_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Logs_ShowSameRequest" xml:space="preserve">
+    <value>Show rows changed by the same request</value>
+  </data>
+  <data name="Logs_Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="Logs_Succeeded" xml:space="preserve">
+    <value>Succeeded</value>
+  </data>
+  <data name="Logs_Time" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Logs_To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Logs_User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Logs_ValuesCount" xml:space="preserve">
+    <value>{0} values</value>
+  </data>
+  <data name="Logs_ViewChanges" xml:space="preserve">
+    <value>View data changes</value>
+  </data>
+  <data name="Logs_ViewValues" xml:space="preserve">
+    <value>View old and new values</value>
+  </data>
+  <data name="Menu_ActivityLogs" xml:space="preserve">
+    <value>Activity Logs</value>
+  </data>
+  <data name="Menu_AllOrders" xml:space="preserve">
+    <value>All Orders</value>
+  </data>
+  <data name="Menu_AuditLogs" xml:space="preserve">
+    <value>Audit Logs</value>
+  </data>
+  <data name="Menu_Brands" xml:space="preserve">
+    <value>Brands</value>
+  </data>
+  <data name="Menu_Catalog" xml:space="preserve">
+    <value>Catalog</value>
+  </data>
+  <data name="Menu_Categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="Menu_CompletedOrders" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Menu_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Menu_Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="Menu_PendingOrders" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Menu_ProductAttributeGroups" xml:space="preserve">
+    <value>Product Attribute Groups</value>
+  </data>
+  <data name="Menu_ProductAttributes" xml:space="preserve">
+    <value>Product Attributes</value>
+  </data>
+  <data name="Menu_ProductOptions" xml:space="preserve">
+    <value>Product Options</value>
+  </data>
+  <data name="Menu_ProductPrices" xml:space="preserve">
+    <value>Product Prices</value>
+  </data>
+  <data name="Menu_Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Menu_ProductTemplates" xml:space="preserve">
+    <value>Product Templates</value>
+  </data>
+  <data name="Menu_SalesManagement" xml:space="preserve">
+    <value>Sales Management</value>
+  </data>
+  <data name="Menu_ShippingOrders" xml:space="preserve">
+    <value>Shipping</value>
+  </data>
+  <data name="Menu_System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Menu_Users" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <data name="MudDataGrid_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MudDataGrid_ClearFilter" xml:space="preserve">
+    <value>Clear filter</value>
+  </data>
+  <data name="MudDataGrid_Columns" xml:space="preserve">
+    <value>Columns</value>
+  </data>
+  <data name="MudDataGrid_Columns_HideAll" xml:space="preserve">
+    <value>Hide all</value>
+  </data>
+  <data name="MudDataGrid_Columns_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="MudDataGrid_Columns_ShowAll" xml:space="preserve">
+    <value>Show all</value>
+  </data>
+  <data name="MudDataGrid_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MudDataGrid_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="MudDataGrid_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="MudDataGrid_Group" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="MudDataGrid_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MudDataGrid_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="MudDataGrid_Sort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="MudDataGrid_Ungroup" xml:space="preserve">
+    <value>Ungroup</value>
+  </data>
+  <data name="MudDatePicker_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="MudDatePicker_Close" xml:space="preserve">
+    <value>Đóng</value>
+  </data>
+  <data name="MudDatePicker_Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="MudDatePicker_Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="MudDatePicker_Year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="MudDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MudDialog_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="MudDialog_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MudDialog_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="MudFileUpload_ChooseFile" xml:space="preserve">
+    <value>Choose file</value>
+  </data>
+  <data name="MudFileUpload_ChooseFiles" xml:space="preserve">
+    <value>Choose files</value>
+  </data>
+  <data name="MudFileUpload_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="MudFileUpload_Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="MudSelect_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="MudSelect_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="MudSelect_Search" xml:space="preserve">
+    <value>Search...</value>
+  </data>
+  <data name="MudTable_Sort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="MudTablePager_FirstPage" xml:space="preserve">
+    <value>First page</value>
+  </data>
+  <data name="MudTablePager_Info" xml:space="preserve">
+    <value>{0}–{1} of {2}</value>
+  </data>
+  <data name="MudTablePager_LastPage" xml:space="preserve">
+    <value>Last page</value>
+  </data>
+  <data name="MudTablePager_NextPage" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="MudTablePager_PrevPage" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="MudTablePager_RowsPerPage" xml:space="preserve">
+    <value>Rows per page:</value>
+  </data>
+  <data name="MudTimePicker_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MudTimePicker_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Option_AddButton" xml:space="preserve">
+    <value>Add Option</value>
+  </data>
+  <data name="Option_AddTitle" xml:space="preserve">
+    <value>Add New Option</value>
+  </data>
+  <data name="Option_EditTitle" xml:space="preserve">
+    <value>Edit Option</value>
+  </data>
+  <data name="Option_Name" xml:space="preserve">
+    <value>Option Name</value>
+  </data>
+  <data name="Option_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Color, Size, Material...</value>
+  </data>
+  <data name="Option_NameRequired" xml:space="preserve">
+    <value>Option name cannot be empty</value>
+  </data>
+  <data name="Option_Title" xml:space="preserve">
+    <value>Product Options</value>
+  </data>
+  <data name="Price_Current" xml:space="preserve">
+    <value>Current Price</value>
+  </data>
+  <data name="Price_NoChanges" xml:space="preserve">
+    <value>No price changes to save</value>
+  </data>
+  <data name="Price_NotFound" xml:space="preserve">
+    <value>Products not found: {0}</value>
+  </data>
+  <data name="Price_Old" xml:space="preserve">
+    <value>Old Price</value>
+  </data>
+  <data name="Price_Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Price_ProductName" xml:space="preserve">
+    <value>Product Name</value>
+  </data>
+  <data name="Price_SaveFailed" xml:space="preserve">
+    <value>Error saving prices: {0}</value>
+  </data>
+  <data name="Price_Special" xml:space="preserve">
+    <value>Special Price</value>
+  </data>
+  <data name="Price_SpecialEnd" xml:space="preserve">
+    <value>Special End</value>
+  </data>
+  <data name="Price_SpecialStart" xml:space="preserve">
+    <value>Special Start</value>
+  </data>
+  <data name="Price_Title" xml:space="preserve">
+    <value>Product Prices</value>
+  </data>
+  <data name="Price_UnsavedChanges" xml:space="preserve">
+    <value>{0} product(s) have unsaved changes. Click &quot;Save Changes&quot; to apply them.</value>
+  </data>
+  <data name="Price_Updated" xml:space="preserve">
+    <value>Updated prices for {0} product(s) successfully</value>
+  </data>
+  <data name="Product_AddButton" xml:space="preserve">
+    <value>Add Product</value>
+  </data>
+  <data name="Product_AddTitle" xml:space="preserve">
+    <value>Add Product</value>
+  </data>
+  <data name="Product_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Product_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Product_ApplyTemplate" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Product_AttributeName" xml:space="preserve">
+    <value>Attribute Name</value>
+  </data>
+  <data name="Product_AttributesTab" xml:space="preserve">
+    <value>Product Attributes</value>
+  </data>
+  <data name="Product_AvailableAttributes" xml:space="preserve">
+    <value>Available Attributes</value>
+  </data>
+  <data name="Product_Brand" xml:space="preserve">
+    <value>Brand</value>
+  </data>
+  <data name="Product_CategoryMappingTab" xml:space="preserve">
+    <value>Category Mapping</value>
+  </data>
+  <data name="Product_ChooseDocuments" xml:space="preserve">
+    <value>Choose Documents</value>
+  </data>
+  <data name="Product_ChooseImage" xml:space="preserve">
+    <value>Choose Image</value>
+  </data>
+  <data name="Product_ChooseImages" xml:space="preserve">
+    <value>Choose Images</value>
+  </data>
+  <data name="Product_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Product_CopiedToast" xml:space="preserve">
+    <value>Copied product as &quot;{0}&quot;.</value>
+  </data>
+  <data name="Product_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Product_CrossSellTab" xml:space="preserve">
+    <value>Cross-sell Products</value>
+  </data>
+  <data name="Product_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Product_DescriptionPlaceholder" xml:space="preserve">
+    <value>Enter full description...</value>
+  </data>
+  <data name="Product_EditTitle" xml:space="preserve">
+    <value>Edit Product</value>
+  </data>
+  <data name="Product_FilterName" xml:space="preserve">
+    <value>Product name</value>
+  </data>
+  <data name="Product_GeneralTab" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Product_Gtin" xml:space="preserve">
+    <value>GTIN</value>
+  </data>
+  <data name="Product_GtinPlaceholder" xml:space="preserve">
+    <value>Ex: 0123456789012...</value>
+  </data>
+  <data name="Product_ImageLoadFailed" xml:space="preserve">
+    <value>Error loading image: {0}</value>
+  </data>
+  <data name="Product_ImageLoadFailedNamed" xml:space="preserve">
+    <value>Error loading {0}: {1}</value>
+  </data>
+  <data name="Product_ImageTooLargeNamed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Product_ImportAnother" xml:space="preserve">
+    <value>Import another file</value>
+  </data>
+  <data name="Product_ImportBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Product_ImportBrandsCreated" xml:space="preserve">
+    <value>Brands created:</value>
+  </data>
+  <data name="Product_ImportClickSelect" xml:space="preserve">
+    <value>Click to select an Excel file</value>
+  </data>
+  <data name="Product_ImportColBrand" xml:space="preserve">
+    <value>Brand</value>
+  </data>
+  <data name="Product_ImportColCategory" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Product_ImportColIssues" xml:space="preserve">
+    <value>Issues</value>
+  </data>
+  <data name="Product_ImportColPrice" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="Product_ImportColStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Product_ImportCompleted" xml:space="preserve">
+    <value>Import completed</value>
+  </data>
+  <data name="Product_ImportCreateBrands" xml:space="preserve">
+    <value>Create missing brands</value>
+  </data>
+  <data name="Product_ImportCreateBrandsHint" xml:space="preserve">
+    <value>Brands that do not exist yet are created during the import.</value>
+  </data>
+  <data name="Product_ImportCreateBrandsOffHint" xml:space="preserve">
+    <value>A row with an unknown brand is invalid.</value>
+  </data>
+  <data name="Product_ImportDownloadTemplate" xml:space="preserve">
+    <value>Download template</value>
+  </data>
+  <data name="Product_ImportErrorReport" xml:space="preserve">
+    <value>Error report</value>
+  </data>
+  <data name="Product_ImportExcel" xml:space="preserve">
+    <value>Import Excel</value>
+  </data>
+  <data name="Product_ImportFileFailed" xml:space="preserve">
+    <value>The file could not be imported.</value>
+  </data>
+  <data name="Product_ImportHint" xml:space="preserve">
+    <value>.xlsx, .xls · max {0} MB</value>
+  </data>
+  <data name="Product_ImportImporting" xml:space="preserve">
+    <value>Importing…</value>
+  </data>
+  <data name="Product_ImportImportRows" xml:space="preserve">
+    <value>Import {0} row(s)</value>
+  </data>
+  <data name="Product_ImportInvalid" xml:space="preserve">
+    <value>Invalid</value>
+  </data>
+  <data name="Product_ImportInvalidRows" xml:space="preserve">
+    <value>{0} row(s) are invalid. Fix the file or import only the valid rows.</value>
+  </data>
+  <data name="Product_ImportMode" xml:space="preserve">
+    <value>Mode</value>
+  </data>
+  <data name="Product_ImportModeAllOrNothing" xml:space="preserve">
+    <value>All or nothing</value>
+  </data>
+  <data name="Product_ImportModeSkipHelper" xml:space="preserve">
+    <value>Valid rows are imported; invalid rows are skipped.</value>
+  </data>
+  <data name="Product_ImportModeSkipInvalid" xml:space="preserve">
+    <value>Skip invalid rows</value>
+  </data>
+  <data name="Product_ImportModeStrictHelper" xml:space="preserve">
+    <value>Any invalid row blocks the whole import.</value>
+  </data>
+  <data name="Product_ImportNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Product_ImportNewBrands" xml:space="preserve">
+    <value>New brands</value>
+  </data>
+  <data name="Product_ImportNoRows" xml:space="preserve">
+    <value>No rows to display.</value>
+  </data>
+  <data name="Product_ImportNotFound" xml:space="preserve">
+    <value>Not found</value>
+  </data>
+  <data name="Product_ImportNoValidRows" xml:space="preserve">
+    <value>No valid rows to import. Fix the file and try again.</value>
+  </data>
+  <data name="Product_ImportOnlyInvalid" xml:space="preserve">
+    <value>Only invalid rows</value>
+  </data>
+  <data name="Product_ImportOptions" xml:space="preserve">
+    <value>Import options</value>
+  </data>
+  <data name="Product_ImportPreview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Product_ImportReading" xml:space="preserve">
+    <value>Reading file…</value>
+  </data>
+  <data name="Product_ImportReportFailed" xml:space="preserve">
+    <value>Could not generate the error report. Check that the file can be parsed.</value>
+  </data>
+  <data name="Product_ImportRow" xml:space="preserve">
+    <value>Row {0} ({1}): {2}</value>
+  </data>
+  <data name="Product_ImportSkippedRows" xml:space="preserve">
+    <value>Skipped rows</value>
+  </data>
+  <data name="Product_ImportStepPreview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Product_ImportStepResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="Product_ImportStepUpload" xml:space="preserve">
+    <value>Upload &amp; options</value>
+  </data>
+  <data name="Product_ImportSummary" xml:space="preserve">
+    <value>Imported {0} of {1} product(s), skipped {2}.</value>
+  </data>
+  <data name="Product_ImportSummaryNoSkip" xml:space="preserve">
+    <value>Imported {0} of {1} product(s).</value>
+  </data>
+  <data name="Product_ImportSwitchSkip" xml:space="preserve">
+    <value>Switch to Skip invalid</value>
+  </data>
+  <data name="Product_ImportTitle" xml:space="preserve">
+    <value>Import products from Excel</value>
+  </data>
+  <data name="Product_ImportToast" xml:space="preserve">
+    <value>Imported {0} product(s), skipped {1}.</value>
+  </data>
+  <data name="Product_ImportToastNoSkip" xml:space="preserve">
+    <value>Imported {0} product(s).</value>
+  </data>
+  <data name="Product_ImportTotalRows" xml:space="preserve">
+    <value>Total rows</value>
+  </data>
+  <data name="Product_ImportUnsupportedFile" xml:space="preserve">
+    <value>Only .xlsx or .xls files are supported.</value>
+  </data>
+  <data name="Product_ImportValid" xml:space="preserve">
+    <value>Valid</value>
+  </data>
+  <data name="Product_ImportViewProducts" xml:space="preserve">
+    <value>View products</value>
+  </data>
+  <data name="Product_IsAllowedToOrder" xml:space="preserve">
+    <value>Is Allowed To Order</value>
+  </data>
+  <data name="Product_IsAllowToOrder" xml:space="preserve">
+    <value>Allow To Order</value>
+  </data>
+  <data name="Product_IsCallForPricing" xml:space="preserve">
+    <value>Call For Pricing</value>
+  </data>
+  <data name="Product_IsFeatured" xml:space="preserve">
+    <value>Is Featured</value>
+  </data>
+  <data name="Product_IsPublished" xml:space="preserve">
+    <value>Is Published</value>
+  </data>
+  <data name="Product_MetaDescription" xml:space="preserve">
+    <value>Meta Description</value>
+  </data>
+  <data name="Product_MetaDescriptionPlaceholder" xml:space="preserve">
+    <value>Enter meta description for SEO</value>
+  </data>
+  <data name="Product_MetaKeywords" xml:space="preserve">
+    <value>Meta Keywords</value>
+  </data>
+  <data name="Product_MetaKeywordsPlaceholder" xml:space="preserve">
+    <value>keyword1, keyword2, keyword3...</value>
+  </data>
+  <data name="Product_MetaTitle" xml:space="preserve">
+    <value>Meta Title</value>
+  </data>
+  <data name="Product_MetaTitlePlaceholder" xml:space="preserve">
+    <value>Enter meta title for SEO</value>
+  </data>
+  <data name="Product_NamePlaceholder" xml:space="preserve">
+    <value>Ex: iPhone 17 Pro Max, Samsung Galaxy S21...</value>
+  </data>
+  <data name="Product_NameRequired" xml:space="preserve">
+    <value>Name is required</value>
+  </data>
+  <data name="Product_NewImage" xml:space="preserve">
+    <value>New image</value>
+  </data>
+  <data name="Product_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Product_NoAttributes" xml:space="preserve">
+    <value>No attributes added. Select a template or add attributes manually.</value>
+  </data>
+  <data name="Product_NoCategories" xml:space="preserve">
+    <value>No categories available.</value>
+  </data>
+  <data name="Product_NoCrossSell" xml:space="preserve">
+    <value>No cross-sell products added.</value>
+  </data>
+  <data name="Product_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Product_NoRelated" xml:space="preserve">
+    <value>No related products added.</value>
+  </data>
+  <data name="Product_OldPrice" xml:space="preserve">
+    <value>Old Price</value>
+  </data>
+  <data name="Product_Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Product_Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="Product_PricingTab" xml:space="preserve">
+    <value>Pricing</value>
+  </data>
+  <data name="Product_ProductDocuments" xml:space="preserve">
+    <value>Product Documents</value>
+  </data>
+  <data name="Product_ProductImages" xml:space="preserve">
+    <value>Product Images</value>
+  </data>
+  <data name="Product_Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Product_RelatedTab" xml:space="preserve">
+    <value>Related Products</value>
+  </data>
+  <data name="Product_SearchByName" xml:space="preserve">
+    <value>Search by name</value>
+  </data>
+  <data name="Product_SearchProducts" xml:space="preserve">
+    <value>Search products to add...</value>
+  </data>
+  <data name="Product_SelectAttribute" xml:space="preserve">
+    <value>-- Select an attribute --</value>
+  </data>
+  <data name="Product_SelectTemplate" xml:space="preserve">
+    <value>-- Select a template --</value>
+  </data>
+  <data name="Product_SeoTab" xml:space="preserve">
+    <value>SEO</value>
+  </data>
+  <data name="Product_ShortDescription" xml:space="preserve">
+    <value>Short Description</value>
+  </data>
+  <data name="Product_ShortDescriptionPlaceholder" xml:space="preserve">
+    <value>Enter short description...</value>
+  </data>
+  <data name="Product_Sku" xml:space="preserve">
+    <value>SKU</value>
+  </data>
+  <data name="Product_SkuPlaceholder" xml:space="preserve">
+    <value>Ex: IP17-512GB-BLACK, PRD-12345...</value>
+  </data>
+  <data name="Product_SpecialPrice" xml:space="preserve">
+    <value>Special Price</value>
+  </data>
+  <data name="Product_SpecialPriceEnd" xml:space="preserve">
+    <value>Special Price End</value>
+  </data>
+  <data name="Product_SpecialPriceStart" xml:space="preserve">
+    <value>Special Price Start</value>
+  </data>
+  <data name="Product_Templates" xml:space="preserve">
+    <value>Product Templates</value>
+  </data>
+  <data name="Product_ThumbnailImage" xml:space="preserve">
+    <value>Thumbnail Image</value>
+  </data>
+  <data name="Product_ThumbnailPreview" xml:space="preserve">
+    <value>Thumbnail preview</value>
+  </data>
+  <data name="Product_Title" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Product_Ungrouped" xml:space="preserve">
+    <value>Ungrouped</value>
+  </data>
+  <data name="Product_Unpublished" xml:space="preserve">
+    <value>Unpublished</value>
+  </data>
+  <data name="Product_UploadImageFailed" xml:space="preserve">
+    <value>Upload image failed: {0}</value>
+  </data>
+  <data name="Product_Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Product_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Profile_ActiveSessions" xml:space="preserve">
+    <value>Active sessions</value>
+  </data>
+  <data name="Profile_ActiveSessionsHint" xml:space="preserve">
+    <value>Devices currently allowed to refresh your access.</value>
+  </data>
+  <data name="Profile_Browser" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="Profile_Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Profile_Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Profile_DeviceFormat" xml:space="preserve">
+    <value>{0} on {1}</value>
+  </data>
+  <data name="Profile_Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Profile_FullName" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="Profile_InfoTab" xml:space="preserve">
+    <value>Personal information</value>
+  </data>
+  <data name="Profile_IpAddress" xml:space="preserve">
+    <value>IP address</value>
+  </data>
+  <data name="Profile_NoSessions" xml:space="preserve">
+    <value>No active sessions.</value>
+  </data>
+  <data name="Profile_PageTitle" xml:space="preserve">
+    <value>Profile - CommerceAdmin</value>
+  </data>
+  <data name="Profile_Revoke" xml:space="preserve">
+    <value>Revoke</value>
+  </data>
+  <data name="Profile_RevokeAll" xml:space="preserve">
+    <value>Revoke all</value>
+  </data>
+  <data name="Profile_RevokeAllDetails" xml:space="preserve">
+    <value>You will be redirected to sign in again.</value>
+  </data>
+  <data name="Profile_RevokeAllQuestion" xml:space="preserve">
+    <value>Sign out of every device, including this browser?</value>
+  </data>
+  <data name="Profile_RevokeAllTitle" xml:space="preserve">
+    <value>Revoke all sessions</value>
+  </data>
+  <data name="Profile_RevokeDetails" xml:space="preserve">
+    <value>The device must sign in again after its access token expires.</value>
+  </data>
+  <data name="Profile_RevokeQuestion" xml:space="preserve">
+    <value>Revoke the session from {0}?</value>
+  </data>
+  <data name="Profile_RevokeTitle" xml:space="preserve">
+    <value>Revoke session</value>
+  </data>
+  <data name="Profile_SaveChanges" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="Profile_SessionRevoked" xml:space="preserve">
+    <value>Session revoked.</value>
+  </data>
+  <data name="Profile_SessionsTab" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Profile_UnknownDevice" xml:space="preserve">
+    <value>Unknown device</value>
+  </data>
+  <data name="Profile_UnknownOs" xml:space="preserve">
+    <value>Unknown OS</value>
+  </data>
+  <data name="Profile_Updated" xml:space="preserve">
+    <value>Profile updated.</value>
+  </data>
+  <data name="Role_ChangeHint" xml:space="preserve">
+    <value>Changing the role signs this user out of all sessions.</value>
+  </data>
+  <data name="Role_ChangeTitle" xml:space="preserve">
+    <value>Change role</value>
+  </data>
+  <data name="Role_Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Settings_Animations" xml:space="preserve">
+    <value>Animations</value>
+  </data>
+  <data name="Settings_AnimationsHint" xml:space="preserve">
+    <value>Enable or disable animations across the app</value>
+  </data>
+  <data name="Settings_BorderRadius" xml:space="preserve">
+    <value>Border radius</value>
+  </data>
+  <data name="Settings_ColorMode" xml:space="preserve">
+    <value>Color mode</value>
+  </data>
+  <data name="Settings_Custom" xml:space="preserve">
+    <value>Custom:</value>
+  </data>
+  <data name="Settings_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_Font" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="Settings_FontDefault" xml:space="preserve">
+    <value>Nunito (Default)</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_Layout" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="Settings_LayoutHorizontal" xml:space="preserve">
+    <value>Horizontal (Top Nav)</value>
+  </data>
+  <data name="Settings_LayoutVertical" xml:space="preserve">
+    <value>Vertical (Sidebar)</value>
+  </data>
+  <data name="Settings_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Settings_PrimaryColor" xml:space="preserve">
+    <value>Primary color</value>
+  </data>
+  <data name="Settings_Reset" xml:space="preserve">
+    <value>Reset to defaults</value>
+  </data>
+  <data name="Settings_ResetDone" xml:space="preserve">
+    <value>Default settings restored.</value>
+  </data>
+  <data name="Settings_SecondaryColor" xml:space="preserve">
+    <value>Secondary color</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Interface settings</value>
+  </data>
+  <data name="Template_AddButton" xml:space="preserve">
+    <value>Add Template</value>
+  </data>
+  <data name="Template_AddTitle" xml:space="preserve">
+    <value>Add New Template</value>
+  </data>
+  <data name="Template_Attributes" xml:space="preserve">
+    <value>Attributes</value>
+  </data>
+  <data name="Template_EditTitle" xml:space="preserve">
+    <value>Edit Template</value>
+  </data>
+  <data name="Template_Name" xml:space="preserve">
+    <value>Template Name</value>
+  </data>
+  <data name="Template_NamePlaceholder" xml:space="preserve">
+    <value>Ex: Mobile, Tablet...</value>
+  </data>
+  <data name="Template_NameRequired" xml:space="preserve">
+    <value>Template name cannot be empty</value>
+  </data>
+  <data name="Template_SelectAttributes" xml:space="preserve">
+    <value>Select attributes...</value>
+  </data>
+  <data name="Template_Title" xml:space="preserve">
+    <value>Product Templates</value>
+  </data>
+  <data name="Upload_DocumentSizeExceeded" xml:space="preserve">
+    <value>Document size exceeds the allowed limit</value>
+  </data>
+  <data name="Upload_ImageSizeExceeded" xml:space="preserve">
+    <value>Image size exceeds the allowed limit</value>
+  </data>
+  <data name="Upload_InvalidDocumentType" xml:space="preserve">
+    <value>Only PDF, Word and Excel files are allowed</value>
+  </data>
+  <data name="Upload_InvalidImageType" xml:space="preserve">
+    <value>Only image files (JPEG, PNG, WebP) are allowed</value>
+  </data>
+  <data name="User_ChangePassword" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="User_Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="User_SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="UserDialog_Active" xml:space="preserve">
+    <value>Active account</value>
+  </data>
+  <data name="UserDialog_ActiveHint" xml:space="preserve">
+    <value>The user can sign in immediately.</value>
+  </data>
+  <data name="UserDialog_CreateTitle" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="UserDialog_EditTitle" xml:space="preserve">
+    <value>Edit user</value>
+  </data>
+  <data name="UserDialog_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UserDialog_EmailInvalid" xml:space="preserve">
+    <value>Enter a valid email address.</value>
+  </data>
+  <data name="UserDialog_EmailLocked" xml:space="preserve">
+    <value>Email cannot be changed after the account is created.</value>
+  </data>
+  <data name="UserDialog_FullName" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="UserDialog_Password" xml:space="preserve">
+    <value>Temporary password</value>
+  </data>
+  <data name="UserDialog_PasswordTooLong" xml:space="preserve">
+    <value>Password cannot exceed 100 characters.</value>
+  </data>
+  <data name="UserDialog_PasswordTooShort" xml:space="preserve">
+    <value>Password must be at least 8 characters.</value>
+  </data>
+  <data name="UserDialog_Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="UserDialog_SaveChanges" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="Users_Activate" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Users_ActivateQuestion" xml:space="preserve">
+    <value>Activate {0}?</value>
+  </data>
+  <data name="Users_ActivateTitle" xml:space="preserve">
+    <value>Activate user</value>
+  </data>
+  <data name="Users_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Users_AllSessionsRevoked" xml:space="preserve">
+    <value>All sessions revoked.</value>
+  </data>
+  <data name="Users_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Users_ChangeRole" xml:space="preserve">
+    <value>Change role</value>
+  </data>
+  <data name="Users_ColumnAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Users_ColumnCreated" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Users_ColumnRole" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Users_ColumnStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Users_ColumnUser" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Users_Create" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="Users_Deactivate" xml:space="preserve">
+    <value>Deactivate</value>
+  </data>
+  <data name="Users_DeactivateDetails" xml:space="preserve">
+    <value>The user will be signed out of all devices.</value>
+  </data>
+  <data name="Users_DeactivateQuestion" xml:space="preserve">
+    <value>Deactivate {0}?</value>
+  </data>
+  <data name="Users_DeactivateTitle" xml:space="preserve">
+    <value>Deactivate user</value>
+  </data>
+  <data name="Users_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Users_DeleteQuestion" xml:space="preserve">
+    <value>Delete {0}?</value>
+  </data>
+  <data name="Users_DeleteTitle" xml:space="preserve">
+    <value>Delete user</value>
+  </data>
+  <data name="Users_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Users_Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="Users_Lock" xml:space="preserve">
+    <value>Lock</value>
+  </data>
+  <data name="Users_Locked" xml:space="preserve">
+    <value>Locked</value>
+  </data>
+  <data name="Users_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Users_RevokeDetails" xml:space="preserve">
+    <value>Existing access tokens remain valid until they expire; refresh tokens are revoked immediately.</value>
+  </data>
+  <data name="Users_RevokeQuestion" xml:space="preserve">
+    <value>Sign {0} out of all devices?</value>
+  </data>
+  <data name="Users_RevokeSessions" xml:space="preserve">
+    <value>Revoke all sessions</value>
+  </data>
+  <data name="Users_RevokeTitle" xml:space="preserve">
+    <value>Revoke sessions</value>
+  </data>
+  <data name="Users_Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Users_RoleChanged" xml:space="preserve">
+    <value>Role changed. Existing sessions were revoked.</value>
+  </data>
+  <data name="Users_Search" xml:space="preserve">
+    <value>Email or full name</value>
+  </data>
+  <data name="Users_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Users_Subtitle" xml:space="preserve">
+    <value>Manage administrator, staff and customer accounts.</value>
+  </data>
+  <data name="Users_Title" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <data name="Users_Unlock" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Users_UnlockQuestion" xml:space="preserve">
+    <value>Unlock {0}?</value>
+  </data>
+  <data name="Users_UnlockTitle" xml:space="preserve">
+    <value>Unlock account</value>
+  </data>
+  <data name="Users_UserActivated" xml:space="preserve">
+    <value>User activated.</value>
+  </data>
+  <data name="Users_UserCreated" xml:space="preserve">
+    <value>User created.</value>
+  </data>
+  <data name="Users_UserDeactivated" xml:space="preserve">
+    <value>User deactivated.</value>
+  </data>
+  <data name="Users_UserDeleted" xml:space="preserve">
+    <value>User deleted.</value>
+  </data>
+  <data name="Users_UserUnlocked" xml:space="preserve">
+    <value>User unlocked.</value>
+  </data>
+  <data name="Users_UserUpdated" xml:space="preserve">
+    <value>User updated.</value>
+  </data>
+</root>

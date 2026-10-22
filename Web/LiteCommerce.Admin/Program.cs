@@ -5,6 +5,7 @@ using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using MudBlazor;
 using MudBlazor.Services;
 using Refit;
@@ -14,6 +15,9 @@ builder.RootComponents.Add<LiteCommerce.Admin.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+// Localization
+builder.Services.AddLocalization();
 
 // MudBlazor
 builder.Services.AddMudServices(config =>
@@ -27,6 +31,9 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.ShowTransitionDuration = 300;
     config.SnackbarConfiguration.SnackbarVariant = MudBlazor.Variant.Filled;
 });
+
+// Translates MudBlazor's own component strings through our resx files.
+builder.Services.AddTransient<MudLocalizer, AppMudLocalizer>();
 
 // Auth
 var identityUrl = builder.Configuration["ApiSettings:IdentityUrl"]
@@ -77,7 +84,24 @@ var fileUploadSettings = new FileUploadSettings();
 builder.Configuration.GetSection(FileUploadSettings.SectionName).Bind(fileUploadSettings);
 builder.Services.AddSingleton(fileUploadSettings);
 builder.Services.AddScoped<AppSettingsService>();
+builder.Services.AddScoped<LocalizationService>();
 builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<FileDownloadService>();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+
+// Culture must be set before the first render, or the app boots in English.
+// localStorage is read here (not through AppSettingsService) because that service
+// is created per DI scope, after the host has already started.
+try
+{
+    var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
+    var savedSettings = await jsRuntime.InvokeAsync<string?>("localStorage.getItem", "app-settings");
+    LocalizationService.Apply(LocalizationService.ReadSavedCulture(savedSettings));
+}
+catch
+{
+    LocalizationService.Apply(LocalizationService.DefaultCulture);
+}
+
+await host.RunAsync();

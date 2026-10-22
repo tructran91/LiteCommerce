@@ -1,4 +1,3 @@
-using LiteCommerce.Admin.Constants;
 using LiteCommerce.Admin.Models.Business.Auth;
 using LiteCommerce.Admin.Services;
 using Microsoft.AspNetCore.Components;
@@ -42,7 +41,7 @@ namespace LiteCommerce.Admin.Pages.Auth
 
                 if (!outcome.IsSuccess)
                 {
-                    _errorMessage = outcome.ErrorMessage ?? SystemMessages.LoginFailed;
+                    _errorMessage = outcome.ErrorMessage ?? L["Common_LoginFailed"];
                     return;
                 }
 
@@ -52,7 +51,7 @@ namespace LiteCommerce.Admin.Pages.Auth
             {
                 // ApiClientSettings only suppresses exceptions for JSON bodies, so reaching
                 // here means a network or non-JSON failure with no server message to show.
-                _errorMessage = SystemMessages.LoginServerUnreachable;
+                _errorMessage = L["Common_LoginServerUnreachable"];
             }
             finally
             {

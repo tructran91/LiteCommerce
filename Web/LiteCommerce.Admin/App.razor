@@ -14,8 +14,8 @@
                         <LayoutView Layout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
                             <MudContainer Class="mt-8 text-center">
                                 <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error" Size="Size.Large" />
-                                <MudText Typo="Typo.h5" Class="mt-2 mb-4">You do not have access to this page</MudText>
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Back to home</MudButton>
+                                <MudText Typo="Typo.h5" Class="mt-2 mb-4">@L["App_NoAccess"]</MudText>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">@L["App_BackHome"]</MudButton>
                             </MudContainer>
                         </LayoutView>
                     }
@@ -29,12 +29,12 @@
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
-            <PageTitle>Không tìm thấy trang</PageTitle>
+            <PageTitle>@L["App_NotFoundTitle"]</PageTitle>
             <LayoutView Layout="@typeof(LiteCommerce.Admin.Layout.MainLayout)">
                 <MudContainer Class="mt-8 text-center">
                     <MudText Typo="Typo.h1" Color="Color.Primary" Class="font-weight-bold">404</MudText>
-                    <MudText Typo="Typo.h5" Class="mb-4">Trang không tồn tại</MudText>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Về trang chủ</MudButton>
+                    <MudText Typo="Typo.h5" Class="mb-4">@L["App_NotFoundHeading"]</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">@L["App_BackHome"]</MudButton>
                 </MudContainer>
             </LayoutView>
         </NotFound>

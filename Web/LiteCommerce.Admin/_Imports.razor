@@ -15,6 +15,9 @@
 @using LiteCommerce.Admin.Services
 @using LiteCommerce.Admin.Components
 @using LiteCommerce.Admin.Layout
+@using LiteCommerce.Admin.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
 
 @* Secure by default: applies to every page, so a new page is never accidentally public.
    Login opts out with its own [AllowAnonymous]. *@

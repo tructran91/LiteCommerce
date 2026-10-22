@@ -3,15 +3,15 @@
 @using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.AuditLog
 
-<PageTitle>Audit Logs</PageTitle>
+<PageTitle>@L["Logs_AuditTitle"]</PageTitle>
 
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <!-- Page Header -->
 <div class="d-flex align-center justify-space-between mb-5">
     <div>
-        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">Audit Logs</MudText>
-        <MudText Typo="Typo.body2" Class="mud-text-secondary">Row-level data changes with old and new values, newest first.</MudText>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Logs_AuditTitle"]</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Logs_AuditHint"]</MudText>
     </div>
 </div>
 
@@ -19,11 +19,11 @@
 @if (_errorMessage != null)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
-        <strong>@SystemMessages.ErrorOccurred</strong> @_errorMessage
+        <strong>@L["Common_ErrorOccurred"]</strong> @_errorMessage
         <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="ApplyFilter" Class="ml-2">
-            Try again
+            @L["Common_TryAgain"]
         </MudButton>
     </MudAlert>
 }
@@ -32,14 +32,14 @@
 <MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
     <MudGrid Spacing="2">
         <MudItem xs="12" md="2">
-            <MudSelect T="LogSource" Value="_source" ValueChanged="OnSourceChanged" Label="Source"
+            <MudSelect T="LogSource" Value="_source" ValueChanged="OnSourceChanged" Label="@L["Logs_Source"]"
                        Variant="Variant.Outlined" Margin="Margin.Dense">
-                <MudSelectItem T="LogSource" Value="LogSource.Catalog">Catalog</MudSelectItem>
-                <MudSelectItem T="LogSource" Value="LogSource.Identity">Identity</MudSelectItem>
+                <MudSelectItem T="LogSource" Value="LogSource.Catalog">@L["Logs_Catalog"]</MudSelectItem>
+                <MudSelectItem T="LogSource" Value="LogSource.Identity">@L["Logs_Identity"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="3">
-            <MudSelect T="string" @bind-Value="_query.EntityName" Label="Entity" Variant="Variant.Outlined"
+            <MudSelect T="string" @bind-Value="_query.EntityName" Label="@L["Logs_Entity"]" Variant="Variant.Outlined"
                        Margin="Margin.Dense" Clearable="true">
                 @foreach (var entityName in LogConstants.AuditEntityNamesFor(_source))
                 {
@@ -48,7 +48,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="3">
-            <MudSelect T="string" @bind-Value="_query.Action" Label="Action" Variant="Variant.Outlined"
+            <MudSelect T="string" @bind-Value="_query.Action" Label="@L["Logs_Action"]" Variant="Variant.Outlined"
                        Margin="Margin.Dense" Clearable="true">
                 @foreach (var action in LogConstants.AuditActions)
                 {
@@ -57,11 +57,11 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudDatePicker @bind-Date="_query.FromDate" Label="From" Variant="Variant.Outlined"
+            <MudDatePicker @bind-Date="_query.FromDate" Label="@L["Logs_From"]" Variant="Variant.Outlined"
                            Margin="Margin.Dense" Clearable="true" DateFormat="dd/MM/yyyy" />
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudDatePicker @bind-Date="_query.ToDate" Label="To" Variant="Variant.Outlined"
+            <MudDatePicker @bind-Date="_query.ToDate" Label="@L["Logs_To"]" Variant="Variant.Outlined"
                            Margin="Margin.Dense" Clearable="true" DateFormat="dd/MM/yyyy" />
         </MudItem>
         <MudItem xs="12" Class="d-flex align-center justify-end gap-2">
@@ -69,15 +69,15 @@
             {
                 <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small"
                          OnClose="ClearCorrelationFilter">
-                    Same request: @_query.CorrelationId
+                    @L["Logs_SameRequest", _query.CorrelationId]
                 </MudChip>
             }
             <MudSpacer />
             <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.FilterAltOff" OnClick="ClearFilter">
-                Clear
+                @L["Logs_Clear"]
             </MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.FilterAlt" OnClick="ApplyFilter">
-                Apply
+                @L["Logs_Apply"]
             </MudButton>
         </MudItem>
     </MudGrid>
@@ -95,40 +95,40 @@
               @ref="_table">
 
         <HeaderContent>
-            <MudTh Style="width:180px">Time</MudTh>
-            <MudTh Style="width:130px">Action</MudTh>
-            <MudTh Style="width:200px">Entity</MudTh>
-            <MudTh>Changed properties</MudTh>
-            <MudTh Style="width:110px">User</MudTh>
-            <MudTh Style="width:110px; text-align:center">Detail</MudTh>
+            <MudTh Style="width:180px">@L["Logs_Time"]</MudTh>
+            <MudTh Style="width:130px">@L["Logs_Action"]</MudTh>
+            <MudTh Style="width:200px">@L["Logs_Entity"]</MudTh>
+            <MudTh>@L["Logs_ChangedProperties"]</MudTh>
+            <MudTh Style="width:110px">@L["Logs_User"]</MudTh>
+            <MudTh Style="width:110px; text-align:center">@L["Logs_Detail"]</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Time">
+            <MudTd DataLabel="@L["Logs_Time"]">
                 <MudText Typo="Typo.body2">@LogConstants.ToLocalDisplay(context.Timestamp)</MudText>
             </MudTd>
-            <MudTd DataLabel="Action">
+            <MudTd DataLabel="@L["Logs_Action"]">
                 <MudChip T="string" Size="Size.Small" Color="@LogConstants.GetActionColor(context.Action)" Variant="Variant.Text">
                     @context.Action
                 </MudChip>
             </MudTd>
-            <MudTd DataLabel="Entity">
+            <MudTd DataLabel="@L["Logs_Entity"]">
                 <MudText Typo="Typo.body2" Class="font-weight-medium">@context.EntityName</MudText>
             </MudTd>
-            <MudTd DataLabel="Changed properties">
+            <MudTd DataLabel="@L["Logs_ChangedProperties"]">
                 <MudText Typo="Typo.body2">@GetChangedProperties(context)</MudText>
             </MudTd>
-            <MudTd DataLabel="User">
+            <MudTd DataLabel="@L["Logs_User"]">
                 <MudText Typo="Typo.body2">@context.UserName</MudText>
             </MudTd>
             <MudTd Style="text-align:center">
-                <MudTooltip Text="View old and new values">
+                <MudTooltip Text="@L["Logs_ViewValues"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Visibility"
                                    Size="Size.Small"
                                    Color="Color.Primary"
                                    OnClick="@(() => OpenDetailDialog(context))" />
                 </MudTooltip>
-                <MudTooltip Text="Show rows changed by the same request">
+                <MudTooltip Text="@L["Logs_ShowSameRequest"]">
                     <MudIconButton Icon="@Icons.Material.Filled.Link"
                                    Size="Size.Small"
                                    Color="Color.Default"
@@ -140,7 +140,7 @@
         <NoRecordsContent>
             <div class="pa-8 text-center">
                 <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3" Style="opacity:0.3" />
-                <MudText Typo="Typo.body1" Class="mud-text-secondary">@SystemMessages.NoData</MudText>
+                <MudText Typo="Typo.body1" Class="mud-text-secondary">@L["Common_NoData"]</MudText>
             </div>
         </NoRecordsContent>
 

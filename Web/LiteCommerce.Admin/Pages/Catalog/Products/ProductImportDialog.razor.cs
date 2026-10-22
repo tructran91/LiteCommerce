@@ -75,14 +75,14 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             if (!string.Equals(extension, ".xlsx", StringComparison.OrdinalIgnoreCase) &&
                 !string.Equals(extension, ".xls", StringComparison.OrdinalIgnoreCase))
             {
-                _error = "Only .xlsx or .xls files are supported.";
+                _error = L["Product_ImportUnsupportedFile"];
                 await ClearFileAsync();
                 return;
             }
 
             if (file.Size > FileUploadSettings.MaxDocumentSize)
             {
-                _error = FileUploadSettings.DocumentSizeExceededMessage;
+                _error = L["Upload_DocumentSizeExceeded"];
                 await ClearFileAsync();
                 return;
             }
@@ -146,12 +146,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 }
                 else
                 {
-                    _error = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                    _error = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                 }
             }
             catch (Exception ex)
             {
-                _error = $"Error: {ex.Message}";
+                _error = L["Common_ErrorWithDetail", ex.Message];
             }
             finally
             {
@@ -184,12 +184,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 }
                 else
                 {
-                    _error = result.GetErrorMessage(SystemMessages.ErrorOccurred);
+                    _error = result.GetErrorMessage(L["Common_ErrorOccurred"]);
                 }
             }
             catch (Exception ex)
             {
-                _error = $"Error: {ex.Message}";
+                _error = L["Common_ErrorWithDetail", ex.Message];
             }
             finally
             {
@@ -215,7 +215,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _error = "Could not generate the error report. Check that the file can be parsed.";
+                    _error = L["Product_ImportReportFailed"];
                     return;
                 }
 
@@ -223,7 +223,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             }
             catch (Exception ex)
             {
-                _error = $"Error: {ex.Message}";
+                _error = L["Common_ErrorWithDetail", ex.Message];
             }
             finally
             {

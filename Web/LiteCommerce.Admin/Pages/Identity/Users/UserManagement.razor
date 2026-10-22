@@ -1,54 +1,53 @@
 @page "/users"
 @attribute [Authorize(Roles = "Admin")]
-@using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Models.Business.User
 
-<PageTitle>User Management</PageTitle>
+<PageTitle>@L["Users_Title"]</PageTitle>
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
 
 <div class="d-flex flex-wrap align-center justify-space-between gap-3 mb-5">
     <div style="min-width:0">
-        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">User Management</MudText>
-        <MudText Typo="Typo.body2" Class="mud-text-secondary">Manage administrator, staff and customer accounts.</MudText>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Users_Title"]</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Users_Subtitle"]</MudText>
     </div>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd" Class="flex-shrink-0"
-               OnClick="@(() => OpenUserDialog(false))" Disabled="_operationInProgress">Create user</MudButton>
+               OnClick="@(() => OpenUserDialog(false))" Disabled="_operationInProgress">@L["Users_Create"]</MudButton>
 </div>
 
 @if (_errorMessage is not null)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
         @_errorMessage
-        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" OnClick="ReloadCurrentPage">Try again</MudButton>
+        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" OnClick="ReloadCurrentPage">@L["Common_TryAgain"]</MudButton>
     </MudAlert>
 }
 
 <MudPaper Elevation="0" Class="pa-4 mb-4 rounded-lg" Style="border:1px solid var(--mud-palette-divider)">
     <MudGrid Spacing="2">
         <MudItem xs="12" md="4">
-            <MudTextField T="string" @bind-Value="_query.Search" Label="Email or full name" Variant="Variant.Outlined" Margin="Margin.Dense"
+            <MudTextField T="string" @bind-Value="_query.Search" Label="@L["Users_Search"]" Variant="Variant.Outlined" Margin="Margin.Dense"
                           Clearable="true" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnKeyUp="OnSearchKeyUp" />
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="string" @bind-Value="_query.Role" Label="Role" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+            <MudSelect T="string" @bind-Value="_query.Role" Label="@L["Users_Role"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
                 @foreach (var role in _roles) { <MudSelectItem T="string" Value="@role.Name">@role.Name</MudSelectItem> }
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="bool?" @bind-Value="_query.IsActive" Label="Status" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
-                <MudSelectItem T="bool?" Value="true">Active</MudSelectItem>
-                <MudSelectItem T="bool?" Value="false">Inactive</MudSelectItem>
+            <MudSelect T="bool?" @bind-Value="_query.IsActive" Label="@L["Users_Status"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">@L["Users_Active"]</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">@L["Users_Inactive"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="6" md="2">
-            <MudSelect T="bool?" @bind-Value="_query.IsLocked" Label="Lock" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
-                <MudSelectItem T="bool?" Value="true">Locked</MudSelectItem>
-                <MudSelectItem T="bool?" Value="false">Normal</MudSelectItem>
+            <MudSelect T="bool?" @bind-Value="_query.IsLocked" Label="@L["Users_Lock"]" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem T="bool?" Value="true">@L["Users_Locked"]</MudSelectItem>
+                <MudSelectItem T="bool?" Value="false">@L["Users_Normal"]</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="2" Class="d-flex align-center justify-end gap-1">
             <MudIconButton Icon="@Icons.Material.Filled.FilterAltOff" OnClick="ClearFilter" Disabled="_operationInProgress" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyFilter" Disabled="_operationInProgress">Apply</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyFilter" Disabled="_operationInProgress">@L["Users_Apply"]</MudButton>
         </MudItem>
     </MudGrid>
 </MudPaper>
@@ -57,32 +56,37 @@
     <MudTable T="AdminUserResponse" ServerData="LoadServerData" Hover="true" Elevation="0" LoadingProgressColor="Color.Primary"
               @bind-RowsPerPage="_rowsPerPage" @ref="_table">
         <HeaderContent>
-            <MudTh>User</MudTh><MudTh>Role</MudTh><MudTh>Status</MudTh><MudTh>Account</MudTh><MudTh>Created</MudTh><MudTh Style="text-align:right">Actions</MudTh>
+            <MudTh>@L["Users_ColumnUser"]</MudTh>
+            <MudTh>@L["Users_ColumnRole"]</MudTh>
+            <MudTh>@L["Users_ColumnStatus"]</MudTh>
+            <MudTh>@L["Users_ColumnAccount"]</MudTh>
+            <MudTh>@L["Users_ColumnCreated"]</MudTh>
+            <MudTh Style="text-align:right">@L["Common_Actions"]</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="User">
+            <MudTd DataLabel="@L["Users_ColumnUser"]">
                 <div class="d-flex align-center gap-3">
                     <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">@Initial(context.FullName)</MudAvatar>
                     <div><MudText Typo="Typo.body2" Class="font-weight-medium">@context.FullName</MudText><MudText Typo="Typo.caption" Class="mud-text-secondary">@context.Email</MudText></div>
                 </div>
             </MudTd>
-            <MudTd DataLabel="Role"><MudChip T="string" Size="Size.Small" Color="@RoleColor(context.Role)" Variant="Variant.Outlined">@context.Role</MudChip></MudTd>
-            <MudTd DataLabel="Status"><MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">@(context.IsActive ? "Active" : "Inactive")</MudChip></MudTd>
-            <MudTd DataLabel="Account"><MudChip T="string" Size="Size.Small" Color="@(context.IsLocked ? Color.Warning : Color.Default)" Variant="Variant.Outlined">@(context.IsLocked ? "Locked" : "Normal")</MudChip></MudTd>
-            <MudTd DataLabel="Created">@context.CreatedDate.ToLocalTime().ToString("dd MMM yyyy")</MudTd>
+            <MudTd DataLabel="@L["Users_ColumnRole"]"><MudChip T="string" Size="Size.Small" Color="@RoleColor(context.Role)" Variant="Variant.Outlined">@context.Role</MudChip></MudTd>
+            <MudTd DataLabel="@L["Users_ColumnStatus"]"><MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">@(context.IsActive ? L["Users_Active"] : L["Users_Inactive"])</MudChip></MudTd>
+            <MudTd DataLabel="@L["Users_ColumnAccount"]"><MudChip T="string" Size="Size.Small" Color="@(context.IsLocked ? Color.Warning : Color.Default)" Variant="Variant.Outlined">@(context.IsLocked ? L["Users_Locked"] : L["Users_Normal"])</MudChip></MudTd>
+            <MudTd DataLabel="@L["Users_ColumnCreated"]">@context.CreatedDate.ToLocalTime().ToString("dd MMM yyyy")</MudTd>
             <MudTd Style="text-align:right">
                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Disabled="_operationInProgress">
-                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenUserDialog(true, context))">Edit</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings" OnClick="@(() => OpenRoleDialog(context))">Change role</MudMenuItem>
-                    <MudMenuItem Icon="@(context.IsActive ? Icons.Material.Filled.PersonOff : Icons.Material.Filled.Person)" OnClick="@(() => ToggleStatus(context))">@(context.IsActive ? "Deactivate" : "Activate")</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.LockOpen" Disabled="@(!context.IsLocked)" OnClick="@(() => Unlock(context))">Unlock</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="@(() => RevokeSessions(context))">Revoke all sessions</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenUserDialog(true, context))">@L["Users_Edit"]</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings" OnClick="@(() => OpenRoleDialog(context))">@L["Users_ChangeRole"]</MudMenuItem>
+                    <MudMenuItem Icon="@(context.IsActive ? Icons.Material.Filled.PersonOff : Icons.Material.Filled.Person)" OnClick="@(() => ToggleStatus(context))">@(context.IsActive ? L["Users_Deactivate"] : L["Users_Activate"])</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.LockOpen" Disabled="@(!context.IsLocked)" OnClick="@(() => Unlock(context))">@L["Users_Unlock"]</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="@(() => RevokeSessions(context))">@L["Users_RevokeSessions"]</MudMenuItem>
                     <MudDivider />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => DeleteUser(context))"><MudText Color="Color.Error">Delete</MudText></MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => DeleteUser(context))"><MudText Color="Color.Error">@L["Users_Delete"]</MudText></MudMenuItem>
                 </MudMenu>
             </MudTd>
         </RowTemplate>
-        <NoRecordsContent><div class="pa-8 text-center"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" Style="opacity:.3" /><MudText Class="mud-text-secondary">@SystemMessages.NoData</MudText></div></NoRecordsContent>
+        <NoRecordsContent><div class="pa-8 text-center"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" Style="opacity:.3" /><MudText Class="mud-text-secondary">@L["Common_NoData"]</MudText></div></NoRecordsContent>
         <PagerContent><MudTablePager PageSizeOptions="_pageSizeOptions" /></PagerContent>
     </MudTable>
 </MudPaper>

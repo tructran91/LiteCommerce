@@ -21,7 +21,7 @@
         <MudSpacer />
 
         <!-- Search -->
-        <MudTextField T="string" Placeholder="Tìm kiếm..."
+        <MudTextField T="string" Placeholder="@L["Layout_SearchPlaceholder"]"
                       Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search"
                       Variant="Variant.Outlined"
@@ -40,7 +40,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Settings"
                        Color="Color.Primary"
                        OnClick="OnSettingsClick"
-                       Title="Cài đặt hệ thống" />
+                       Title="@L["Layout_SettingsTitle"]" />
 
         <UserMenu />
     </MudAppBar>
@@ -80,7 +80,7 @@
 
         <!-- Mini toggle at bottom -->
         <div class="pa-2 d-flex justify-center">
-            <MudTooltip Text="@(_drawerOpen ? "Thu nhỏ menu" : "Mở rộng menu")" Placement="Placement.Right">
+            <MudTooltip Text="@(_drawerOpen ? L["Layout_CollapseMenu"] : L["Layout_ExpandMenu"])" Placement="Placement.Right">
                 <MudIconButton Icon="@(_drawerOpen? Icons.Material.Filled.ChevronLeft : Icons.Material.Filled.ChevronRight)"
                                OnClick="ToggleDrawer"
                                Color="Color.Default"
@@ -121,7 +121,7 @@
         var user = (await AuthState).User;
         var email = user.FindFirst(JwtParser.EmailClaim)?.Value ?? string.Empty;
 
-        _displayName = string.IsNullOrEmpty(email) ? "User" : email.Split('@')[0];
+        _displayName = string.IsNullOrEmpty(email) ? L["Common_User"] : email.Split('@')[0];
         _role = user.FindFirst(JwtParser.RoleClaim)?.Value ?? string.Empty;
         _initial = _displayName[..1].ToUpperInvariant();
     }
