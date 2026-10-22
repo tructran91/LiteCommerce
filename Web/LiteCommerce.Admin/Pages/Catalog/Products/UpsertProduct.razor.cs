@@ -223,11 +223,25 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
 
         private async Task LoadAllProducts()
         {
-            var response = await ProductApi.GetProductsAsync(1, 1000);
-            if (response.IsSuccess)
+            const int pageSize = 100;
+            var currentPage = 1;
+            var products = new List<BasicProductResponse>();
+
+            while (true)
             {
-                _allProducts = response.Data;
+                var response = await ProductApi.GetProductsAsync(currentPage, pageSize);
+                if (!response.IsSuccess)
+                    return;
+
+                products.AddRange(response.Data ?? []);
+
+                if (currentPage >= (response.Pagination?.TotalPages ?? 1))
+                    break;
+
+                currentPage++;
             }
+
+            _allProducts = products;
         }
 
         private async Task LoadProduct()

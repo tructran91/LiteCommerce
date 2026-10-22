@@ -68,6 +68,26 @@ namespace Catalog.Application.Services
             await DeleteFolderAsync(sourceSubFolder);
         }
 
+        public Task CopyFolderContentAsync(string sourceSubFolder, string destSubFolder)
+        {
+            var sourceDirPath = GetFullPath(sourceSubFolder);
+            if (!Directory.Exists(sourceDirPath))
+                return Task.CompletedTask;
+
+            var destDirPath = GetFullPath(destSubFolder);
+            Directory.CreateDirectory(destDirPath);
+
+            foreach (var sourcePath in Directory.GetFiles(sourceDirPath, "*", SearchOption.AllDirectories))
+            {
+                var relativePath = Path.GetRelativePath(sourceDirPath, sourcePath);
+                var destPath = Path.Combine(destDirPath, relativePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
+                File.Copy(sourcePath, destPath, overwrite: true);
+            }
+
+            return Task.CompletedTask;
+        }
+
         public Task DeleteFileAsync(string fileName, string? subFolder = null)
         {
             var filePath = Path.Combine(GetFullPath(subFolder), fileName);

@@ -7,7 +7,11 @@ namespace Catalog.Core.Repositories
     {
         Task<Product> GetProductAsync(Guid id);
 
-        Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(int currentPage, int pageSize);
+        Task<(List<ProductListItemDto> Products, int TotalCount)> GetProductsAsync(
+            ProductListFilter filter,
+            int currentPage,
+            int pageSize,
+            CancellationToken cancellationToken = default);
 
         Task<(List<ProductPricingDto> Products, int TotalCount)> GetProductPricingAsync(int currentPage, int pageSize);
 

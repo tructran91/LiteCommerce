@@ -87,6 +87,7 @@
             public const string Create = Base;
             public const string Update = $"{Base}/{{id}}";
             public const string Delete = $"{Base}/{{id}}";
+            public const string Copy = $"{Base}/{{id}}/copy";
             public const string UploadContentImage = $"{Base}/upload-content-image";
             public const string ImportPreview = $"{Base}/import/preview";
             public const string ImportCommit = $"{Base}/import/commit";

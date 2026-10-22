@@ -96,6 +96,21 @@ namespace Catalog.Application.Services
             }
         }
 
+        public async Task CopyFolderContentAsync(string sourceSubFolder, string destSubFolder)
+        {
+            var sourcePrefix = sourceSubFolder.Replace("\\", "/").TrimEnd('/') + "/";
+            var destPrefix = destSubFolder.Replace("\\", "/").TrimEnd('/') + "/";
+
+            await foreach (var blobItem in _containerClient.GetBlobsAsync(BlobTraits.None, BlobStates.None, sourcePrefix, CancellationToken.None))
+            {
+                var relativePath = blobItem.Name[sourcePrefix.Length..];
+                var sourceBlobClient = _containerClient.GetBlobClient(blobItem.Name);
+                var destBlobClient = _containerClient.GetBlobClient($"{destPrefix}{relativePath}");
+                var operation = await destBlobClient.StartCopyFromUriAsync(GetAuthenticatedUri(sourceBlobClient, 1));
+                await operation.WaitForCompletionAsync();
+            }
+        }
+
         private Uri GetAuthenticatedUri(BlobClient blobClient, int expiryHours)
         {
             if (blobClient.CanGenerateSasUri)

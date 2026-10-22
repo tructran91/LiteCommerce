@@ -42,9 +42,19 @@ namespace Catalog.Application.Services
             return _storageService.MoveFolderContentAsync(tempFolderPath, destFolderPath);
         }
 
+        public Task CopyFolderContentAsync(string sourceFolderPath, string destFolderPath)
+        {
+            return _storageService.CopyFolderContentAsync(sourceFolderPath, destFolderPath);
+        }
+
         public Task DeleteMediaAsync(string fileName, string? subFolder = null)
         {
             return _storageService.DeleteFileAsync(fileName, subFolder);
+        }
+
+        public Task DeleteFolderAsync(string subFolder)
+        {
+            return _storageService.DeleteFolderAsync(subFolder);
         }
     }
 }

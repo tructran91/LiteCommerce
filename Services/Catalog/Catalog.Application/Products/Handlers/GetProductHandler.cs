@@ -1,35 +1,26 @@
-﻿using AutoMapper;
-using Catalog.Application.Extensions;
-using Catalog.Application.Products.Queries;
+﻿using Catalog.Application.Products.Queries;
 using Catalog.Application.Responses;
 using Catalog.Application.Services;
-using Catalog.Application.ViewModels;
-using Catalog.Core.Enums;
 using Catalog.Core.Repositories;
-using LiteCommerce.Shared.Constants;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Text.Json;
 
 namespace Catalog.Application.Products.Handlers
 {
     public class GetProductHandler : IRequestHandler<GetProductQuery, BaseResponse<ProductResponse>>
     {
         private readonly IProductRepository _productRepository;
-        private readonly IMediaService _mediaService;
-        private readonly IMapper _mapper;
+        private readonly IProductService _productService;
         private readonly ILogger<GetProductHandler> _logger;
 
         public GetProductHandler(IProductRepository productRepository,
-            IMediaService mediaService,
-            IMapper mapper,
+            IProductService productService,
             ILogger<GetProductHandler> logger)
         {
             _productRepository = productRepository;
-            _mediaService = mediaService;
-            _mapper = mapper;
+            _productService = productService;
             _logger = logger;
         }
 
@@ -43,70 +34,7 @@ namespace Catalog.Application.Products.Handlers
 
             _logger.LogInformation("GetProductHandler: Loading product Id={ProductId}, Name={ProductName}", product.Id, product.Name);
 
-            var productMapping = _mapper.Map<ProductResponse>(product);
-            productMapping.CategoryIds = product.Categories.Select(c => c.CategoryId.ToString()).ToList();
-
-            var subFolder = product.Id.ToStoragePath(StorageFolder.Product);
-            productMapping.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage, subFolder);
-
-            productMapping.Options = product.OptionValues.OrderBy(x => x.SortIndex).Select(x =>
-                new ProductOptionViewModel
-                {
-                    Id = x.OptionId.ToString(),
-                    Name = x.Option.Name,
-                    DisplayType = x.DisplayType,
-                    Values = JsonSerializer.Deserialize<IList<ProductOptionValueViewModel>>(x.Value)
-                }).ToList();
-
-            productMapping.Attributes = product.AttributeValues.Select(x => new ProductAttributeViewModel
-            {
-                AttributeValueId = x.Id.ToString(),
-                Id = x.AttributeId.ToString(),
-                Name = x.Attribute.Name,
-                GroupName = x.Attribute.Group.Name,
-                Value = x.Value
-            }).ToList();
-
-            foreach (var productMedia in product.Medias.Where(x => x.Media.MediaType == MediaType.Image))
-            {
-                productMapping.ProductImages.Add(new ProductMediaViewModel
-                {
-                    Id = productMedia.Id.ToString(),
-                    MediaUrl = _mediaService.GetThumbnailUrl(productMedia.Media, subFolder)
-                });
-            }
-
-            foreach (var productMedia in product.Medias.Where(x => x.Media.MediaType == MediaType.File))
-            {
-                productMapping.ProductDocuments.Add(new ProductMediaViewModel
-                {
-                    Id = productMedia.Id.ToString(),
-                    Caption = productMedia.Media.Caption,
-                    MediaUrl = _mediaService.GetMediaUrl(productMedia.Media, subFolder)
-                });
-            }
-
-            foreach (var relatedProduct in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Related).Select(x => x.LinkedProduct).Where(x => !x.IsDeleted).OrderBy(x => x.Id))
-            {
-                productMapping.RelatedProducts.Add(new ProductLinkViewModel
-                {
-                    Id = relatedProduct.Id.ToString(),
-                    Name = relatedProduct.Name,
-                    IsPublished = relatedProduct.IsPublished
-                });
-            }
-
-            foreach (var crossSellProduct in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.CrossSell).Select(x => x.LinkedProduct).Where(x => !x.IsDeleted).OrderBy(x => x.Id))
-            {
-                productMapping.CrossSellProducts.Add(new ProductLinkViewModel
-                {
-                    Id = crossSellProduct.Id.ToString(),
-                    Name = crossSellProduct.Name,
-                    IsPublished = crossSellProduct.IsPublished
-                });
-            }
-
-            return BaseResponse<ProductResponse>.Success(productMapping);
+            return BaseResponse<ProductResponse>.Success(_productService.BuildProductResponse(product));
         }
     }
 }

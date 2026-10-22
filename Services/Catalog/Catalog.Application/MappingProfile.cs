@@ -3,6 +3,7 @@ using Catalog.Application.ActivityLogs.Queries;
 using Catalog.Application.AuditLogs.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using Catalog.Application.Products.Queries;
 using Catalog.Application.Services;
 using Catalog.Application.ViewModels;
 using Catalog.Core.DTOs;
@@ -58,6 +59,7 @@ namespace Catalog.Application
                 .ForMember(prop => prop.BrandId, opt => opt.MapFrom(src => src.BrandId.HasValue ? src.BrandId.Value.ToString() : null));
 
             CreateMap<Product, ProductPricingResponse>();
+            CreateMap<GetAllProductsQuery, ProductListFilter>();
 
             CreateMap<SeedResult, SeedDatabaseResponse>();
 

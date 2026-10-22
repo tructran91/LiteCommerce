@@ -8,7 +8,16 @@ namespace LiteCommerce.Admin.ApiClients
     public interface IProductApi
     {
         [Get(ApiRoutes.Product.GetAll)]
-        Task<BaseResponse<List<BasicProductResponse>>> GetProductsAsync(int currentPage, int pageSize);
+        Task<BaseResponse<List<BasicProductResponse>>> GetProductsAsync(
+            int currentPage,
+            int pageSize,
+            string? name = null,
+            bool? isFeatured = null,
+            bool? isAllowToOrder = null,
+            bool? isCallForPricing = null,
+            bool? isPublished = null,
+            string? sortBy = null,
+            string? sortDirection = null);
 
         [Get(ApiRoutes.Product.GetById)]
         Task<BaseResponse<ProductFormModel>> GetProductAsync(string id);
@@ -21,6 +30,9 @@ namespace LiteCommerce.Admin.ApiClients
 
         [Delete(ApiRoutes.Product.Delete)]
         Task<BaseResponse<bool>> DeleteProductAsync(string id);
+
+        [Post(ApiRoutes.Product.Copy)]
+        Task<BaseResponse<ProductFormModel>> CopyProductAsync(string id);
 
         [Post(ApiRoutes.Product.UploadContentImage)]
         Task<BaseResponse<string>> UploadContentImageAsync([Body] MultipartFormDataContent content);

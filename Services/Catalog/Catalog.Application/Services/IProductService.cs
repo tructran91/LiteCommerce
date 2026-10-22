@@ -1,4 +1,5 @@
-﻿using Catalog.Application.ViewModels;
+﻿using Catalog.Application.Responses;
+using Catalog.Application.ViewModels;
 using Catalog.Core.Entities;
 
 namespace Catalog.Application.Services
@@ -6,6 +7,8 @@ namespace Catalog.Application.Services
     public interface IProductService
     {
         ProductPriceHistory CreatePriceHistory(Product product);
+
+        ProductResponse BuildProductResponse(Product product);
 
         void AddOrDeleteProductLinks(ProductViewModel productSource, Product productTarget);
 

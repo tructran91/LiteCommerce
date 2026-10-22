@@ -1,12 +1,25 @@
-﻿using Catalog.Application.ViewModels;
+﻿using AutoMapper;
+using Catalog.Application.Extensions;
+using Catalog.Application.Responses;
+using Catalog.Application.ViewModels;
 using Catalog.Core.Entities;
 using Catalog.Core.Enums;
+using LiteCommerce.Shared.Constants;
 using System.Text.Json;
 
 namespace Catalog.Application.Services
 {
     public class ProductService : IProductService
     {
+        private readonly IMediaService _mediaService;
+        private readonly IMapper _mapper;
+
+        public ProductService(IMediaService mediaService, IMapper mapper)
+        {
+            _mediaService = mediaService;
+            _mapper = mapper;
+        }
+
         public ProductPriceHistory CreatePriceHistory(Product product)
         {
             return new ProductPriceHistory
@@ -19,6 +32,67 @@ namespace Catalog.Application.Services
                 SpecialPriceEnd = product.SpecialPriceEnd,
                 CreatedDate = DateTime.UtcNow
             };
+        }
+
+        public ProductResponse BuildProductResponse(Product product)
+        {
+            var response = _mapper.Map<ProductResponse>(product);
+            var subFolder = product.Id.ToStoragePath(StorageFolder.Product);
+
+            response.CategoryIds = product.Categories.Select(x => x.CategoryId.ToString()).ToList();
+            response.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage, subFolder);
+            response.Options = product.OptionValues.OrderBy(x => x.SortIndex).Select(x => new ProductOptionViewModel
+            {
+                Id = x.OptionId.ToString(),
+                Name = x.Option.Name,
+                DisplayType = x.DisplayType,
+                Values = JsonSerializer.Deserialize<IList<ProductOptionValueViewModel>>(x.Value)
+            }).ToList();
+            response.Attributes = product.AttributeValues.Select(x => new ProductAttributeViewModel
+            {
+                AttributeValueId = x.Id.ToString(),
+                Id = x.AttributeId.ToString(),
+                Name = x.Attribute.Name,
+                GroupName = x.Attribute.Group.Name,
+                Value = x.Value
+            }).ToList();
+
+            response.ProductImages = product.Medias
+                .Where(x => x.Media.MediaType == MediaType.Image)
+                .Select(x => new ProductMediaViewModel
+                {
+                    Id = x.Id.ToString(),
+                    Caption = x.Media.Caption,
+                    MediaUrl = _mediaService.GetThumbnailUrl(x.Media, subFolder)
+                })
+                .ToList();
+            response.ProductDocuments = product.Medias
+                .Where(x => x.Media.MediaType == MediaType.File)
+                .Select(x => new ProductMediaViewModel
+                {
+                    Id = x.Id.ToString(),
+                    Caption = x.Media.Caption,
+                    MediaUrl = _mediaService.GetMediaUrl(x.Media, subFolder)
+                })
+                .ToList();
+            response.RelatedProducts = BuildProductLinks(product, ProductLinkType.Related);
+            response.CrossSellProducts = BuildProductLinks(product, ProductLinkType.CrossSell);
+
+            return response;
+        }
+
+        private static List<ProductLinkViewModel> BuildProductLinks(Product product, ProductLinkType linkType)
+        {
+            return product.ProductLinks
+                .Where(x => x.LinkType == linkType && x.LinkedProduct != null && !x.LinkedProduct.IsDeleted)
+                .OrderBy(x => x.LinkedProductId)
+                .Select(x => new ProductLinkViewModel
+                {
+                    Id = x.LinkedProductId.ToString(),
+                    Name = x.LinkedProduct.Name,
+                    IsPublished = x.LinkedProduct.IsPublished
+                })
+                .ToList();
         }
 
         public void AddOrDeleteProductLinks(ProductViewModel productSource, Product productTarget)
