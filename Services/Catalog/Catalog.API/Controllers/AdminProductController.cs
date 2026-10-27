@@ -2,6 +2,7 @@ using Catalog.Application.Products.Commands;
 using Catalog.Application.Products.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<BasicProductResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Product.View)]
         public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -32,6 +34,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.Product.View)]
         public async Task<IActionResult> GetProductById(string id)
         {
             var query = new GetProductQuery(id);
@@ -44,6 +47,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Product.Create)]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
             var command = new CreateProductCommand(request);
@@ -57,6 +61,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Product.Copy)]
         public async Task<IActionResult> CopyProduct(string id)
         {
             var command = new CopyProductCommand(id);
@@ -70,6 +75,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<ProductResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Product.Update)]
         public async Task<IActionResult> UpdateProduct(string id, [FromForm] UpdateProductRequest request)
         {
             var command = new UpdateProductCommand(id, request);
@@ -82,6 +88,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.Product.Delete)]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             var command = new DeleteProductCommand(id);
@@ -92,6 +99,7 @@ namespace Catalog.API.Controllers
         [HttpPost("upload-content-image")]
         [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Product.UploadMedia)]
         public async Task<IActionResult> UploadContentImage([FromForm] UploadContentImageRequest request)
         {
             var command = new UploadContentImageCommand(request);
@@ -108,6 +116,7 @@ namespace Catalog.API.Controllers
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(BaseResponse<ProductImportPreviewResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<ProductImportPreviewResponse>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Product.Import)]
         public async Task<IActionResult> PreviewImport([FromForm] PreviewProductImportRequest request)
         {
             var command = new PreviewProductImportCommand(request);
@@ -119,6 +128,7 @@ namespace Catalog.API.Controllers
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(BaseResponse<ProductImportResultResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<ProductImportResultResponse>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Product.Import)]
         public async Task<IActionResult> CommitImport([FromForm] ImportProductsRequest request)
         {
             var command = new ImportProductsCommand(request);
@@ -130,6 +140,7 @@ namespace Catalog.API.Controllers
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Product.Import)]
         public async Task<IActionResult> ImportErrorReport([FromForm] PreviewProductImportRequest request)
         {
             var query = new BuildProductImportReportQuery(request);
@@ -151,6 +162,11 @@ namespace Catalog.API.Controllers
             foreach (var media in result.Data.ProductImages.Concat(result.Data.ProductDocuments))
             {
                 media.MediaUrl = BuildImageUrl(media.MediaUrl);
+            }
+
+            foreach (var variant in result.Data.Variants ?? [])
+            {
+                variant.ThumbnailImageUrl = BuildImageUrl(variant.ThumbnailImageUrl);
             }
         }
     }

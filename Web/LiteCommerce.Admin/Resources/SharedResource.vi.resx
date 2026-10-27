@@ -1687,4 +1687,70 @@
   <data name="Users_UserUpdated" xml:space="preserve">
     <value>Đã cập nhật người dùng.</value>
   </data>
+  <data name="Menu_Roles" xml:space="preserve">
+    <value>Vai trò &amp; Phân quyền</value>
+  </data>
+  <data name="Role_Title" xml:space="preserve">
+    <value>Vai trò &amp; Phân quyền</value>
+  </data>
+  <data name="Role_Subtitle" xml:space="preserve">
+    <value>Tạo vai trò và chọn những việc vai trò đó được làm.</value>
+  </data>
+  <data name="Role_AddButton" xml:space="preserve">
+    <value>Thêm vai trò</value>
+  </data>
+  <data name="Role_AddTitle" xml:space="preserve">
+    <value>Thêm vai trò</value>
+  </data>
+  <data name="Role_EditTitle" xml:space="preserve">
+    <value>Sửa vai trò</value>
+  </data>
+  <data name="Role_Name" xml:space="preserve">
+    <value>Tên vai trò</value>
+  </data>
+  <data name="Role_NameRequired" xml:space="preserve">
+    <value>Tên vai trò không được để trống.</value>
+  </data>
+  <data name="Role_NameInvalidChars" xml:space="preserve">
+    <value>Chỉ cho phép chữ, số, khoảng trắng, gạch dưới và gạch ngang.</value>
+  </data>
+  <data name="Role_Description" xml:space="preserve">
+    <value>Mô tả</value>
+  </data>
+  <data name="Role_UserCount" xml:space="preserve">
+    <value>Người dùng</value>
+  </data>
+  <data name="Role_PermissionCount" xml:space="preserve">
+    <value>Số quyền</value>
+  </data>
+  <data name="Role_System" xml:space="preserve">
+    <value>Hệ thống</value>
+  </data>
+  <data name="Role_SystemHint" xml:space="preserve">
+    <value>Vai trò hệ thống không thể sửa hoặc xoá.</value>
+  </data>
+  <data name="Role_InUseHint" xml:space="preserve">
+    <value>Hãy chuyển người dùng sang vai trò khác trước.</value>
+  </data>
+  <data name="Role_ManagePermissions" xml:space="preserve">
+    <value>Phân quyền</value>
+  </data>
+  <data name="Role_PermissionsUpdated" xml:space="preserve">
+    <value>Đã cập nhật quyền. Người dùng thuộc vai trò này cần đăng nhập lại.</value>
+  </data>
+  <data name="Role_SelectedCount" xml:space="preserve">
+    <value>Đã chọn {0}</value>
+  </data>
+  <data name="Role_SelectAll" xml:space="preserve">
+    <value>Chọn tất cả</value>
+  </data>
+  <data name="Role_ClearAll" xml:space="preserve">
+    <value>Bỏ chọn tất cả</value>
+  </data>
+  <data name="Role_ReadOnlyHint" xml:space="preserve">
+    <value>Bạn chỉ được xem, không được thay đổi các quyền này.</value>
+  </data>
+  <data name="Role_CreateThenAssignHint" xml:space="preserve">
+    <value>Quyền sẽ được gán sau khi tạo xong vai trò.</value>
+  </data>
 </root>

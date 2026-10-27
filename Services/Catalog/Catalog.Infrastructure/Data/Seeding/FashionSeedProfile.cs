@@ -37,11 +37,15 @@ namespace Catalog.Infrastructure.Data.Seeding
                 new() { Id = sizeFitGroupId, Name = "Size & Fit", CreatedDate = DateTime.UtcNow }
             }, cancellationToken);
 
+            var colorOptionId = Guid.Parse("31f3dca0-0103-4a07-999a-541cb5c9146f");
+            var sizeOptionId = Guid.Parse("156c8217-1692-4305-b6a5-223c7237eb98");
+            var materialOptionId = Guid.Parse("1bf305ba-bb27-4a20-9d4e-6e71dcf0e1dd");
+
             await context.ProductOptions.AddRangeAsync(new List<ProductOption>
             {
-                new() { Id = Guid.Parse("31f3dca0-0103-4a07-999a-541cb5c9146f"), Name = "Color" },
-                new() { Id = Guid.Parse("156c8217-1692-4305-b6a5-223c7237eb98"), Name = "Size" },
-                new() { Id = Guid.Parse("1bf305ba-bb27-4a20-9d4e-6e71dcf0e1dd"), Name = "Material" }
+                new() { Id = colorOptionId, Name = "Color", CreatedDate = DateTime.UtcNow },
+                new() { Id = sizeOptionId, Name = "Size", CreatedDate = DateTime.UtcNow },
+                new() { Id = materialOptionId, Name = "Material", CreatedDate = DateTime.UtcNow }
             }, cancellationToken);
 
             var menId = Guid.Parse("d9ad0686-d5d8-485d-be26-edebe727fc32");
@@ -507,6 +511,127 @@ namespace Catalog.Infrastructure.Data.Seeding
                     .Concat(shoesAttributes
                         .Select(a => new ProductTemplateProductAttribute { Id = Guid.NewGuid(), ProductTemplateId = shoesTemplateId, ProductAttributeId = a, CreatedDate = DateTime.UtcNow }))
                     .ToList(), cancellationToken);
+
+            await SeedVariantsAsync(context, af1Id, colorOptionId, sizeOptionId, cancellationToken);
+        }
+
+        // One product with variants, so the admin screens have something to show.
+        private static async Task SeedVariantsAsync(
+            CatalogContext context,
+            Guid productId,
+            Guid colorOptionId,
+            Guid sizeOptionId,
+            CancellationToken cancellationToken)
+        {
+            var colors = new[] { ("white", "White"), ("black", "Black") };
+            var sizes = new[] { ("40", "40"), ("41", "41"), ("42", "42") };
+
+            var colorAxis = new ProductOptionValue
+            {
+                Id = Guid.Parse("0a8f3f2c-1d4e-4a7b-9c51-2b6d8e0f1a30"),
+                ProductId = productId,
+                OptionId = colorOptionId,
+                DisplayType = "color",
+                SortIndex = 0,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            var sizeAxis = new ProductOptionValue
+            {
+                Id = Guid.Parse("1b9f4e3d-2e5f-4b8c-8d62-3c7e9f10b241"),
+                ProductId = productId,
+                OptionId = sizeOptionId,
+                DisplayType = "text",
+                SortIndex = 1,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            await context.ProductOptionValues.AddRangeAsync(new[] { colorAxis, sizeAxis }, cancellationToken);
+
+            var colorItems = colors
+                .Select((c, i) => new ProductOptionValueItem
+                {
+                    Id = Guid.NewGuid(),
+                    ProductOptionValueId = colorAxis.Id,
+                    Key = c.Item1,
+                    Display = c.Item2,
+                    SortIndex = i,
+                    CreatedDate = DateTime.UtcNow
+                })
+                .ToList();
+
+            var sizeItems = sizes
+                .Select((s, i) => new ProductOptionValueItem
+                {
+                    Id = Guid.NewGuid(),
+                    ProductOptionValueId = sizeAxis.Id,
+                    Key = s.Item1,
+                    Display = s.Item2,
+                    SortIndex = i,
+                    CreatedDate = DateTime.UtcNow
+                })
+                .ToList();
+
+            await context.ProductOptionValueItems.AddRangeAsync(colorItems.Concat(sizeItems), cancellationToken);
+
+            var variants = new List<ProductVariant>();
+            var variantOptionValues = new List<ProductVariantOptionValue>();
+            var displayOrder = 0;
+
+            foreach (var colorItem in colorItems)
+            {
+                foreach (var sizeItem in sizeItems)
+                {
+                    var variantId = Guid.NewGuid();
+
+                    variants.Add(new ProductVariant
+                    {
+                        Id = variantId,
+                        ProductId = productId,
+                        NormalizedName = $"{colorItem.Key}{ProductVariant.NormalizedNameSeparator}{sizeItem.Key}",
+                        Name = $"Nike Air Force 1 '07 White {colorItem.Display} / {sizeItem.Display}",
+                        Sku = $"AF1-{colorItem.Key.ToUpperInvariant()}-{sizeItem.Key}",
+                        // Priced apart so the product shows a real range, not one figure.
+                        Price = colorItem.Key == "black" ? 3490000m : 3290000m,
+                        OldPrice = 3690000m,
+                        StockQuantity = 10 + displayOrder,
+                        IsActive = true,
+                        DisplayOrder = displayOrder++,
+                        CreatedDate = DateTime.UtcNow
+                    });
+
+                    variantOptionValues.Add(new ProductVariantOptionValue
+                    {
+                        Id = Guid.NewGuid(),
+                        VariantId = variantId,
+                        OptionId = colorOptionId,
+                        ProductOptionValueItemId = colorItem.Id,
+                        SortIndex = 0,
+                        CreatedDate = DateTime.UtcNow
+                    });
+
+                    variantOptionValues.Add(new ProductVariantOptionValue
+                    {
+                        Id = Guid.NewGuid(),
+                        VariantId = variantId,
+                        OptionId = sizeOptionId,
+                        ProductOptionValueItemId = sizeItem.Id,
+                        SortIndex = 1,
+                        CreatedDate = DateTime.UtcNow
+                    });
+                }
+            }
+
+            await context.ProductVariants.AddRangeAsync(variants, cancellationToken);
+            await context.ProductVariantOptionValues.AddRangeAsync(variantOptionValues, cancellationToken);
+
+            // Set by hand because the seeder bypasses ProductService.RecalculateAggregates.
+            var product = context.Products.Local.First(p => p.Id == productId);
+            product.HasVariants = true;
+            product.Price = variants.Min(v => v.Price);
+            product.PriceMax = variants.Max(v => v.Price);
+            product.OldPrice = variants.OrderBy(v => v.Price).First().OldPrice;
+            product.StockQuantity = variants.Sum(v => v.StockQuantity);
         }
     }
 }

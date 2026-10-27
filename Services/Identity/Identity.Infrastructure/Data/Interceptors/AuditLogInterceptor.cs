@@ -17,7 +17,9 @@ namespace Identity.Infrastructure.Data.Interceptors
         public const string MaskedChangedValue = "*** (changed)";
 
         // Allowlist: RefreshToken (live session tokens) must never end up in the audit table.
-        private static readonly HashSet<Type> AuditedTypes = [typeof(User), typeof(Role)];
+        // RolePermission is audited because who granted which permission is the most
+        // security-relevant change in this database.
+        private static readonly HashSet<Type> AuditedTypes = [typeof(User), typeof(Role), typeof(RolePermission)];
 
         // Recorded as "changed" without the value.
         private static readonly HashSet<string> MaskedProperties = [nameof(User.PasswordHash)];
@@ -105,10 +107,14 @@ namespace Identity.Infrastructure.Data.Interceptors
                     return AuditAction.Deleted;
             }
 
-            var isDeleted = entry.Property(nameof(BaseEntity.IsDeleted));
-            if (isDeleted.OriginalValue is false && isDeleted.CurrentValue is true)
+            // RolePermission is not a BaseEntity, so it has no IsDeleted to inspect.
+            if (entry.Metadata.FindProperty(nameof(BaseEntity.IsDeleted)) is not null)
             {
-                return AuditAction.SoftDeleted;
+                var isDeleted = entry.Property(nameof(BaseEntity.IsDeleted));
+                if (isDeleted.OriginalValue is false && isDeleted.CurrentValue is true)
+                {
+                    return AuditAction.SoftDeleted;
+                }
             }
 
             return AuditAction.Modified;

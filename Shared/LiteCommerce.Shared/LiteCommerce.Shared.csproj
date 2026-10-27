@@ -6,12 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-<ItemGroup>
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
-    <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
+  <ItemGroup>
+    <!-- Only for the [HasPermission] plumbing. AppPermissions and PermissionMatcher must
+         stay dependency-free so the Blazor client can link them as source. -->
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="10.0.7" />
   </ItemGroup>
-	
+
 </Project>

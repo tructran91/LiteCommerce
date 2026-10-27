@@ -1,5 +1,8 @@
-﻿@page "/products"
+@page "/products"
 @using LiteCommerce.Admin.Models.Business.Product
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.Product.View" />
 
 <PageTitle>@L["Product_Title"]</PageTitle>
 
@@ -17,13 +20,15 @@
                    Disabled="_operationInProgress">
             @L["Product_ImportExcel"]
         </MudButton>
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Add"
-                   OnClick="NavigateToAdd"
-                   Disabled="_operationInProgress">
-            @L["Product_AddButton"]
-        </MudButton>
+        <HasPermission Permission="@AppPermissions.Product.Create">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="NavigateToAdd"
+                       Disabled="_operationInProgress">
+                @L["Product_AddButton"]
+            </MudButton>
+        </HasPermission>
     </div>
 </div>
 
@@ -128,6 +133,12 @@
                         @context.Name[0]
                     </MudAvatar>
                     <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Name</MudText>
+                    @if (context.HasVariants)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined">
+                            @($"{L["Product_HasVariants"]}: {context.VariantCount}")
+                        </MudChip>
+                    }
                 </div>
             </MudTd>
             <MudTd DataLabel="@L["Product_IsFeatured"]">
@@ -143,13 +154,15 @@
                 <MudSwitch T="bool" Value="@context.IsPublished" Color="Color.Success" Size="Size.Small" Disabled />
             </MudTd>
             <MudTd Style="text-align:center">
-                <MudTooltip Text="@L["Common_Edit"]">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                   Size="Size.Small"
-                                   Color="Color.Primary"
-                                   Disabled="_operationInProgress"
-                                   OnClick="@(() => NavigateToEdit(context.Id.ToString()))" />
-                </MudTooltip>
+                <HasPermission Permission="@AppPermissions.Product.Update">
+                    <MudTooltip Text="@L["Common_Edit"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       Disabled="_operationInProgress"
+                                       OnClick="@(() => NavigateToEdit(context.Id.ToString()))" />
+                    </MudTooltip>
+                </HasPermission>
                 <MudTooltip Text="@L["Product_Copy"]">
                     <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
                                    Size="Size.Small"
@@ -157,13 +170,15 @@
                                    Disabled="_operationInProgress"
                                    OnClick="@(() => CopyProduct(context))" />
                 </MudTooltip>
-                <MudTooltip Text="@L["Common_Delete"]">
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   Size="Size.Small"
-                                   Color="Color.Error"
-                                   Disabled="_operationInProgress"
-                                   OnClick="() => OpenDeleteConfirm(context)" />
-                </MudTooltip>
+                <HasPermission Permission="@AppPermissions.Product.Delete">
+                    <MudTooltip Text="@L["Common_Delete"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       Disabled="_operationInProgress"
+                                       OnClick="() => OpenDeleteConfirm(context)" />
+                    </MudTooltip>
+                </HasPermission>
             </MudTd>
         </RowTemplate>
 

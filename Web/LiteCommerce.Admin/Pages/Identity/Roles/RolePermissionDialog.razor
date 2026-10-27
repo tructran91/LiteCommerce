@@ -1,0 +1,131 @@
+@using MudBlazor
+@using LiteCommerce.Admin.Models.Business.Role
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center justify-space-between" style="width:100%">
+            <div class="d-flex align-center gap-2">
+                <MudIcon Icon="@Icons.Material.Filled.Key" Color="Color.Info" />
+                <div>
+                    <MudText Typo="Typo.h6">@L["Role_ManagePermissions"]</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@RoleName</MudText>
+                </div>
+            </div>
+            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text">
+                @L["Role_SelectedCount", _selected.Count]
+            </MudChip>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        @if (ReadOnly)
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Class="mb-3">@L["Role_ReadOnlyHint"]</MudAlert>
+        }
+
+        <div class="d-flex gap-2 mb-3">
+            <MudButton Size="Size.Small" Variant="Variant.Outlined" Disabled="ReadOnly"
+                       StartIcon="@Icons.Material.Filled.DoneAll" OnClick="SelectAll">
+                @L["Role_SelectAll"]
+            </MudButton>
+            <MudButton Size="Size.Small" Variant="Variant.Outlined" Disabled="ReadOnly"
+                       StartIcon="@Icons.Material.Filled.RemoveDone" OnClick="ClearAll">
+                @L["Role_ClearAll"]
+            </MudButton>
+        </div>
+
+        <MudExpansionPanels MultiExpansion="true" Elevation="0"
+                            Style="border:1px solid var(--mud-palette-divider); border-radius:8px">
+            @foreach (var group in Groups)
+            {
+                var total = group.Permissions.Count;
+                var chosen = group.Permissions.Count(p => _selected.Contains(p.Code));
+
+                <MudExpansionPanel>
+                    <TitleContent>
+                        <div class="d-flex align-center justify-space-between" style="width:100%">
+                            <div class="d-flex align-center gap-2">
+                                <MudCheckBox T="bool?"
+                                             Value="@(chosen == 0 ? false : chosen == total ? true : null)"
+                                             ValueChanged="@(v => ToggleGroup(group, v == true))"
+                                             Color="Color.Primary"
+                                             Dense="true"
+                                             Disabled="ReadOnly"
+                                             @onclick:stopPropagation="true" />
+                                <MudText Typo="Typo.body2" Class="font-weight-medium">@group.GroupName</MudText>
+                            </div>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary mr-2">@chosen / @total</MudText>
+                        </div>
+                    </TitleContent>
+                    <ChildContent>
+                        @foreach (var permission in group.Permissions)
+                        {
+                            <div class="d-flex align-center gap-1 pl-6">
+                                <MudCheckBox T="bool"
+                                             Value="@_selected.Contains(permission.Code)"
+                                             ValueChanged="@(v => Toggle(permission.Code, v))"
+                                             Color="Color.Primary"
+                                             Dense="true"
+                                             Disabled="ReadOnly"
+                                             Label="@permission.DisplayName" />
+                                @if (!string.IsNullOrWhiteSpace(permission.Description))
+                                {
+                                    <MudTooltip Text="@permission.Description">
+                                        <MudIcon Icon="@Icons.Material.Filled.Warning"
+                                                 Color="Color.Warning" Size="Size.Small" />
+                                    </MudTooltip>
+                                }
+                            </div>
+                        }
+                    </ChildContent>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" OnClick="@(() => MudDialog.Cancel())" StartIcon="@Icons.Material.Filled.Close">
+            @L["Common_Cancel"]
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="ReadOnly"
+                   OnClick="Submit" StartIcon="@Icons.Material.Filled.Save">
+            @L["Common_SaveChanges"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter] public string RoleName { get; set; } = "";
+    [Parameter] public List<PermissionGroupResponse> Groups { get; set; } = [];
+    [Parameter] public List<string> InitialSelected { get; set; } = [];
+    [Parameter] public bool ReadOnly { get; set; }
+
+    private HashSet<string> _selected = new(StringComparer.Ordinal);
+
+    protected override void OnInitialized()
+        => _selected = new HashSet<string>(InitialSelected, StringComparer.Ordinal);
+
+    private void Toggle(string code, bool isChecked)
+    {
+        if (isChecked) _selected.Add(code);
+        else _selected.Remove(code);
+    }
+
+    private void ToggleGroup(PermissionGroupResponse group, bool isChecked)
+    {
+        foreach (var permission in group.Permissions)
+            Toggle(permission.Code, isChecked);
+    }
+
+    private void SelectAll()
+    {
+        foreach (var code in Groups.SelectMany(g => g.Permissions).Select(p => p.Code))
+            _selected.Add(code);
+    }
+
+    private void ClearAll() => _selected.Clear();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(_selected.ToList()));
+}

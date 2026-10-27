@@ -1,0 +1,12 @@
+@page "/forbidden"
+@layout MainLayout
+
+<PageTitle>@L["App_NoAccess"]</PageTitle>
+
+<div class="d-flex flex-column align-center justify-center pa-8" style="min-height:60vh">
+    <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error" Size="Size.Large" Class="mb-3" />
+    <MudText Typo="Typo.h5" Class="font-weight-bold mb-2">@L["App_NoAccess"]</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/" StartIcon="@Icons.Material.Filled.Home">
+        @L["App_BackHome"]
+    </MudButton>
+</div>

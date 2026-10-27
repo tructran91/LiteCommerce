@@ -1,7 +1,8 @@
-﻿using Catalog.Application.ProductOptions.Commands;
+using Catalog.Application.ProductOptions.Commands;
 using Catalog.Application.ProductOptions.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<ProductOptionResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.ProductOption.View)]
         public async Task<IActionResult> GetAllProductOptions([FromQuery] GetAllProductOptionsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -32,6 +34,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.ProductOption.View)]
         public async Task<IActionResult> GetProductOptionById(string id)
         {
             var query = new GetProductOptionQuery(id);
@@ -43,6 +46,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductOption.Create)]
         public async Task<IActionResult> CreateProductOption([FromBody] CreateProductOptionRequest request)
         {
             var command = new CreateProductOptionCommand(request);
@@ -55,6 +59,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<ProductOptionResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductOption.Update)]
         public async Task<IActionResult> UpdateProductOption(string id, [FromBody] UpdateProductOptionRequest request)
         {
             var command = new UpdateProductOptionCommand(id, request);
@@ -67,6 +72,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductOption.Delete)]
         public async Task<IActionResult> DeleteProductOption(string id)
         {
             var command = new DeleteProductOptionCommand(id);

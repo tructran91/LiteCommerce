@@ -1,5 +1,8 @@
-﻿@page "/product-prices"
+@page "/product-prices"
 @using LiteCommerce.Admin.Models.Business.ProductPrice
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.ProductPrice.View" />
 
 <PageTitle>@L["Price_Title"]</PageTitle>
 
@@ -10,21 +13,23 @@
     <div>
         <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Price_Title"]</MudText>
     </div>
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Success"
-               StartIcon="@Icons.Material.Filled.Save"
-               OnClick="SavePricesAsync"
-               Disabled="@(_loading || _saving || !HasAnyChanges)">
-        @if (_saving)
-        {
-            <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
-            <span>@L["Auth_Saving"]</span>
-        }
-        else
-        {
-            <span>@L["Common_SaveChanges"]</span>
-        }
-    </MudButton>
+    <HasPermission Permission="@AppPermissions.ProductPrice.Update">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Success"
+                   StartIcon="@Icons.Material.Filled.Save"
+                   OnClick="SavePricesAsync"
+                   Disabled="@(_loading || _saving || !HasAnyChanges)">
+            @if (_saving)
+            {
+                <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+                <span>@L["Auth_Saving"]</span>
+            }
+            else
+            {
+                <span>@L["Common_SaveChanges"]</span>
+            }
+        </MudButton>
+    </HasPermission>
 </div>
 
 <!-- Error Banner -->
@@ -78,19 +83,36 @@
                         @context.Name[0]
                     </MudAvatar>
                     <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Name</MudText>
+                    @if (context.HasVariants)
+                    {
+                        <MudTooltip Text="@L["Product_PricingLockedByVariants"]">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined">
+                                @L["Product_HasVariants"]
+                            </MudChip>
+                        </MudTooltip>
+                    }
                 </div>
             </MudTd>
             <MudTd DataLabel="@L["Price_Current"]">
-                <MudNumericField T="decimal"
-                                 Value="@context.Price"
-                                 ValueChanged="@(value => OnPriceChanged(context, value))"
-                                 Variant="Variant.Outlined"
-                                 Margin="Margin.Dense"
-                                 Min="0"
-                                 Step="0.01M"
-                                 Format="N0"
-                                 Class="@(context.HasPriceChanged ? "mud-input-outlined-warning" : "")"
-                                 Style="width:100%" />
+                @if (context.HasPriceRange)
+                {
+                    @* Derived from the variants, so show the span instead of an input. *@
+                    <MudText Typo="Typo.body2">@context.Price.ToString("N0") - @context.PriceMax.ToString("N0")</MudText>
+                }
+                else
+                {
+                    <MudNumericField T="decimal"
+                                     Value="@context.Price"
+                                     ValueChanged="@(value => OnPriceChanged(context, value))"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     Disabled="@context.HasVariants"
+                                     Min="0"
+                                     Step="0.01M"
+                                     Format="N0"
+                                     Class="@(context.HasPriceChanged ? "mud-input-outlined-warning" : "")"
+                                     Style="width:100%" />
+                }
             </MudTd>
             <MudTd DataLabel="@L["Price_Old"]">
                 <MudNumericField T="decimal?"
@@ -98,6 +120,7 @@
                                  ValueChanged="@(value => OnOldPriceChanged(context, value))"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
+                                 Disabled="@context.HasVariants"
                                  Min="0"
                                  Step="0.01M"
                                  Format="N0"

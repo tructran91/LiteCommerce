@@ -51,11 +51,20 @@ namespace Catalog.Application
                 .ForMember(prop => prop.ProductAttributes, opt => opt.Ignore());
             CreateMap<UpdateProductTemplateRequest, ProductTemplate>();
 
-            CreateMap<Product, ProductResponse>();
+            // Variants is the only child collection whose name matches on both sides, so
+            // AutoMapper would try to map the elements and throw. Like every other child
+            // collection it is handled by ProductService, so ignore it in both directions.
+            CreateMap<Product, ProductResponse>()
+                .ForMember(prop => prop.Variants, opt => opt.Ignore());
             CreateMap<ProductViewModel, Product>()
                 .ForMember(prop => prop.Id, opt => opt.Ignore())
+                .ForMember(prop => prop.Variants, opt => opt.Ignore())
+                // Set by RecalculateAggregates after the variants sync, not by the client.
+                .ForMember(prop => prop.HasVariants, opt => opt.Ignore())
+                .ForMember(prop => prop.PriceMax, opt => opt.Ignore())
                 .ForMember(prop => prop.BrandId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.BrandId) ? (Guid?)null : Guid.Parse(src.BrandId)));
             CreateMap<Product, ProductViewModel>()
+                .ForMember(prop => prop.Variants, opt => opt.Ignore())
                 .ForMember(prop => prop.BrandId, opt => opt.MapFrom(src => src.BrandId.HasValue ? src.BrandId.Value.ToString() : null));
 
             CreateMap<Product, ProductPricingResponse>();

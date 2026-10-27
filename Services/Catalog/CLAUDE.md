@@ -31,6 +31,17 @@ There are no tests. Migrations live in `Catalog.Infrastructure/Data/Migrations` 
 - **Repositories**: entity CRUD goes through the generic `IBaseRepository<T>` (`BaseRepository<T>` requires `T : BaseEntity`). Only `Product` has a dedicated `IProductRepository`, for the eager-loaded aggregate (`GetProductAsync`) and the projected list and pricing queries that return `Catalog.Core/DTOs`. `Add/Update/DeleteAsync` each call `SaveChangesAsync` right away. There is no unit-of-work, so a handler that touches several aggregates saves them separately.
 - `GetAsync` always pages (`Skip/Take`, default page size 10) and orders by `CreatedDate` unless you pass `orderBy`. Use `Query()` when you need an unpaged or custom query.
 
+## Authorization
+
+Tokens come from Identity; Catalog only verifies them and checks permissions.
+
+- **Every action under `api/admin/*` needs its own `[HasPermission(AppPermissions.X.Y)]`.** `BaseApiController` is `[Authorize]` only, so without the attribute an endpoint is reachable by any signed-in user — including a storefront customer.
+- `EndpointPermissionGuard.AssertAdminEndpointsHavePermissions()` runs after `MapControllers()` in `Program.cs` and **throws on startup** if an `api/admin/*` action has neither `[HasPermission]` nor `[AllowAnonymous]`. There are no tests here, so that is the only thing catching a forgotten attribute.
+- Adding an endpoint therefore means adding a permission: declare the const in `LiteCommerce.Shared/Authorization/AppPermissions.cs`, add it to `All`, and put the attribute on the action. Identity's `PermissionSyncer` installs it on its next startup; no migration.
+- `ConfigureJwtAuthentication` sets `Authority` to Identity and fetches the signing key over JWKS, so Catalog never holds a key. `FallbackPolicy` requires an authenticated user, so anything public needs an explicit `[AllowAnonymous]` (`PublicFilesController`, `AuthDiagnosticsController`).
+- `AdminSessionController` is gated by `backoffice.access` and is what the Blazor client calls right after login to decide whether to keep the tokens. Changing its permission changes who can sign in to the admin UI at all.
+- **Never authorize on a role name.** Roles are user-defined in Identity; `AppRoles` and the `AdminOnly` policy are gone.
+
 ## Response and error convention
 
 **Every response body is a `BaseResponse<T>`, and the HTTP status equals `BaseResponse.StatusCode`.**

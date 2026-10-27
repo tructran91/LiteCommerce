@@ -20,7 +20,15 @@
 
         public bool IsPublished { get; set; } = true;
 
+        // Response only. Derived from Variants; a client value is ignored.
+        public bool HasVariants { get; set; }
+
+        // Overwritten on save when the product has variants.
         public decimal? Price { get; set; } = 0;
+
+        public decimal? PriceMax { get; set; }
+
+        public int StockQuantity { get; set; }
 
         public decimal? OldPrice { get; set; }
 
@@ -49,6 +57,8 @@
         public IList<ProductAttributeViewModel>? Attributes { get; set; } = new List<ProductAttributeViewModel>();
 
         public IList<ProductOptionViewModel>? Options { get; set; } = new List<ProductOptionViewModel>();
+
+        public IList<ProductVariantViewModel>? Variants { get; set; } = new List<ProductVariantViewModel>();
 
         public IList<ProductMediaViewModel>? ProductImages { get; set; } = new List<ProductMediaViewModel>();
 

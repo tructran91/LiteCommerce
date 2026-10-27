@@ -44,10 +44,14 @@ namespace Catalog.Application.Services
             response.Options = product.OptionValues.OrderBy(x => x.SortIndex).Select(x => new ProductOptionViewModel
             {
                 Id = x.OptionId.ToString(),
-                Name = x.Option.Name,
+                Name = x.Option?.Name,
                 DisplayType = x.DisplayType,
-                Values = JsonSerializer.Deserialize<IList<ProductOptionValueViewModel>>(x.Value)
+                Values = x.Items
+                    .OrderBy(i => i.SortIndex)
+                    .Select(i => new ProductOptionValueViewModel { Key = i.Key, Display = i.Display })
+                    .ToList()
             }).ToList();
+            response.Variants = BuildVariants(product);
             response.Attributes = product.AttributeValues.Select(x => new ProductAttributeViewModel
             {
                 AttributeValueId = x.Id.ToString(),
@@ -79,6 +83,47 @@ namespace Catalog.Application.Services
             response.CrossSellProducts = BuildProductLinks(product, ProductLinkType.CrossSell);
 
             return response;
+        }
+
+        private List<ProductVariantViewModel> BuildVariants(Product product)
+        {
+            var subFolder = product.Id.ToStoragePath(StorageFolder.Product);
+
+            var axisOrder = product.OptionValues
+                .ToDictionary(x => x.OptionId, x => x.SortIndex);
+
+            return product.Variants
+                .OrderBy(v => v.DisplayOrder)
+                .ThenBy(v => v.NormalizedName)
+                .Select(v => new ProductVariantViewModel
+                {
+                    Id = v.Id.ToString(),
+                    Name = v.Name,
+                    NormalizedName = v.NormalizedName,
+                    Sku = v.Sku,
+                    Gtin = v.Gtin,
+                    Price = v.Price,
+                    OldPrice = v.OldPrice,
+                    SpecialPrice = v.SpecialPrice,
+                    SpecialPriceStart = v.SpecialPriceStart,
+                    SpecialPriceEnd = v.SpecialPriceEnd,
+                    StockQuantity = v.StockQuantity,
+                    IsActive = v.IsActive,
+                    DisplayOrder = v.DisplayOrder,
+                    ThumbnailImageUrl = _mediaService.GetThumbnailUrl(v.ThumbnailImage, subFolder),
+                    OptionCombinations = v.OptionValues
+                        .OrderBy(ov => axisOrder.TryGetValue(ov.OptionId, out var idx) ? idx : ov.SortIndex)
+                        .Select(ov => new ProductVariantOptionViewModel
+                        {
+                            OptionId = ov.OptionId.ToString(),
+                            OptionName = ov.Option?.Name,
+                            ValueKey = ov.ProductOptionValueItem?.Key,
+                            ValueDisplay = ov.ProductOptionValueItem?.Display,
+                            SortIndex = ov.SortIndex
+                        })
+                        .ToList()
+                })
+                .ToList();
         }
 
         private static List<ProductLinkViewModel> BuildProductLinks(Product product, ProductLinkType linkType)
@@ -167,21 +212,22 @@ namespace Catalog.Application.Services
                 var existing = productTarget.OptionValues.FirstOrDefault(x => x.OptionId == optionId);
                 if (existing == null)
                 {
-                    productTarget.AddOptionValue(new ProductOptionValue
+                    existing = new ProductOptionValue
                     {
                         OptionId = optionId,
                         DisplayType = optionVm.DisplayType,
-                        Value = JsonSerializer.Serialize(optionVm.Values),
                         SortIndex = optionIndex,
                         CreatedDate = DateTime.UtcNow
-                    });
+                    };
+                    productTarget.AddOptionValue(existing);
                 }
                 else
                 {
                     existing.DisplayType = optionVm.DisplayType;
-                    existing.Value = JsonSerializer.Serialize(optionVm.Values);
                     existing.SortIndex = optionIndex;
                 }
+
+                SyncOptionValueItems(optionVm.Values ?? [], existing);
                 optionIndex++;
             }
 
@@ -191,6 +237,51 @@ namespace Catalog.Application.Services
             {
                 productTarget.OptionValues.Remove(item);
             }
+        }
+
+        // Matching on Key, not on position, so renaming Display keeps the row and every
+        // variant pointing at it. Dropping a key drops the row, and AddOrDeleteVariants
+        // then drops the variants that referenced it.
+        private static void SyncOptionValueItems(IList<ProductOptionValueViewModel> sourceValues, ProductOptionValue target)
+        {
+            var itemIndex = 0;
+
+            foreach (var valueVm in sourceValues)
+            {
+                var key = NormalizeKey(valueVm.Key);
+                var existing = target.Items.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase));
+                if (existing == null)
+                {
+                    target.AddItem(new ProductOptionValueItem
+                    {
+                        Key = key,
+                        Display = string.IsNullOrWhiteSpace(valueVm.Display) ? valueVm.Key : valueVm.Display,
+                        SortIndex = itemIndex,
+                        CreatedDate = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    existing.Display = string.IsNullOrWhiteSpace(valueVm.Display) ? valueVm.Key : valueVm.Display;
+                    existing.SortIndex = itemIndex;
+                }
+                itemIndex++;
+            }
+
+            var newKeys = sourceValues.Select(x => NormalizeKey(x.Key)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var itemsToRemove = target.Items.Where(x => !newKeys.Contains(x.Key)).ToList();
+            foreach (var item in itemsToRemove)
+            {
+                target.Items.Remove(item);
+            }
+        }
+
+        // Slugified so a key stays the same across accents and casing.
+        // ProductVariantRules has a copy; the two must agree.
+        private static string NormalizeKey(string key)
+        {
+            var slug = (key ?? string.Empty).Slugify();
+            return string.IsNullOrWhiteSpace(slug) ? (key ?? string.Empty).Trim().ToLowerInvariant() : slug;
         }
 
         public void AddOrDeleteAttributes(ProductViewModel productSource, Product productTarget)
@@ -244,6 +335,211 @@ namespace Catalog.Application.Services
             {
                 productTarget.Categories.Remove(item);
             }
+        }
+
+        public void AddOrDeleteVariants(ProductViewModel productSource, Product productTarget)
+        {
+            var sourceVariants = productSource.Variants ?? [];
+
+            // The axes come from what AddOrDeleteOptions just synced, not from the
+            // request, so a variant can only reference a value the product declares.
+            var axes = productTarget.OptionValues.OrderBy(x => x.SortIndex).ToList();
+            var itemLookup = axes.ToDictionary(
+                axis => axis.OptionId,
+                axis => axis.Items.ToDictionary(i => i.Key, i => i, StringComparer.OrdinalIgnoreCase));
+
+            var seenNormalizedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var displayOrder = 0;
+
+            foreach (var variantVm in sourceVariants)
+            {
+                var resolved = ResolveCombination(variantVm, axes, itemLookup);
+                if (resolved == null)
+                {
+                    // Unknown axis or value. The validator already returns 400 for a real
+                    // mistake, so this only drops a stale payload rather than persisting it.
+                    continue;
+                }
+
+                var normalizedName = BuildNormalizedName(resolved);
+                if (!seenNormalizedNames.Add(normalizedName))
+                {
+                    continue;
+                }
+
+                var existing = ResolveExistingVariant(productTarget, variantVm.Id, normalizedName);
+
+                if (existing == null)
+                {
+                    existing = new ProductVariant
+                    {
+                        NormalizedName = normalizedName,
+                        CreatedDate = DateTime.UtcNow
+                    };
+                    productTarget.AddVariant(existing);
+                }
+
+                existing.NormalizedName = normalizedName;
+                existing.Name = string.IsNullOrWhiteSpace(variantVm.Name)
+                    ? BuildVariantDisplayName(productTarget.Name, resolved)
+                    : variantVm.Name.Trim();
+                existing.Sku = string.IsNullOrWhiteSpace(variantVm.Sku) ? null : variantVm.Sku.Trim();
+                existing.Gtin = string.IsNullOrWhiteSpace(variantVm.Gtin) ? null : variantVm.Gtin.Trim();
+                existing.Price = variantVm.Price;
+                existing.OldPrice = variantVm.OldPrice;
+                existing.SpecialPrice = variantVm.SpecialPrice;
+                existing.SpecialPriceStart = variantVm.SpecialPriceStart;
+                existing.SpecialPriceEnd = variantVm.SpecialPriceEnd;
+                existing.StockQuantity = variantVm.StockQuantity;
+                existing.IsActive = variantVm.IsActive;
+                existing.DisplayOrder = displayOrder++;
+
+                SyncVariantOptionValues(resolved, existing);
+            }
+
+            var variantsToRemove = productTarget.Variants
+                .Where(v => !seenNormalizedNames.Contains(v.NormalizedName))
+                .ToList();
+            foreach (var variant in variantsToRemove)
+            {
+                productTarget.Variants.Remove(variant);
+            }
+        }
+
+        // Resolves the submitted combination to the product's own option value items, in
+        // axis order. Null when an axis is missing, unknown, duplicated or extra.
+        private static List<(ProductOptionValue Axis, ProductOptionValueItem Item)>? ResolveCombination(
+            ProductVariantViewModel variantVm,
+            List<ProductOptionValue> axes,
+            Dictionary<Guid, Dictionary<string, ProductOptionValueItem>> itemLookup)
+        {
+            if (axes.Count == 0)
+            {
+                return null;
+            }
+
+            var combinations = variantVm.OptionCombinations ?? [];
+            var byOptionId = new Dictionary<Guid, string>();
+
+            foreach (var combination in combinations)
+            {
+                if (!Guid.TryParse(combination.OptionId, out var optionId))
+                {
+                    return null;
+                }
+                // TryAdd also rejects the same axis supplied twice.
+                if (!byOptionId.TryAdd(optionId, NormalizeKey(combination.ValueKey)))
+                {
+                    return null;
+                }
+            }
+
+            var resolved = new List<(ProductOptionValue, ProductOptionValueItem)>(axes.Count);
+            foreach (var axis in axes)
+            {
+                if (!byOptionId.TryGetValue(axis.OptionId, out var key))
+                {
+                    return null;
+                }
+                if (!itemLookup[axis.OptionId].TryGetValue(key, out var item))
+                {
+                    return null;
+                }
+                resolved.Add((axis, item));
+            }
+
+            // Count check rejects extra axes the product does not declare.
+            return byOptionId.Count == axes.Count ? resolved : null;
+        }
+
+        private static string BuildNormalizedName(List<(ProductOptionValue Axis, ProductOptionValueItem Item)> resolved)
+            => string.Join(ProductVariant.NormalizedNameSeparator, resolved.Select(x => x.Item.Key));
+
+        private static string BuildVariantDisplayName(
+            string productName,
+            List<(ProductOptionValue Axis, ProductOptionValueItem Item)> resolved)
+            => $"{productName} {string.Join(" / ", resolved.Select(x => x.Item.Display))}".Trim();
+
+        // Id first, then the combination. Never Name: renaming a variant must not orphan it.
+        private static ProductVariant? ResolveExistingVariant(Product product, string? rawId, string normalizedName)
+        {
+            if (!string.IsNullOrWhiteSpace(rawId) && Guid.TryParse(rawId, out var variantId) && variantId != Guid.Empty)
+            {
+                var byId = product.Variants.FirstOrDefault(v => v.Id == variantId);
+                if (byId != null)
+                {
+                    return byId;
+                }
+            }
+
+            return product.Variants.FirstOrDefault(
+                v => string.Equals(v.NormalizedName, normalizedName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void SyncVariantOptionValues(
+            List<(ProductOptionValue Axis, ProductOptionValueItem Item)> resolved,
+            ProductVariant variant)
+        {
+            foreach (var (axis, item) in resolved)
+            {
+                var existing = variant.OptionValues.FirstOrDefault(x => x.OptionId == axis.OptionId);
+                if (existing == null)
+                {
+                    variant.AddOptionValue(new ProductVariantOptionValue
+                    {
+                        OptionId = axis.OptionId,
+                        // The navigation, not the id: a newly added item has no id yet,
+                        // and EF fills the FK when it saves.
+                        ProductOptionValueItem = item,
+                        SortIndex = axis.SortIndex,
+                        CreatedDate = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    existing.ProductOptionValueItem = item;
+                    existing.SortIndex = axis.SortIndex;
+                }
+            }
+
+            var keptOptionIds = resolved.Select(x => x.Axis.OptionId).ToHashSet();
+            var toRemove = variant.OptionValues.Where(x => !keptOptionIds.Contains(x.OptionId)).ToList();
+            foreach (var optionValue in toRemove)
+            {
+                variant.OptionValues.Remove(optionValue);
+            }
+        }
+
+        public void RecalculateAggregates(Product product)
+        {
+            var activeVariants = product.Variants.Where(v => v.IsActive && !v.IsDeleted).ToList();
+
+            product.HasVariants = product.Variants.Count > 0;
+
+            if (!product.HasVariants)
+            {
+                // The admin's own figures stand. PriceMax still mirrors Price so a list
+                // screen can render a range for every product without a special case.
+                product.PriceMax = product.Price;
+                return;
+            }
+
+            if (activeVariants.Count == 0)
+            {
+                // Nothing sellable. Keep the last known price rather than flipping to 0.
+                product.PriceMax = product.Price;
+                product.StockQuantity = 0;
+                return;
+            }
+
+            var cheapest = activeVariants.OrderBy(v => v.Price).First();
+
+            product.Price = cheapest.Price;
+            product.PriceMax = activeVariants.Max(v => v.Price);
+            // From the same variant as Price, so the struck-through figure on a listing
+            // always belongs to the price shown next to it.
+            product.OldPrice = cheapest.OldPrice;
+            product.StockQuantity = activeVariants.Sum(v => v.StockQuantity);
         }
     }
 }

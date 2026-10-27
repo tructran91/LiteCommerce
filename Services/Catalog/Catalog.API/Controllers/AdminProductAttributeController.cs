@@ -1,7 +1,8 @@
-﻿using Catalog.Application.ProductAttributes.Commands;
+using Catalog.Application.ProductAttributes.Commands;
 using Catalog.Application.ProductAttributes.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<ProductAttributeResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.ProductAttribute.View)]
         public async Task<IActionResult> GetAllProductAttributes([FromQuery] GetAllProductAttributesQuery query)
         {
             var result = await _mediator.Send(query);
@@ -32,6 +34,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.ProductAttribute.View)]
         public async Task<IActionResult> GetProductAttributeById(string id)
         {
             var query = new GetProductAttributeQuery(id);
@@ -43,6 +46,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductAttribute.Create)]
         public async Task<IActionResult> CreateProductAttribute([FromBody] CreateProductAttributeRequest request)
         {
             var command = new CreateProductAttributeCommand(request);
@@ -55,6 +59,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductAttribute.Update)]
         public async Task<IActionResult> UpdateProductAttribute(string id, [FromBody] UpdateProductAttributeRequest request)
         {
             var command = new UpdateProductAttributeCommand(id, request);
@@ -67,6 +72,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductAttribute.Delete)]
         public async Task<IActionResult> DeleteProductAttribute(string id)
         {
             var command = new DeleteProductAttributeCommand(id);

@@ -39,8 +39,11 @@ namespace Catalog.Application.ProductOptions.Handlers
             // The command only carries the id; give the activity log a readable name.
             request.EntityDisplayName = existingProductOption.Name;
 
+            // Both halves: a declared axis, and a variant that already resolved a value
+            // on it. The second can outlive the first if an axis is dropped mid-edit.
             var productCount = await _productRepository
-                .CountAsync(p => p.OptionValues.Any(o => o.OptionId == existingProductOption.Id));
+                .CountAsync(p => p.OptionValues.Any(o => o.OptionId == existingProductOption.Id)
+                    || p.Variants.Any(v => v.OptionValues.Any(ov => ov.OptionId == existingProductOption.Id)));
             if (productCount > 0)
             {
                 return BaseResponse<bool>.Failure(

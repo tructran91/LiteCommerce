@@ -33,6 +33,8 @@ namespace Catalog.Application.Products.Validators
 
             RuleForEach(x => x.Payload.ProductDocuments)
                 .MustBeValidDocument("ProductDocuments", fileUpload.MaxDocumentSizeMB);
+
+            this.AddProductOptionAndVariantRules(x => x.Payload.Product);
         }
     }
 }

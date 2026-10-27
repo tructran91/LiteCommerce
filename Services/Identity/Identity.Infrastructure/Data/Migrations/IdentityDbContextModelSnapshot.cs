@@ -180,6 +180,57 @@ namespace Identity.Infrastructure.Data.Migrations
                     b.ToTable("PasswordResetTokens");
                 });
 
+            modelBuilder.Entity("Identity.Core.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsObsolete")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Service")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("Identity.Core.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -251,6 +302,9 @@ namespace Identity.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
@@ -274,6 +328,7 @@ namespace Identity.Infrastructure.Data.Migrations
                             CreatedDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Full access",
                             IsDeleted = false,
+                            IsSystem = true,
                             Name = "Admin"
                         },
                         new
@@ -282,6 +337,7 @@ namespace Identity.Infrastructure.Data.Migrations
                             CreatedDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Manage catalog",
                             IsDeleted = false,
+                            IsSystem = false,
                             Name = "Staff"
                         },
                         new
@@ -290,8 +346,24 @@ namespace Identity.Infrastructure.Data.Migrations
                             CreatedDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Shop customer",
                             IsDeleted = false,
+                            IsSystem = true,
                             Name = "Customer"
                         });
+                });
+
+            modelBuilder.Entity("Identity.Core.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Identity.Core.Entities.User", b =>
@@ -368,6 +440,25 @@ namespace Identity.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Identity.Core.Entities.RolePermission", b =>
+                {
+                    b.HasOne("Identity.Core.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Identity.Core.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Identity.Core.Entities.User", b =>
                 {
                     b.HasOne("Identity.Core.Entities.Role", "Role")
@@ -379,8 +470,15 @@ namespace Identity.Infrastructure.Data.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Identity.Core.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("Identity.Core.Entities.Role", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("Users");
                 });
 

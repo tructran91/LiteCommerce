@@ -12,7 +12,17 @@
 
         public bool IsPublished { get; set; }
 
+        // While true, the four fields below are derived: ProductService.RecalculateAggregates
+        // rewrites them from the variants on every save, so editing them directly is lost.
+        // Price and StockQuantity become the minimum and the sum across active variants.
+        // Reservations are tracked per variant only; nothing reads a product-level total.
+        public bool HasVariants { get; set; }
+
         public decimal Price { get; set; } = 0;
+
+        // Upper bound of the range, so a list screen can render "from - to" without
+        // joining the variants. Equal to Price when there are none.
+        public decimal PriceMax { get; set; } = 0;
 
         public decimal? OldPrice { get; set; }
 
@@ -70,6 +80,8 @@
 
         public List<ProductOptionValue> OptionValues { get; set; } = new();
 
+        public List<ProductVariant> Variants { get; set; } = new();
+
         public List<ProductCategory> Categories { get; set; } = new();
 
         public List<ProductPriceHistory> PriceHistories { get; set; } = new();
@@ -96,6 +108,12 @@
         {
             optionValue.Product = this;
             OptionValues.Add(optionValue);
+        }
+
+        public void AddVariant(ProductVariant variant)
+        {
+            variant.Product = this;
+            Variants.Add(variant);
         }
 
         public void AddProductLinks(ProductLink productLink)

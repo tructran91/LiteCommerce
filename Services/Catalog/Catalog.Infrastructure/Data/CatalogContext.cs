@@ -34,6 +34,12 @@ namespace Catalog.Infrastructure.Data
 
         public DbSet<ProductOptionValue> ProductOptionValues { get; set; }
 
+        public DbSet<ProductOptionValueItem> ProductOptionValueItems { get; set; }
+
+        public DbSet<ProductVariant> ProductVariants { get; set; }
+
+        public DbSet<ProductVariantOptionValue> ProductVariantOptionValues { get; set; }
+
         public DbSet<ProductPriceHistory> ProductPriceHistories { get; set; }
 
         public DbSet<ProductTemplate> ProductTemplates { get; set; }

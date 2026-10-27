@@ -6,7 +6,12 @@ namespace LiteCommerce.Admin.Models.Business.ProductPrice
 
         public string Name { get; set; }
 
+        // The grid locks the row when true; the server rejects the update regardless.
+        public bool HasVariants { get; set; }
+
         public decimal Price { get; set; } = 0;
+
+        public decimal PriceMax { get; set; } = 0;
 
         public decimal? OldPrice { get; set; }
 
@@ -25,6 +30,8 @@ namespace LiteCommerce.Admin.Models.Business.ProductPrice
 
         public bool HasOldPriceChanged => OldPrice != OriginalOldPrice;
 
-        public bool HasAnyChange => HasPriceChanged || HasOldPriceChanged;
+        public bool HasAnyChange => !HasVariants && (HasPriceChanged || HasOldPriceChanged);
+
+        public bool HasPriceRange => HasVariants && PriceMax > Price;
     }
 }

@@ -23,7 +23,9 @@ namespace Catalog.Application.ProductPrices.Handlers
             {
                 Id = p.Id,
                 Name = p.Name,
+                HasVariants = p.HasVariants,
                 Price = p.Price,
+                PriceMax = p.PriceMax,
                 OldPrice = p.OldPrice,
                 SpecialPrice = p.SpecialPrice,
                 SpecialPriceStart = p.SpecialPriceStart,

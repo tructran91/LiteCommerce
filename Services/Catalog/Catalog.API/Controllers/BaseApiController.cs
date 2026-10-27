@@ -1,14 +1,13 @@
-﻿using LiteCommerce.Shared.Authorization;
-using LiteCommerce.Shared.Models;
+﻿using LiteCommerce.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.API.Controllers
 {
-    // Every Admin* controller derives from this, so api/admin/* is Admin-only by default.
-    // Override with [Authorize(Policy = ...)] or [AllowAnonymous] where another role applies.
+    // Authentication only. Each action states its own permission with [HasPermission(...)],
+    // and EndpointPermissionGuard fails startup if an api/admin/* action forgets to.
     [ApiController]
-    [Authorize(Policy = AppPolicies.AdminOnly)]
+    [Authorize]
     public abstract class BaseApiController : ControllerBase
     {
         protected IActionResult ToActionResult<T>(BaseResponse<T> result)

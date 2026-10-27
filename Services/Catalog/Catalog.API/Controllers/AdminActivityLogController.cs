@@ -1,5 +1,6 @@
 using Catalog.Application.ActivityLogs.Queries;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<ActivityLogResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.CatalogLog.ViewActivity)]
         public async Task<IActionResult> GetAllActivityLogs([FromQuery] GetAllActivityLogsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -31,6 +33,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ActivityLogResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ActivityLogResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.CatalogLog.ViewActivity)]
         public async Task<IActionResult> GetActivityLogById(string id)
         {
             var query = new GetActivityLogQuery(id);

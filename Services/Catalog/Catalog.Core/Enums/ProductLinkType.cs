@@ -1,13 +1,13 @@
 ﻿namespace Catalog.Core.Enums
 {
+    // Values are explicit because they are persisted as integers. 1 was Super, dropped
+    // when variants became their own entity; don't reuse it.
     public enum ProductLinkType
     {
-        Super = 1,
+        Related = 2,
 
-        Related,
+        CrossSell = 3,
 
-        CrossSell,
-
-        UpSell
+        UpSell = 4
     }
 }

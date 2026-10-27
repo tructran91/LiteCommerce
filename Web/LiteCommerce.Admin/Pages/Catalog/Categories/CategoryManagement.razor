@@ -1,5 +1,8 @@
 @page "/categories"
 @using LiteCommerce.Admin.Models.Business.Category
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.Category.View" />
 
 <PageTitle>@L["Category_Title"]</PageTitle>
 
@@ -10,13 +13,15 @@
     <div>
         <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Category_Title"]</MudText>
     </div>
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Primary"
-               StartIcon="@Icons.Material.Filled.Add"
-               OnClick="NavigateToAdd"
-               Disabled="_loading">
-        @L["Category_AddButton"]
-    </MudButton>
+    <HasPermission Permission="@AppPermissions.Category.Create">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="NavigateToAdd"
+                   Disabled="_loading">
+            @L["Category_AddButton"]
+        </MudButton>
+    </HasPermission>
 </div>
 
 <!-- Error Banner -->
@@ -87,18 +92,22 @@
                            Disabled />
             </MudTd>
             <MudTd Style="text-align:center">
-                <MudTooltip Text="@L["Common_Edit"]">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                   Size="Size.Small"
-                                   Color="Color.Primary"
-                                   OnClick="@(() => NavigateToEdit(context.Id))" />
-                </MudTooltip>
-                <MudTooltip Text="@L["Common_Delete"]">
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   Size="Size.Small"
-                                   Color="Color.Error"
-                                   OnClick="() => OpenDeleteConfirm(context)" />
-                </MudTooltip>
+                <HasPermission Permission="@AppPermissions.Category.Update">
+                    <MudTooltip Text="@L["Common_Edit"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => NavigateToEdit(context.Id))" />
+                    </MudTooltip>
+                </HasPermission>
+                <HasPermission Permission="@AppPermissions.Category.Delete">
+                    <MudTooltip Text="@L["Common_Delete"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="() => OpenDeleteConfirm(context)" />
+                    </MudTooltip>
+                </HasPermission>
             </MudTd>
         </RowTemplate>
 

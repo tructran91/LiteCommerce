@@ -1,6 +1,8 @@
 @page "/users"
-@attribute [Authorize(Roles = "Admin")]
 @using LiteCommerce.Admin.Models.Business.User
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.User.View" />
 
 <PageTitle>@L["Users_Title"]</PageTitle>
 <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
@@ -10,8 +12,10 @@
         <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Users_Title"]</MudText>
         <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Users_Subtitle"]</MudText>
     </div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd" Class="flex-shrink-0"
-               OnClick="@(() => OpenUserDialog(false))" Disabled="_operationInProgress">@L["Users_Create"]</MudButton>
+    <HasPermission Permission="@AppPermissions.User.Create">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd" Class="flex-shrink-0"
+                   OnClick="@(() => OpenUserDialog(false))" Disabled="_operationInProgress">@L["Users_Create"]</MudButton>
+    </HasPermission>
 </div>
 
 @if (_errorMessage is not null)
@@ -76,13 +80,25 @@
             <MudTd DataLabel="@L["Users_ColumnCreated"]">@context.CreatedDate.ToLocalTime().ToString("dd MMM yyyy")</MudTd>
             <MudTd Style="text-align:right">
                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Disabled="_operationInProgress">
-                    <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenUserDialog(true, context))">@L["Users_Edit"]</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings" OnClick="@(() => OpenRoleDialog(context))">@L["Users_ChangeRole"]</MudMenuItem>
-                    <MudMenuItem Icon="@(context.IsActive ? Icons.Material.Filled.PersonOff : Icons.Material.Filled.Person)" OnClick="@(() => ToggleStatus(context))">@(context.IsActive ? L["Users_Deactivate"] : L["Users_Activate"])</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.LockOpen" Disabled="@(!context.IsLocked)" OnClick="@(() => Unlock(context))">@L["Users_Unlock"]</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="@(() => RevokeSessions(context))">@L["Users_RevokeSessions"]</MudMenuItem>
-                    <MudDivider />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => DeleteUser(context))"><MudText Color="Color.Error">@L["Users_Delete"]</MudText></MudMenuItem>
+                    <HasPermission Permission="@AppPermissions.User.Update">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenUserDialog(true, context))">@L["Users_Edit"]</MudMenuItem>
+                    </HasPermission>
+                    <HasPermission Permission="@AppPermissions.User.UpdateRole">
+                        <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings" OnClick="@(() => OpenRoleDialog(context))">@L["Users_ChangeRole"]</MudMenuItem>
+                    </HasPermission>
+                    <HasPermission Permission="@AppPermissions.User.UpdateStatus">
+                        <MudMenuItem Icon="@(context.IsActive ? Icons.Material.Filled.PersonOff : Icons.Material.Filled.Person)" OnClick="@(() => ToggleStatus(context))">@(context.IsActive ? L["Users_Deactivate"] : L["Users_Activate"])</MudMenuItem>
+                    </HasPermission>
+                    <HasPermission Permission="@AppPermissions.User.Unlock">
+                        <MudMenuItem Icon="@Icons.Material.Filled.LockOpen" Disabled="@(!context.IsLocked)" OnClick="@(() => Unlock(context))">@L["Users_Unlock"]</MudMenuItem>
+                    </HasPermission>
+                    <HasPermission Permission="@AppPermissions.User.RevokeSessions">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="@(() => RevokeSessions(context))">@L["Users_RevokeSessions"]</MudMenuItem>
+                    </HasPermission>
+                    <HasPermission Permission="@AppPermissions.User.Delete">
+                        <MudDivider />
+                        <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => DeleteUser(context))"><MudText Color="Color.Error">@L["Users_Delete"]</MudText></MudMenuItem>
+                    </HasPermission>
                 </MudMenu>
             </MudTd>
         </RowTemplate>

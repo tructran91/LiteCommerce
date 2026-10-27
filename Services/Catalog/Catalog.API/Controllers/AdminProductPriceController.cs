@@ -1,7 +1,8 @@
-﻿using Catalog.Application.ProductPrices.Commands;
+using Catalog.Application.ProductPrices.Commands;
 using Catalog.Application.ProductPrices.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.ProductPrice.View)]
         public async Task<IActionResult> GetProductPricing([FromQuery] GetProductPricingQuery query)
         {
             var result = await _mediator.Send(query);
@@ -33,6 +35,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<List<ProductPricingResponse>>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.ProductPrice.Update)]
         public async Task<IActionResult> UpdateProductPricing([FromBody] UpdateProductPricingListRequest request)
         {
             var command = new UpdateProductPricingCommand(request);

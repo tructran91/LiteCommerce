@@ -1,7 +1,8 @@
-﻿using Catalog.Application.Categories.Commands;
+using Catalog.Application.Categories.Commands;
 using Catalog.Application.Categories.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<CategoryResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Category.View)]
         public async Task<IActionResult> GetAllCategories([FromQuery] GetAllCategoriesQuery query)
         {
             var result = await _mediator.Send(query);
@@ -30,6 +32,7 @@ namespace Catalog.API.Controllers
 
         [HttpGet("basic")]
         [ProducesResponseType(typeof(BaseResponse<List<BasicCategoryResponse>>), StatusCodes.Status200OK)]
+        [HasPermission(AppPermissions.Category.View)]
         public async Task<IActionResult> GetAllBasicCategories()
         {
             var query = new GetAllBasicCategoriesQuery();
@@ -41,6 +44,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.Category.View)]
         public async Task<IActionResult> GetCategoryById(string id)
         {
             var query = new GetCategoryQuery(id);
@@ -54,6 +58,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Category.Create)]
         public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryRequest request)
         {
             var command = new CreateCategoryCommand(request);
@@ -67,6 +72,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<CategoryResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Category.Update)]
         public async Task<IActionResult> UpdateCategory(string id, [FromForm] UpdateCategoryRequest request)
         {
             var command = new UpdateCategoryCommand(id, request);
@@ -80,6 +86,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Category.Delete)]
         public async Task<IActionResult> DeleteCategory(string id)
         {
             var command = new DeleteCategoryCommand(id);

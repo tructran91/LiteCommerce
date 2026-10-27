@@ -21,6 +21,9 @@ namespace Catalog.Infrastructure.Repositories
                 .Include(t => t.Medias).ThenInclude(t => t.Media)
                 .Include(t => t.ProductLinks).ThenInclude(p => p.LinkedProduct).ThenInclude(m => m.ThumbnailImage)
                 .Include(x => x.OptionValues).ThenInclude(o => o.Option)
+                .Include(x => x.OptionValues).ThenInclude(o => o.Items)
+                .Include(x => x.Variants).ThenInclude(v => v.ThumbnailImage)
+                .Include(x => x.Variants).ThenInclude(v => v.OptionValues).ThenInclude(ov => ov.ProductOptionValueItem)
                 .Include(x => x.AttributeValues).ThenInclude(a => a.Attribute).ThenInclude(g => g.Group)
                 .Include(x => x.Categories)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -75,6 +78,8 @@ namespace Catalog.Infrastructure.Repositories
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    HasVariants = p.HasVariants,
+                    VariantCount = p.Variants.Count(v => !v.IsDeleted),
                     IsFeatured = p.IsFeatured,
                     IsAllowToOrder = p.IsAllowToOrder,
                     IsCallForPricing = p.IsCallForPricing,
@@ -99,7 +104,9 @@ namespace Catalog.Infrastructure.Repositories
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    HasVariants = p.HasVariants,
                     Price = p.Price,
+                    PriceMax = p.PriceMax,
                     OldPrice = p.OldPrice,
                     SpecialPrice = p.SpecialPrice,
                     SpecialPriceStart = p.SpecialPriceStart,
@@ -151,6 +158,16 @@ namespace Catalog.Infrastructure.Repositories
                     .ToListAsync(cancellationToken);
 
                 result.UnionWith(existing);
+
+                // Variant SKUs share the same namespace as product SKUs, so an import
+                // must not hand a variant's code to a new product.
+                var existingVariantSkus = await _dbContext.ProductVariants
+                    .AsNoTracking()
+                    .Where(v => v.Sku != null && values.Contains(v.Sku))
+                    .Select(v => v.Sku!)
+                    .ToListAsync(cancellationToken);
+
+                result.UnionWith(existingVariantSkus);
             }
 
             return result;

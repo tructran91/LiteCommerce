@@ -2,6 +2,9 @@
 @using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.AuditLog
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.CatalogLog.ViewAudit" />
 
 <PageTitle>@L["Logs_AuditTitle"]</PageTitle>
 

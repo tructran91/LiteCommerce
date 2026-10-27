@@ -309,7 +309,11 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Gtin")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("HasVariants")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsAllowToOrder")
                         .HasColumnType("bit");
@@ -355,9 +359,15 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("OldPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PriceMax")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("SchemaJson")
@@ -367,7 +377,8 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sku")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -375,6 +386,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal?>("SpecialPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("SpecialPriceEnd")
@@ -602,9 +614,14 @@ namespace Catalog.Infrastructure.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("ProductOptions");
                 });
@@ -621,7 +638,8 @@ namespace Catalog.Infrastructure.Data.Migrations
 
                     b.Property<string>("DisplayType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -638,17 +656,56 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Property<int>("SortIndex")
                         .HasColumnType("int");
 
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OptionId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId", "OptionId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("ProductOptionValues");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOptionValueItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Display")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProductOptionValueId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortIndex")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductOptionValueId", "Key")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ProductOptionValueItems");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.ProductPriceHistory", b =>
@@ -668,15 +725,18 @@ namespace Catalog.Infrastructure.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("OldPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("SpecialPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("SpecialPriceEnd")
@@ -743,6 +803,128 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.HasIndex("ProductAttributeId");
 
                     b.ToTable("ProductTemplateProductAttributes");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductVariant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Gtin")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal?>("OldPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Sku")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("SpecialPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("SpecialPriceEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SpecialPriceStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ThumbnailImageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ThumbnailImageId");
+
+                    b.HasIndex("ProductId", "NormalizedName")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.HasIndex("ProductId", "Sku")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0 AND [Sku] IS NOT NULL");
+
+                    b.ToTable("ProductVariants");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductVariantOptionValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductOptionValueItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortIndex")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OptionId");
+
+                    b.HasIndex("ProductOptionValueItemId");
+
+                    b.HasIndex("VariantId", "OptionId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ProductVariantOptionValues");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
@@ -868,7 +1050,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.HasOne("Catalog.Core.Entities.ProductOption", "Option")
                         .WithMany()
                         .HasForeignKey("OptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Catalog.Core.Entities.Product", "Product")
@@ -880,6 +1062,17 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("Option");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOptionValueItem", b =>
+                {
+                    b.HasOne("Catalog.Core.Entities.ProductOptionValue", "ProductOptionValue")
+                        .WithMany("Items")
+                        .HasForeignKey("ProductOptionValueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductOptionValue");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.ProductPriceHistory", b =>
@@ -912,6 +1105,51 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("ProductTemplate");
                 });
 
+            modelBuilder.Entity("Catalog.Core.Entities.ProductVariant", b =>
+                {
+                    b.HasOne("Catalog.Core.Entities.Product", "Product")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Core.Entities.Media", "ThumbnailImage")
+                        .WithMany()
+                        .HasForeignKey("ThumbnailImageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ThumbnailImage");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductVariantOptionValue", b =>
+                {
+                    b.HasOne("Catalog.Core.Entities.ProductOption", "Option")
+                        .WithMany()
+                        .HasForeignKey("OptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Core.Entities.ProductOptionValueItem", "ProductOptionValueItem")
+                        .WithMany("VariantOptionValues")
+                        .HasForeignKey("ProductOptionValueItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Core.Entities.ProductVariant", "Variant")
+                        .WithMany("OptionValues")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Option");
+
+                    b.Navigation("ProductOptionValueItem");
+
+                    b.Navigation("Variant");
+                });
+
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
                     b.Navigation("SubCategories");
@@ -932,6 +1170,8 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("PriceHistories");
 
                     b.Navigation("ProductLinks");
+
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.ProductAttribute", b =>
@@ -944,9 +1184,24 @@ namespace Catalog.Infrastructure.Data.Migrations
                     b.Navigation("Attributes");
                 });
 
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOptionValue", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductOptionValueItem", b =>
+                {
+                    b.Navigation("VariantOptionValues");
+                });
+
             modelBuilder.Entity("Catalog.Core.Entities.ProductTemplate", b =>
                 {
                     b.Navigation("ProductAttributes");
+                });
+
+            modelBuilder.Entity("Catalog.Core.Entities.ProductVariant", b =>
+                {
+                    b.Navigation("OptionValues");
                 });
 #pragma warning restore 612, 618
         }

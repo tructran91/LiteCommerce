@@ -1,0 +1,16 @@
+@* Redirects to /forbidden. Purely a UX shortcut: without it the page renders and every
+   API call returns 403, which reads as a broken page rather than a denied one. The APIs
+   remain the real enforcement point. *@
+
+@code {
+    [Inject] private PermissionService Permissions { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Permission { get; set; } = default!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!await Permissions.HasAsync(Permission))
+            Navigation.NavigateTo("/forbidden", replace: true);
+    }
+}

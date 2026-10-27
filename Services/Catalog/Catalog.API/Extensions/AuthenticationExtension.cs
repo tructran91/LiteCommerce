@@ -99,19 +99,12 @@ namespace Catalog.API.Extensions
                 });
         }
 
-        // Role-to-policy mapping lives here so controllers only ever name a policy.
         public static void ConfigureAuthorizationPolicies(this IServiceCollection services)
         {
+            services.AddPermissionAuthorization();
+
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(AppPolicies.AdminOnly, policy => policy
-                    .RequireAuthenticatedUser()
-                    .RequireRole(AppRoles.Admin));
-
-                options.AddPolicy(AppPolicies.BackOffice, policy => policy
-                    .RequireAuthenticatedUser()
-                    .RequireRole(AppRoles.Admin, AppRoles.Staff));
-
                 // Secure by default: anything public must opt out with an explicit [AllowAnonymous].
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()

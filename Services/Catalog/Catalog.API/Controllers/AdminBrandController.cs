@@ -1,7 +1,8 @@
-﻿using Catalog.Application.Brands.Commands;
+using Catalog.Application.Brands.Commands;
 using Catalog.Application.Brands.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<BrandResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.Brand.View)]
         public async Task<IActionResult> GetAllBrands([FromQuery] GetAllBrandsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -32,6 +34,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.Brand.View)]
         public async Task<IActionResult> GetBrandById(string id)
         {
             var query = new GetBrandQuery(id);
@@ -43,6 +46,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Brand.Create)]
         public async Task<IActionResult> CreateBrand([FromBody] CreateBrandRequest request)
         {
             var command = new CreateBrandCommand(request);
@@ -55,6 +59,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<BrandResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Brand.Update)]
         public async Task<IActionResult> UpdateBrand(string id, [FromBody] UpdateBrandRequest request)
         {
             var command = new UpdateBrandCommand(id, request);
@@ -67,6 +72,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.Brand.Delete)]
         public async Task<IActionResult> DeleteBrand(string id)
         {
             var command = new DeleteBrandCommand(id);

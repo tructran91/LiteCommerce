@@ -32,9 +32,11 @@ Owns users, roles, and the issuing of tokens. It is the trust anchor for the pla
 - Registration, login, refresh-token rotation, logout/revoke, and change password
 - **RS256 JWT** signed with PEM keys, published through OpenID Connect discovery
   (`/.well-known/openid-configuration`) and a JWKS endpoint (`/.well-known/jwks.json`)
-- Role-based access control (`Admin`, `Staff`, `Customer`) with an `AdminOnly` policy
+- **Dynamic, permission-based access control**: admins create roles and tick which permissions
+  each one holds, with no redeploy. Permissions are declared in code and enforced per endpoint
+  with `[HasPermission(...)]`; grants live in the database and ride in the JWT as a `perm` claim
 - Account lockout after repeated failed logins and per-IP rate limiting on auth endpoints
-- Row-level audit log and admin activity log, exposed over admin-only read endpoints
+- Row-level audit log and admin activity log, exposed over permission-gated read endpoints
 - Clean Architecture layering; no CQRS — the controller delegates straight to an auth service
 
 ### 2. Catalog Service — Implemented
@@ -44,7 +46,8 @@ Manages the product catalog through an admin API used by the Blazor admin app.
 - Bulk price updates with price history
 - Audit log (row-level data changes) and activity log (admin actions)
 - Clean Architecture with CQRS (MediatR)
-- **Validates Identity-issued JWTs** (via JWKS) and enforces the `AdminOnly` policy on admin endpoints
+- **Validates Identity-issued JWTs** (via JWKS) and enforces a per-endpoint permission on every
+  admin route; startup fails if an `api/admin/*` action forgets to declare one
 
 ### 3. Inventory Service — Not Yet Implemented
 Tracks and manages stock levels for products.
@@ -126,8 +129,14 @@ first (see above). After that, each service populates its own initial data on st
 ### Identity — default admin account
 
 Roles (`Admin`, `Staff`, `Customer`) are seeded through EF `HasData` as part of the migration.
-On every startup, `IdentityDbInitializer` then creates a single admin account from the
-`SeedAdmin` section of `appsettings.json`, and does nothing if that email already exists.
+On every startup, `PermissionSyncer` mirrors the permission catalog from code into the database,
+`RolePermissionSeeder` grants Admin everything (and Staff the catalog permissions on first run),
+then `IdentityDbInitializer` creates a single admin account from the `SeedAdmin` section of
+`appsettings.json`, doing nothing if that email already exists.
+
+`Admin` and `Customer` are system roles: they cannot be renamed, deleted, or have their
+permissions changed, so the system can never be left without an administrator. Any other role
+is fully editable from **Roles & Permissions** in the admin UI.
 
 Default credentials:
 

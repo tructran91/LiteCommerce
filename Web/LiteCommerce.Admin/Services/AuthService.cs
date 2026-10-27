@@ -43,9 +43,10 @@ namespace LiteCommerce.Admin.Services
             if (!response.IsSuccess || response.Data is null || string.IsNullOrWhiteSpace(response.Data.AccessToken))
                 return new AuthOutcome(false, response.GetErrorMessage(_localizer["Common_LoginFailed"]));
 
-            // Identity authenticates every role, but this app is Admin-only. Asking Catalog
-            // instead of checking the role here keeps the rejection message the API's.
-            // Checked before storing, so a failure leaves nothing in localStorage.
+            // Identity authenticates every role, but only a role granted backoffice.access
+            // may use this app. Asking Catalog instead of checking the claim here keeps the
+            // rejection the API's decision, and it is checked before storing so a failure
+            // leaves nothing in localStorage.
             var session = await _sessionApi.GetSessionAsync(response.Data.AccessToken);
             if (!session.IsSuccess)
             {
