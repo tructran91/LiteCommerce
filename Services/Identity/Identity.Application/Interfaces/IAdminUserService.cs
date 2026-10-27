@@ -7,7 +7,7 @@ namespace Identity.Application.Interfaces
     {
         Task<BaseResponse<List<AdminUserResponse>>> GetUsersAsync(GetUsersQuery query, CancellationToken cancellationToken = default);
         Task<BaseResponse<AdminUserResponse>> GetUserAsync(string id, CancellationToken cancellationToken = default);
-        Task<BaseResponse<AdminUserResponse>> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
+        Task<BaseResponse<AdminUserResponse>> CreateUserAsync(Guid actorUserId, CreateUserRequest request, CancellationToken cancellationToken = default);
         Task<BaseResponse<AdminUserResponse>> UpdateUserAsync(string id, UpdateUserRequest request, CancellationToken cancellationToken = default);
         Task<BaseResponse<bool>> DeleteUserAsync(Guid actorUserId, string id, CancellationToken cancellationToken = default);
         Task<BaseResponse<AdminUserResponse>> UpdateStatusAsync(Guid actorUserId, string id, UpdateUserStatusRequest request, CancellationToken cancellationToken = default);

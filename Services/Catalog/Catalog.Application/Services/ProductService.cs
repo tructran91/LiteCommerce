@@ -453,7 +453,7 @@ namespace Catalog.Application.Services
         }
 
         private static string BuildNormalizedName(List<(ProductOptionValue Axis, ProductOptionValueItem Item)> resolved)
-            => string.Join("-", resolved.Select(x => x.Item.Key));
+            => string.Join(ProductVariant.NormalizedNameSeparator, resolved.Select(x => x.Item.Key));
 
         private static string BuildVariantDisplayName(
             string productName,

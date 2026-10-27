@@ -8,8 +8,12 @@ namespace Catalog.Core.Entities
 
         public Product Product { get; set; }
 
-        // Dash joined option value keys in axis order ("red-s"). The identity of a
-        // combination, so variants are matched on it rather than on Name.
+        // Keys are slugs and may contain '-', so a dash separator would let
+        // "black" + "white-stripe" collide with "black-white" + "stripe".
+        public const string NormalizedNameSeparator = "|";
+
+        // Option value keys joined by NormalizedNameSeparator in axis order ("red|s"). The
+        // identity of a combination, so variants are matched on it rather than on Name.
         public string NormalizedName { get; set; }
 
         public string? Name { get; set; }

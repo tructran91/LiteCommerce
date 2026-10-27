@@ -39,10 +39,13 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 201)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
+        [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 403)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 409)]
         [HasPermission(AppPermissions.User.Create)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
-            => ToActionResult(await _users.CreateUserAsync(request, cancellationToken));
+            => TryGetUserId(out var actorId)
+                ? ToActionResult(await _users.CreateUserAsync(actorId, request, cancellationToken))
+                : Unauthorized();
 
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 200)]
@@ -79,6 +82,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 200)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
+        [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 403)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 409)]
         [HasPermission(AppPermissions.User.UpdateRole)]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] UpdateUserRoleRequest request, CancellationToken cancellationToken)

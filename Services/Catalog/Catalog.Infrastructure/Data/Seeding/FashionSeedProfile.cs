@@ -588,7 +588,7 @@ namespace Catalog.Infrastructure.Data.Seeding
                     {
                         Id = variantId,
                         ProductId = productId,
-                        NormalizedName = $"{colorItem.Key}-{sizeItem.Key}",
+                        NormalizedName = $"{colorItem.Key}{ProductVariant.NormalizedNameSeparator}{sizeItem.Key}",
                         Name = $"Nike Air Force 1 '07 White {colorItem.Display} / {sizeItem.Display}",
                         Sku = $"AF1-{colorItem.Key.ToUpperInvariant()}-{sizeItem.Key}",
                         // Priced apart so the product shows a real range, not one figure.

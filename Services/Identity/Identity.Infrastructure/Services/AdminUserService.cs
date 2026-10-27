@@ -91,7 +91,7 @@ namespace Identity.Infrastructure.Services
                 : BaseResponse<AdminUserResponse>.Success(ToResponse(user, DateTime.UtcNow));
         }
 
-        public async Task<BaseResponse<AdminUserResponse>> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
+        public async Task<BaseResponse<AdminUserResponse>> CreateUserAsync(Guid actorUserId, CreateUserRequest request, CancellationToken cancellationToken = default)
         {
             var errors = ValidationErrors.From(_createUserValidator.Validate(request));
             if (errors is not null)
@@ -104,6 +104,8 @@ namespace Identity.Infrastructure.Services
             var role = await _db.Roles.FirstOrDefaultAsync(x => x.Id == request.RoleId, cancellationToken);
             if (role is null)
                 return BaseResponse<AdminUserResponse>.Failure("Role not found.", statusCode: HttpStatusCode.NotFound);
+            if (!await ActorCoversRoleAsync(actorUserId, role.Id, cancellationToken))
+                return CannotAssignRole<AdminUserResponse>();
 
             var now = DateTime.UtcNow;
             var user = new User
@@ -218,8 +220,19 @@ namespace Identity.Infrastructure.Services
             var role = await _db.Roles.FirstOrDefaultAsync(x => x.Id == request.RoleId, cancellationToken);
             if (role is null)
                 return BaseResponse<AdminUserResponse>.Failure("Role not found.", statusCode: HttpStatusCode.NotFound);
+            if (!await ActorCoversRoleAsync(actorUserId, role.Id, cancellationToken))
+                return CannotAssignRole<AdminUserResponse>();
+            // Without this, a user manager could demote an administrator.
+            if (!await ActorCoversRoleAsync(actorUserId, user.RoleId, cancellationToken))
+                return BaseResponse<AdminUserResponse>.Failure(
+                    "You cannot change the role of a user who holds permissions you do not have.",
+                    statusCode: HttpStatusCode.Forbidden);
+
             var targetRoleIsAdmin = await RoleCanManagePermissionsAsync(role.Id, cancellationToken);
-            if (userId == actorUserId && !targetRoleIsAdmin)
+            // Only an administrator has an administrator role to lose; anyone else may move
+            // themselves to a role that ActorCoversRoleAsync already allowed.
+            if (userId == actorUserId && !targetRoleIsAdmin
+                && await RoleCanManagePermissionsAsync(user.RoleId, cancellationToken))
                 return BaseResponse<AdminUserResponse>.Failure("You cannot remove your own administrator role.", statusCode: HttpStatusCode.Conflict);
             if (!targetRoleIsAdmin && await IsLastActiveAdminAsync(user, cancellationToken))
                 return BaseResponse<AdminUserResponse>.Failure("The last active administrator cannot change role.", statusCode: HttpStatusCode.Conflict);
@@ -283,6 +296,38 @@ namespace Identity.Infrastructure.Services
             => _db.RolePermissions.AnyAsync(
                 x => x.RoleId == roleId && x.Permission.Code == AppPermissions.Role.UpdatePermissions,
                 cancellationToken);
+
+        // A role may only be handed out by someone who already holds every permission in it,
+        // or user.create / user.update-role would be a back door to full access.
+        private async Task<bool> ActorCoversRoleAsync(Guid actorUserId, Guid roleId, CancellationToken cancellationToken)
+        {
+            var actorRoleId = await _db.Users
+                .Where(x => x.Id == actorUserId)
+                .Select(x => (Guid?)x.RoleId)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (actorRoleId is null)
+                return false;
+            if (actorRoleId == roleId)
+                return true;
+
+            var actorCodes = await GetRolePermissionCodesAsync(actorRoleId.Value, cancellationToken);
+            var roleCodes = await GetRolePermissionCodesAsync(roleId, cancellationToken);
+            return roleCodes.IsSubsetOf(actorCodes);
+        }
+
+        private async Task<HashSet<string>> GetRolePermissionCodesAsync(Guid roleId, CancellationToken cancellationToken)
+        {
+            var codes = await _db.RolePermissions
+                .Where(x => x.RoleId == roleId && !x.Permission.IsObsolete && !x.Permission.IsDeleted)
+                .Select(x => x.Permission.Code)
+                .ToListAsync(cancellationToken);
+            return codes.ToHashSet(StringComparer.Ordinal);
+        }
+
+        private static BaseResponse<T> CannotAssignRole<T>()
+            => BaseResponse<T>.Failure(
+                "You cannot assign a role that holds permissions you do not have.",
+                statusCode: HttpStatusCode.Forbidden);
 
         private Task<int> CountActiveAdminsAsync(CancellationToken cancellationToken)
             => _db.Users.CountAsync(
