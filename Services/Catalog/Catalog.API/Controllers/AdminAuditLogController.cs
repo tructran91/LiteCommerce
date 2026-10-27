@@ -1,5 +1,6 @@
 using Catalog.Application.AuditLogs.Queries;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<AuditLogResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.CatalogLog.ViewAudit)]
         public async Task<IActionResult> GetAllAuditLogs([FromQuery] GetAllAuditLogsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -31,6 +33,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AuditLogResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<AuditLogResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.CatalogLog.ViewAudit)]
         public async Task<IActionResult> GetAuditLogById(string id)
         {
             var query = new GetAuditLogQuery(id);

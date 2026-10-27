@@ -5,8 +5,10 @@ using LiteCommerce.Admin.Models.Business.Brand;
 using LiteCommerce.Admin.Models.Business.Category;
 using LiteCommerce.Admin.Models.Business.Product;
 using LiteCommerce.Admin.Models.Business.ProductAttribute;
+using LiteCommerce.Admin.Models.Business.ProductOption;
 using LiteCommerce.Admin.Models.Business.ProductTemplate;
 using LiteCommerce.Admin.Models.Common;
+using LiteCommerce.Admin.Shared.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
@@ -37,6 +39,12 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private IProductAttributeApi ProductAttributeApi { get; set; }
 
         [Inject]
+        private IProductOptionApi ProductOptionApi { get; set; }
+
+        [Inject]
+        private IDialogService DialogService { get; set; }
+
+        [Inject]
         private ISnackbar Snackbar { get; set; }
 
         [Inject]
@@ -62,9 +70,22 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
         private List<ProductAttributeResponse> _allAttributes = new();
         private List<ProductAttributeResponse> _availableAttributes = new();
         private List<BasicProductResponse> _allProducts = new();
+        private List<ProductOptionResponse> _allOptions = new();
+
+        // Copies of Catalog.Core.Constants.VariantLimits, which is what actually
+        // enforces them. Change both.
+        private const int MaxOptions = 3;
+        private const int MaxValuesPerOption = 50;
+        private const int MaxVariants = 200;
+
+        private bool HasVariants => _productForm.Variants.Any();
+
+        private List<ProductOptionResponse> AvailableOptions =>
+            _allOptions.Where(o => _productForm.Options.All(x => x.Id != o.Id?.ToString())).ToList();
 
         private string? _selectedTemplateId;
         private string? _selectedAvailableAttributeId;
+        private string? _selectedAvailableOptionId;
         private string? _thumbnailPreviewUrl;
         private List<string> _productImagePreviewUrls = new();
 
@@ -90,6 +111,7 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 LoadBasicCategories(),
                 LoadProductTemplates(),
                 LoadAllAttributes(),
+                LoadAllOptions(),
                 LoadAllProducts()
             );
 
@@ -222,6 +244,15 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             }
         }
 
+        private async Task LoadAllOptions()
+        {
+            var response = await ProductOptionApi.GetProductOptionsAsync(1, 100);
+            if (response.IsSuccess)
+            {
+                _allOptions = response.Data ?? new();
+            }
+        }
+
         private async Task LoadAllProducts()
         {
             const int pageSize = 100;
@@ -290,6 +321,11 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             _productForm.Sku = data.Sku;
             _productForm.Gtin = data.Gtin;
             _productForm.ThumbnailImageUrl = data.ThumbnailImageUrl;
+            _productForm.HasVariants = data.HasVariants;
+            _productForm.PriceMax = data.PriceMax;
+            _productForm.StockQuantity = data.StockQuantity;
+            _productForm.Options = data.Options ?? new List<ProductOptionFormItem>();
+            _productForm.Variants = data.Variants ?? new List<ProductVariantFormItem>();
 
             if (!string.IsNullOrEmpty(_productForm.ThumbnailImageUrl))
             {
@@ -425,6 +461,317 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 _productForm.Attributes.Remove(item);
                 RefreshAvailableAttributes();
             }
+        }
+
+        #endregion
+
+        #region Product Options and Variants
+
+        private void AddOption()
+        {
+            if (string.IsNullOrEmpty(_selectedAvailableOptionId))
+                return;
+
+            var option = _allOptions.FirstOrDefault(o => o.Id?.ToString() == _selectedAvailableOptionId);
+            if (option == null || _productForm.Options.Any(o => o.Id == _selectedAvailableOptionId))
+                return;
+
+            _productForm.Options.Add(new ProductOptionFormItem
+            {
+                Id = _selectedAvailableOptionId,
+                Name = option.Name,
+                DisplayType = "text",
+                // Start with one blank row so the axis is never saved with no values.
+                Values = new List<ProductOptionValueFormItem> { new() }
+            });
+
+            _selectedAvailableOptionId = null;
+        }
+
+        // Dropping an axis does not invalidate the grid, it collapses it: "Red / S" and
+        // "Red / M" both become "Red". The first row of each collapsed group keeps its
+        // id, price and stock; only the now-duplicate rows go.
+        private async Task RemoveOption(ProductOptionFormItem option)
+        {
+            var remaining = _productForm.Options.Where(o => o != option).ToList();
+            var remainingIds = remaining.Select(o => o.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var lost = remainingIds.Count == 0
+                ? _productForm.Variants.Count
+                : _productForm.Variants.Count - _productForm.Variants
+                    .Select(v => BuildCombinationKey(v, remainingIds))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
+
+            if (lost > 0 && !await ConfirmVariantLossAsync(lost))
+                return;
+
+            _productForm.Options.Remove(option);
+            _productForm.Variants = ProjectVariants(_productForm.Variants, remaining);
+        }
+
+        private static void AddOptionValue(ProductOptionFormItem option)
+        {
+            if (option.Values.Count >= MaxValuesPerOption)
+                return;
+
+            option.Values.Add(new ProductOptionValueFormItem());
+        }
+
+        // Only the variants that actually use this value go; the rest are untouched.
+        private async Task RemoveOptionValue(ProductOptionFormItem option, ProductOptionValueFormItem value)
+        {
+            var key = value.Key?.Trim();
+            var affected = string.IsNullOrWhiteSpace(key)
+                ? 0
+                : _productForm.Variants.Count(v => v.OptionCombinations.Any(c =>
+                    string.Equals(c.OptionId, option.Id, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(c.ValueKey?.Trim(), key, StringComparison.OrdinalIgnoreCase)));
+
+            if (affected > 0 && !await ConfirmVariantLossAsync(affected))
+                return;
+
+            option.Values.Remove(value);
+
+            if (affected > 0)
+            {
+                _productForm.Variants = _productForm.Variants
+                    .Where(v => !v.OptionCombinations.Any(c =>
+                        string.Equals(c.OptionId, option.Id, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(c.ValueKey?.Trim(), key, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+                Reindex(_productForm.Variants);
+            }
+        }
+
+        // Rewrites every variant against the axes that remain, dropping the rows whose
+        // combination is no longer distinct. Keeps the first of each group so its id,
+        // price and stock survive.
+        private static List<ProductVariantFormItem> ProjectVariants(
+            IList<ProductVariantFormItem> variants,
+            IList<ProductOptionFormItem> remainingOptions)
+        {
+            if (remainingOptions.Count == 0)
+            {
+                return new List<ProductVariantFormItem>();
+            }
+
+            var order = remainingOptions
+                .Select((o, i) => (o.Id, Index: i))
+                .ToDictionary(x => x.Id, x => x.Index, StringComparer.OrdinalIgnoreCase);
+
+            var projected = new List<ProductVariantFormItem>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var variant in variants)
+            {
+                var kept = variant.OptionCombinations
+                    .Where(c => order.ContainsKey(c.OptionId))
+                    .OrderBy(c => order[c.OptionId])
+                    .ToList();
+
+                // A variant that no longer covers every remaining axis cannot be rebuilt.
+                if (kept.Count != remainingOptions.Count)
+                {
+                    continue;
+                }
+
+                foreach (var combination in kept)
+                {
+                    combination.SortIndex = order[combination.OptionId];
+                }
+
+                variant.OptionCombinations = kept;
+
+                if (!seen.Add(BuildCombinationKey(variant)))
+                {
+                    continue;
+                }
+
+                // The server rebuilds both from the surviving combination.
+                variant.Name = null;
+                variant.NormalizedName = null;
+                projected.Add(variant);
+            }
+
+            Reindex(projected);
+            return projected;
+        }
+
+        private static void Reindex(IList<ProductVariantFormItem> variants)
+        {
+            for (var i = 0; i < variants.Count; i++)
+            {
+                variants[i].DisplayOrder = i;
+            }
+        }
+
+        private async Task<bool> ConfirmVariantLossAsync(int affectedCount)
+        {
+            var parameters = new DialogParameters
+            {
+                { nameof(ConfirmActionDialog.Message), string.Format(L["Product_VariantLossWarning"], affectedCount) },
+                { nameof(ConfirmActionDialog.Color), Color.Warning }
+            };
+
+            var dialog = await DialogService.ShowAsync<ConfirmActionDialog>(
+                L["Product_VariantLossTitle"].Value, parameters);
+            var result = await dialog.Result;
+
+            return result is { Canceled: false };
+        }
+
+        // Rebuilds the grid as the cartesian product of the declared axes. Prices and
+        // stock already typed in are carried over by combination, so regenerating after
+        // adding one value does not wipe the existing rows.
+        private async Task GenerateVariants()
+        {
+            var axes = _productForm.Options
+                .Select(o => new
+                {
+                    Option = o,
+                    Values = o.Values.Where(v => !string.IsNullOrWhiteSpace(v.Key)).ToList()
+                })
+                .Where(a => a.Values.Count > 0)
+                .ToList();
+
+            if (axes.Count == 0)
+            {
+                Snackbar.Add(L["Product_OptionsNeedValues"], Severity.Warning);
+                return;
+            }
+
+            var total = axes.Aggregate(1, (acc, a) => acc * a.Values.Count);
+            if (total > MaxVariants)
+            {
+                Snackbar.Add(string.Format(L["Product_TooManyVariants"], total, MaxVariants), Severity.Error);
+                return;
+            }
+
+            // Rows whose combination no longer exists are the only ones lost, so only
+            // ask when there actually are some.
+            var reachable = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            CollectCombinationKeys(axes.Select(a => (a.Option.Id, a.Values)).ToList(), 0, [], reachable);
+
+            var dropped = _productForm.Variants.Count(v => !reachable.Contains(BuildCombinationKey(v)));
+            if (dropped > 0 && !await ConfirmVariantLossAsync(dropped))
+                return;
+
+            var previous = _productForm.Variants.ToDictionary(
+                v => BuildCombinationKey(v),
+                v => v,
+                StringComparer.OrdinalIgnoreCase);
+
+            var generated = new List<ProductVariantFormItem>();
+            var combination = new ProductVariantOptionFormItem[axes.Count];
+
+            void Build(int axisIndex)
+            {
+                var axis = axes[axisIndex];
+
+                foreach (var value in axis.Values)
+                {
+                    combination[axisIndex] = new ProductVariantOptionFormItem
+                    {
+                        OptionId = axis.Option.Id,
+                        OptionName = axis.Option.Name,
+                        ValueKey = value.Key.Trim(),
+                        ValueDisplay = string.IsNullOrWhiteSpace(value.Display) ? value.Key.Trim() : value.Display.Trim(),
+                        SortIndex = axisIndex
+                    };
+
+                    if (axisIndex == axes.Count - 1)
+                    {
+                        generated.Add(BuildVariant(combination.ToArray(), previous, generated.Count));
+                    }
+                    else
+                    {
+                        Build(axisIndex + 1);
+                    }
+                }
+            }
+
+            Build(0);
+
+            _productForm.Variants = generated;
+        }
+
+        // Every key the cartesian product would produce, in the same format
+        // BuildCombinationKey uses, so the two can be compared directly.
+        private static void CollectCombinationKeys(
+            IReadOnlyList<(string OptionId, List<ProductOptionValueFormItem> Values)> axes,
+            int axisIndex,
+            List<string> parts,
+            HashSet<string> results)
+        {
+            if (axisIndex == axes.Count)
+            {
+                results.Add(string.Join("|", parts.OrderBy(p => p, StringComparer.OrdinalIgnoreCase)));
+                return;
+            }
+
+            var (optionId, values) = axes[axisIndex];
+            foreach (var value in values)
+            {
+                parts.Add($"{optionId}:{value.Key?.Trim().ToLowerInvariant()}");
+                CollectCombinationKeys(axes, axisIndex + 1, parts, results);
+                parts.RemoveAt(parts.Count - 1);
+            }
+        }
+
+        private ProductVariantFormItem BuildVariant(
+            ProductVariantOptionFormItem[] combination,
+            IReadOnlyDictionary<string, ProductVariantFormItem> previous,
+            int displayOrder)
+        {
+            var variant = new ProductVariantFormItem
+            {
+                OptionCombinations = combination.ToList(),
+                DisplayOrder = displayOrder
+            };
+
+            if (previous.TryGetValue(BuildCombinationKey(variant), out var existing))
+            {
+                // Keep the id so the server updates the row instead of replacing it.
+                variant.Id = existing.Id;
+                variant.Name = existing.Name;
+                variant.NormalizedName = existing.NormalizedName;
+                variant.Sku = existing.Sku;
+                variant.Gtin = existing.Gtin;
+                variant.Price = existing.Price;
+                variant.OldPrice = existing.OldPrice;
+                variant.SpecialPrice = existing.SpecialPrice;
+                variant.SpecialPriceStart = existing.SpecialPriceStart;
+                variant.SpecialPriceEnd = existing.SpecialPriceEnd;
+                variant.StockQuantity = existing.StockQuantity;
+                variant.IsActive = existing.IsActive;
+                variant.ThumbnailImageUrl = existing.ThumbnailImageUrl;
+            }
+            else
+            {
+                // A new combination starts from the product level price.
+                variant.Price = _productForm.Price ?? 0;
+                variant.OldPrice = _productForm.OldPrice;
+                variant.IsActive = true;
+            }
+
+            return variant;
+        }
+
+        // Ordered by option id so the key does not depend on axis ordering. Passing
+        // onlyOptionIds yields the key the variant would have once the other axes go,
+        // which is how the collapse count is worked out before anything is removed.
+        private static string BuildCombinationKey(
+            ProductVariantFormItem variant,
+            IReadOnlySet<string>? onlyOptionIds = null)
+            => string.Join("|", variant.OptionCombinations
+                .Where(c => onlyOptionIds == null || onlyOptionIds.Contains(c.OptionId))
+                .OrderBy(c => c.OptionId, StringComparer.OrdinalIgnoreCase)
+                .Select(c => $"{c.OptionId}:{c.ValueKey?.Trim().ToLowerInvariant()}"));
+
+        private void RemoveVariant(ProductVariantFormItem variant)
+        {
+            _productForm.Variants.Remove(variant);
         }
 
         #endregion
@@ -659,6 +1006,9 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
             // The UI culture may be vi-VN, where the decimal separator is a comma, but the
             // API model binder parses invariant. Without this, "1234,56" binds as 123456.
             content.Add(new StringContent((_productForm.Price ?? 0).ToString(CultureInfo.InvariantCulture)), "Product.Price");
+            // Omitting this binds 0 onto the entity, and RecalculateAggregates only
+            // restores the value for products that have variants.
+            content.Add(new StringContent(_productForm.StockQuantity.ToString(CultureInfo.InvariantCulture)), "Product.StockQuantity");
             content.Add(new StringContent(_productForm.IsPublished.ToString()), "Product.IsPublished");
             content.Add(new StringContent(_productForm.IsFeatured.ToString()), "Product.IsFeatured");
             content.Add(new StringContent(_productForm.IsCallForPricing.ToString()), "Product.IsCallForPricing");
@@ -691,6 +1041,57 @@ namespace LiteCommerce.Admin.Pages.Catalog.Products
                 content.Add(new StringContent(_productForm.Attributes[i].Name ?? string.Empty), $"Product.Attributes[{i}].Name");
                 content.Add(new StringContent(_productForm.Attributes[i].Value ?? string.Empty), $"Product.Attributes[{i}].Value");
                 content.Add(new StringContent(_productForm.Attributes[i].GroupName ?? string.Empty), $"Product.Attributes[{i}].GroupName");
+            }
+
+            for (var i = 0; i < _productForm.Options.Count; i++)
+            {
+                var option = _productForm.Options[i];
+                content.Add(new StringContent(option.Id), $"Product.Options[{i}].Id");
+                content.Add(new StringContent(option.Name ?? string.Empty), $"Product.Options[{i}].Name");
+                content.Add(new StringContent(option.DisplayType ?? "text"), $"Product.Options[{i}].DisplayType");
+
+                for (var j = 0; j < option.Values.Count; j++)
+                {
+                    var value = option.Values[j];
+                    content.Add(new StringContent(value.Key ?? string.Empty), $"Product.Options[{i}].Values[{j}].Key");
+                    content.Add(new StringContent(value.Display ?? string.Empty), $"Product.Options[{i}].Values[{j}].Display");
+                }
+            }
+
+            for (var i = 0; i < _productForm.Variants.Count; i++)
+            {
+                var variant = _productForm.Variants[i];
+
+                if (!string.IsNullOrEmpty(variant.Id))
+                    content.Add(new StringContent(variant.Id), $"Product.Variants[{i}].Id");
+
+                content.Add(new StringContent(variant.Name ?? string.Empty), $"Product.Variants[{i}].Name");
+                content.Add(new StringContent(variant.Sku ?? string.Empty), $"Product.Variants[{i}].Sku");
+                content.Add(new StringContent(variant.Gtin ?? string.Empty), $"Product.Variants[{i}].Gtin");
+                content.Add(new StringContent(variant.Price.ToString(CultureInfo.InvariantCulture)), $"Product.Variants[{i}].Price");
+                content.Add(new StringContent(variant.StockQuantity.ToString(CultureInfo.InvariantCulture)), $"Product.Variants[{i}].StockQuantity");
+                content.Add(new StringContent(variant.IsActive.ToString()), $"Product.Variants[{i}].IsActive");
+                content.Add(new StringContent(variant.DisplayOrder.ToString(CultureInfo.InvariantCulture)), $"Product.Variants[{i}].DisplayOrder");
+
+                if (variant.OldPrice.HasValue)
+                    content.Add(new StringContent(variant.OldPrice.Value.ToString(CultureInfo.InvariantCulture)), $"Product.Variants[{i}].OldPrice");
+
+                if (variant.SpecialPrice.HasValue)
+                    content.Add(new StringContent(variant.SpecialPrice.Value.ToString(CultureInfo.InvariantCulture)), $"Product.Variants[{i}].SpecialPrice");
+
+                if (variant.SpecialPriceStart.HasValue)
+                    content.Add(new StringContent(variant.SpecialPriceStart.Value.ToString("o")), $"Product.Variants[{i}].SpecialPriceStart");
+
+                if (variant.SpecialPriceEnd.HasValue)
+                    content.Add(new StringContent(variant.SpecialPriceEnd.Value.ToString("o")), $"Product.Variants[{i}].SpecialPriceEnd");
+
+                for (var j = 0; j < variant.OptionCombinations.Count; j++)
+                {
+                    var combination = variant.OptionCombinations[j];
+                    content.Add(new StringContent(combination.OptionId), $"Product.Variants[{i}].OptionCombinations[{j}].OptionId");
+                    content.Add(new StringContent(combination.ValueKey ?? string.Empty), $"Product.Variants[{i}].OptionCombinations[{j}].ValueKey");
+                    content.Add(new StringContent(combination.SortIndex.ToString(CultureInfo.InvariantCulture)), $"Product.Variants[{i}].OptionCombinations[{j}].SortIndex");
+                }
             }
 
             for (var i = 0; i < _productForm.RelatedProducts.Count; i++)

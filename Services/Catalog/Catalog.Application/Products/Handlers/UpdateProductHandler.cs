@@ -67,7 +67,14 @@ namespace Catalog.Application.Products.Handlers
             _mapper.Map(payload.Product, existingProduct);
             existingProduct.Slug = slug;
 
-            // Compare with original values (before mapping overwrote them)
+            _logger.LogInformation("UpdateProductHandler => Step 2: Update options and variants");
+            _productService.AddOrDeleteOptions(payload.Product, existingProduct);
+            _productService.AddOrDeleteVariants(payload.Product, existingProduct);
+            // Before the comparison below, or a variant-only price change would never
+            // produce a price history row.
+            _productService.RecalculateAggregates(existingProduct);
+
+            // Compare with the values captured before the map and the recalculation.
             var hasPriceChanged = originalPrice != existingProduct.Price
                 || originalOldPrice != existingProduct.OldPrice
                 || originalSpecialPrice != existingProduct.SpecialPrice
@@ -79,9 +86,6 @@ namespace Catalog.Application.Products.Handlers
                 var priceHistory = _productService.CreatePriceHistory(existingProduct);
                 existingProduct.PriceHistories.Add(priceHistory);
             }
-
-            _logger.LogInformation("UpdateProductHandler => Step 2: Update options");
-            _productService.AddOrDeleteOptions(payload.Product, existingProduct);
 
             _logger.LogInformation("UpdateProductHandler => Step 3: Update attributes");
             _productService.AddOrDeleteAttributes(payload.Product, existingProduct);
@@ -116,7 +120,8 @@ namespace Catalog.Application.Products.Handlers
             _logger.LogInformation("UpdateProductHandler => Step 9: Delete obsolete files");
             await DeleteFilesAsync(obsoleteFiles, subFolder);
 
-            var response = _mapper.Map<ProductResponse>(existingProduct);
+            // Not a bare map: AutoMapper skips every child collection.
+            var response = _productService.BuildProductResponse(existingProduct);
 
             return BaseResponse<ProductResponse>.Success(response);
         }

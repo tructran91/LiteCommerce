@@ -27,6 +27,9 @@ namespace Catalog.Application.Products.Import
                 Description = source.Description,
                 IsPublished = source.IsPublished,
                 Price = source.Price ?? 0,
+                // The importer never creates variants, so the product's own price is also
+                // the top of its range. Keeps range rendering consistent for every product.
+                PriceMax = source.Price ?? 0,
                 OldPrice = source.OldPrice,
                 SpecialPrice = source.SpecialPrice,
                 SpecialPriceStart = source.SpecialPriceStart,

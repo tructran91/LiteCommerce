@@ -15,5 +15,22 @@ namespace LiteCommerce.Admin.Models.Application
 
         public bool ExpandByDefault { get; set; } = false;
         public List<MenuItem> Children { get; set; } = new();
+
+        // Null means always visible. Sections carry no permission: they are hidden when
+        // every item under them is filtered out.
+        public string? RequiredPermission { get; set; }
+
+        public MenuItem WithChildren(List<MenuItem> children) => new()
+        {
+            Title = Title,
+            Icon = Icon,
+            IconColor = IconColor,
+            Href = Href,
+            Match = Match,
+            Type = Type,
+            ExpandByDefault = ExpandByDefault,
+            RequiredPermission = RequiredPermission,
+            Children = children
+        };
     }
 }

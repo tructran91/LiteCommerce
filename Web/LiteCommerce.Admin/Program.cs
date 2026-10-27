@@ -47,6 +47,7 @@ builder.Services.AddSingleton<TokenStorageService>();
 builder.Services.AddSingleton<JwtAuthenticationStateProvider>();
 builder.Services.AddSingleton<AuthenticationStateProvider>(sp => sp.GetRequiredService<JwtAuthenticationStateProvider>());
 builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<PermissionService>();
 builder.Services.AddTransient<AuthHeaderHandler>();
 
 // API Clients
@@ -77,6 +78,7 @@ builder.Services.AddRefitClient<IActivityLogApi>(refitSettings).ConfigureHttpCli
 builder.Services.AddRefitClient<IIdentityAuditLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 builder.Services.AddRefitClient<IIdentityActivityLogApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 builder.Services.AddRefitClient<IAdminUserApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
+builder.Services.AddRefitClient<IAdminRoleApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 builder.Services.AddRefitClient<IProfileApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl)).AddHttpMessageHandler<AuthHeaderHandler>();
 builder.Services.AddRefitClient<IPasswordRecoveryApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(identityUrl));
 

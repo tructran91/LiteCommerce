@@ -59,6 +59,10 @@ namespace Catalog.Application.Products.Handlers
             }
 
             _productService.AddOrDeleteOptions(payload.Product, product);
+            // Order matters: variants resolve against the axes the call above created,
+            // and the snapshot below reads the prices the recalculation writes.
+            _productService.AddOrDeleteVariants(payload.Product, product);
+            _productService.RecalculateAggregates(product);
             _productService.AddOrDeleteAttributes(payload.Product, product);
             _productService.AddOrDeleteCategories(payload.Product, product);
             _productService.AddOrDeleteProductLinks(payload.Product, product);
@@ -74,7 +78,8 @@ namespace Catalog.Application.Products.Handlers
 
             _logger.LogInformation("CreateProductHandler => Step 3: Save data");
             var createdProduct = await _productRepository.AddAsync(product);
-            var response = _mapper.Map<ProductResponse>(createdProduct);
+            // Not a bare map: AutoMapper skips every child collection.
+            var response = _productService.BuildProductResponse(createdProduct);
 
             return BaseResponse<ProductResponse>.Success(response, statusCode: HttpStatusCode.Created);
         }

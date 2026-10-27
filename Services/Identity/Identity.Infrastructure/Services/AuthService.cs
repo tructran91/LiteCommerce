@@ -6,6 +6,7 @@ using Identity.Core.Constants;
 using Identity.Core.Entities;
 using Identity.Core.Enums;
 using Identity.Infrastructure.Data;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -103,7 +104,7 @@ namespace Identity.Infrastructure.Services
             user.PasswordHash = _hasher.HashPassword(user, request.Password);
 
             _db.Users.Add(user);
-            var pair = IssueTokens(user, now);
+            var pair = await IssueTokensAsync(user, now, cancellationToken);
 
             try
             {
@@ -194,7 +195,7 @@ namespace Identity.Infrastructure.Services
                 user.LastModifiedDate = now;
             }
 
-            var pair = IssueTokens(user, now);
+            var pair = await IssueTokensAsync(user, now, cancellationToken);
             await _db.SaveChangesAsync(cancellationToken);
 
             await _activityLogger.LogAsync(new(ActivityAction.Login, true, user.Id, email), cancellationToken);
@@ -235,7 +236,7 @@ namespace Identity.Infrastructure.Services
             stored.Revoked = now;
             stored.LastModifiedDate = now;
 
-            var pair = IssueTokens(stored.User, now);
+            var pair = await IssueTokensAsync(stored.User, now, cancellationToken);
             stored.ReplacedByToken = pair.RefreshToken;
 
             try
@@ -510,9 +511,10 @@ namespace Identity.Infrastructure.Services
             return BaseResponse<bool>.Success(true, "Password reset successfully. Please log in again.");
         }
 
-        private AuthResponse IssueTokens(User user, DateTime now)
+        private async Task<AuthResponse> IssueTokensAsync(User user, DateTime now, CancellationToken cancellationToken)
         {
-            var (accessToken, expires) = _tokens.CreateAccessToken(user);
+            var permissions = await GetPermissionsAsync(user.RoleId, cancellationToken);
+            var (accessToken, expires) = _tokens.CreateAccessToken(user, permissions);
             var refreshToken = _tokens.CreateRefreshToken();
 
             _db.RefreshTokens.Add(new RefreshToken
@@ -532,6 +534,17 @@ namespace Identity.Infrastructure.Services
                 RefreshToken = refreshToken,
                 ExpiresIn = (long)(expires - now).TotalSeconds
             };
+        }
+
+        // Read on every token issue, so a refresh always carries the role's current grants.
+        private async Task<List<string>> GetPermissionsAsync(Guid roleId, CancellationToken cancellationToken)
+        {
+            var codes = await _db.RolePermissions
+                .Where(x => x.RoleId == roleId && !x.Permission.IsObsolete && !x.Permission.IsDeleted)
+                .Select(x => x.Permission.Code)
+                .ToListAsync(cancellationToken);
+
+            return PermissionMatcher.Compress(codes);
         }
 
         private Task RevokeAllUserTokensAsync(Guid userId, CancellationToken cancellationToken)

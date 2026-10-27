@@ -11,5 +11,8 @@ namespace LiteCommerce.Shared.Authorization
         public const string Role = "role";
 
         public const string JwtId = "jti";
+
+        // Comma-separated permission codes, possibly wildcarded. See PermissionMatcher.
+        public const string Permission = "perm";
     }
 }

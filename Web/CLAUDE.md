@@ -16,12 +16,23 @@ The Catalog API and the Identity API must both be running. The client calls them
 ## Authentication
 
 - **Every page requires login.** `_Imports.razor` applies `@attribute [Authorize]`. `Pages/Auth/Login.razor` opts out with `[AllowAnonymous]` and uses `BlankLayout`. `App.razor` uses `AuthorizeRouteView`: an anonymous user is sent to `/login?returnUrl=...` by `Components/RedirectToLogin.razor`, and an authenticated user without access sees an inline "no access" view.
-- **Login flow** (`Services/AuthService.LoginAsync`): Identity `POST api/auth/login`, then Catalog `GET api/admin/session` with that token, and only then are the tokens stored. The app is Admin-only, so if Catalog rejects the session (for example a Customer account), the refresh token is revoked (best effort) and Catalog's message is shown. If Catalog is unreachable, nothing is stored.
+- **Login flow** (`Services/AuthService.LoginAsync`): Identity `POST api/auth/login`, then Catalog `GET api/admin/session` with that token, and only then are the tokens stored. That endpoint requires `backoffice.access`, so a role without it cannot enter the admin UI whatever else it is granted; the refresh token is revoked (best effort) and Catalog's message is shown. If Catalog is unreachable, nothing is stored.
 - **Tokens** live in `localStorage` (`auth-tokens`) through `TokenStorageService`, which also caches them in memory. `JwtAuthenticationStateProvider` builds the `ClaimsPrincipal` from the JWT payload (`JwtParser`, no signature check; the API does that). The claim names are the short ones Identity writes: `email` (name), `role`, `sub`. If the access token has expired, the provider calls `AuthService.RefreshAsync()` before deciding, so reopening the app after the access token lifetime does not bounce a user with a live refresh token to `/login`.
 - **Auth-state notifications** go through one event: `TokenStorageService.TokensChanged` fires on every save and clear, and `JwtAuthenticationStateProvider` subscribes to it. `AuthService` never references the provider (the provider depends on `AuthService`, so the reverse would be a cycle). Anything that changes tokens must go through `TokenStorageService`.
+
+## Permissions in the UI
+
+The client hides what the user cannot do; the APIs are what actually enforce it. A missed check costs a 403, not access.
+
+- `PermissionService` reads the `perm` claim and matches it with `PermissionMatcher`. **Never compare the claim as a string** — it is wildcard-compressed (`*`, `catalog.brand.*`).
+- `AppPermissions`, `PermissionMatcher`, `PermissionDescriptor` and `AppClaimTypes` are **linked as source** from `LiteCommerce.Shared/Authorization` (see the `<Compile Include>` block in the csproj), not referenced as a project. Permission codes are a client/server contract and a typo in one fails silently, so they are shared; DTOs still are not.
+- `<HasPermission Permission="@AppPermissions.X.Y">` wraps a control. Use it instead of `<AuthorizeView>`, which only understands roles and cannot match wildcards.
+- `<PermissionGuard Permission="..." />` at the top of a page redirects to `/forbidden`. Every management page has one.
+- `MenuItem.RequiredPermission` drives menu filtering in `MenuService.GetVisibleMenuItemsAsync`. A section heading whose items are all filtered out is dropped too. `NavMenu` / `NavMenuHorizontal` rebuild on `AuthenticationStateChanged`, so a refresh that brings different grants updates the menu.
+- **Do not add `[Authorize(Roles = "...")]`.** Roles are user-defined now; a hardcoded name locks out every custom role that legitimately has the permission.
 - **Attaching the token**: every Catalog Refit client is registered with `.AddHttpMessageHandler<AuthHeaderHandler>()`. The handler adds `Authorization: Bearer` and refreshes an access token that is about to expire. On a 401 it calls `RefreshAsync(rejectedToken)`, which forces a refresh even for an unexpired token, then retries once. A 401 on the retry clears the tokens. A new Catalog client needs that `.AddHttpMessageHandler<AuthHeaderHandler>()` call too, or its requests go out anonymous and get 401.
 - `IIdentityApi` and `ISessionApi` deliberately have **no** `AuthHeaderHandler`. `AuthService` depends on them, so adding it would create a cycle. Methods that need a token take it as a `[Authorize("Bearer")] string token` argument.
-- `IIdentityAuditLogApi` and `IIdentityActivityLogApi` point at `IdentityUrl` and **do** use `AuthHeaderHandler` (the log endpoints are AdminOnly, and `AuthService` does not depend on them, so there is no cycle).
+- `IIdentityAuditLogApi`, `IIdentityActivityLogApi`, `IAdminUserApi` and `IAdminRoleApi` point at `IdentityUrl` and **do** use `AuthHeaderHandler` (those endpoints need a token, and `AuthService` does not depend on them, so there is no cycle).
 
 ## Log pages
 

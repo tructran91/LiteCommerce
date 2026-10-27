@@ -9,7 +9,7 @@ namespace Identity.API.Controllers
 {
     // Read-only: audit rows are written by AuditLogInterceptor. Not behind the "auth" rate limiter.
     [Route("api/admin/audit-log")]
-    [Authorize(Policy = AppPolicies.AdminOnly)]
+    [Authorize]
     public class AdminAuditLogController : BaseApiController
     {
         private readonly ILogQueryService _logs;
@@ -22,6 +22,7 @@ namespace Identity.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<AuditLogResponse>>), 200)]
         [ProducesResponseType(typeof(BaseResponse<object>), 400)]
+        [HasPermission(AppPermissions.IdentityLog.ViewAudit)]
         public async Task<IActionResult> GetAllAuditLogs([FromQuery] GetAuditLogsQuery query, CancellationToken cancellationToken)
             => ToActionResult(await _logs.GetAuditLogsAsync(query, cancellationToken));
 
@@ -29,6 +30,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AuditLogResponse>), 200)]
         [ProducesResponseType(typeof(BaseResponse<AuditLogResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AuditLogResponse>), 404)]
+        [HasPermission(AppPermissions.IdentityLog.ViewAudit)]
         public async Task<IActionResult> GetAuditLogById(string id, CancellationToken cancellationToken)
             => ToActionResult(await _logs.GetAuditLogAsync(id, cancellationToken));
     }

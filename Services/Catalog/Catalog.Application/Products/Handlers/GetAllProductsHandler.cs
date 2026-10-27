@@ -32,6 +32,8 @@ namespace Catalog.Application.Products.Handlers
             {
                 Id = p.Id,
                 Name = p.Name,
+                HasVariants = p.HasVariants,
+                VariantCount = p.VariantCount,
                 IsFeatured = p.IsFeatured,
                 IsAllowToOrder = p.IsAllowToOrder,
                 IsCallForPricing = p.IsCallForPricing,

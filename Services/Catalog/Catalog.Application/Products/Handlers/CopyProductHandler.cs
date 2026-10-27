@@ -48,11 +48,6 @@ namespace Catalog.Application.Products.Handlers
                 return BaseResponse<ProductResponse>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);
             }
 
-            foreach (var option in source.OptionValues)
-            {
-                JsonSerializer.Deserialize<IList<ProductOptionValueViewModel>>(option.Value);
-            }
-
             var copiedProduct = CreateCopy(source);
             request.EntityDisplayName = copiedProduct.Name;
             request.LogDescription = $"Copied Product '{source.Name}' ({source.Id}) to '{copiedProduct.Name}'";
@@ -145,16 +140,72 @@ namespace Catalog.Application.Products.Handlers
                 });
             }
 
+            // Maps each source value item to its clone, so the cloned variants below
+            // point at the copy's own rows instead of the source product's.
+            var clonedItems = new Dictionary<Guid, ProductOptionValueItem>();
             foreach (var option in source.OptionValues)
             {
-                product.AddOptionValue(new ProductOptionValue
+                var clonedOption = new ProductOptionValue
                 {
                     OptionId = option.OptionId,
                     Option = option.Option,
-                    Value = option.Value,
                     DisplayType = option.DisplayType,
                     SortIndex = option.SortIndex
-                });
+                };
+
+                foreach (var item in option.Items)
+                {
+                    var clonedItem = new ProductOptionValueItem
+                    {
+                        Key = item.Key,
+                        Display = item.Display,
+                        SortIndex = item.SortIndex
+                    };
+                    clonedOption.AddItem(clonedItem);
+                    clonedItems[item.Id] = clonedItem;
+                }
+
+                product.AddOptionValue(clonedOption);
+            }
+
+            // Combinations and prices carry over; stock and the identifying codes reset,
+            // the same as the product-level ones above.
+            foreach (var variant in source.Variants)
+            {
+                var clonedVariant = new ProductVariant
+                {
+                    NormalizedName = variant.NormalizedName,
+                    Name = variant.Name,
+                    Sku = null,
+                    Gtin = null,
+                    Price = variant.Price,
+                    OldPrice = variant.OldPrice,
+                    SpecialPrice = variant.SpecialPrice,
+                    SpecialPriceStart = variant.SpecialPriceStart,
+                    SpecialPriceEnd = variant.SpecialPriceEnd,
+                    StockQuantity = 0,
+                    IsActive = variant.IsActive,
+                    DisplayOrder = variant.DisplayOrder,
+                    ThumbnailImage = CloneMedia(variant.ThumbnailImage)
+                };
+
+                foreach (var optionValue in variant.OptionValues)
+                {
+                    if (!clonedItems.TryGetValue(optionValue.ProductOptionValueItemId, out var clonedItem))
+                    {
+                        continue;
+                    }
+
+                    clonedVariant.AddOptionValue(new ProductVariantOptionValue
+                    {
+                        OptionId = optionValue.OptionId,
+                        Option = optionValue.Option,
+                        ProductOptionValueItem = clonedItem,
+                        SortIndex = optionValue.SortIndex
+                    });
+                }
+
+                product.AddVariant(clonedVariant);
             }
 
             foreach (var link in source.ProductLinks.Where(x => x.LinkedProduct != null && !x.LinkedProduct.IsDeleted))
@@ -166,6 +217,10 @@ namespace Catalog.Application.Products.Handlers
                     LinkType = link.LinkType
                 });
             }
+
+            // Stock was reset above, so rebuild the derived fields before the snapshot
+            // below reads them.
+            _productService.RecalculateAggregates(product);
 
             product.PriceHistories.Add(_productService.CreatePriceHistory(product));
             return product;

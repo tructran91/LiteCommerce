@@ -1687,4 +1687,70 @@
   <data name="Users_UserUpdated" xml:space="preserve">
     <value>User updated.</value>
   </data>
+  <data name="Menu_Roles" xml:space="preserve">
+    <value>Roles &amp; Permissions</value>
+  </data>
+  <data name="Role_Title" xml:space="preserve">
+    <value>Roles &amp; Permissions</value>
+  </data>
+  <data name="Role_Subtitle" xml:space="preserve">
+    <value>Create roles and choose what each one may do.</value>
+  </data>
+  <data name="Role_AddButton" xml:space="preserve">
+    <value>Add role</value>
+  </data>
+  <data name="Role_AddTitle" xml:space="preserve">
+    <value>Add role</value>
+  </data>
+  <data name="Role_EditTitle" xml:space="preserve">
+    <value>Edit role</value>
+  </data>
+  <data name="Role_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Role_NameRequired" xml:space="preserve">
+    <value>Name is required.</value>
+  </data>
+  <data name="Role_NameInvalidChars" xml:space="preserve">
+    <value>Only letters, digits, spaces, underscores and hyphens are allowed.</value>
+  </data>
+  <data name="Role_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Role_UserCount" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Role_PermissionCount" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Role_System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Role_SystemHint" xml:space="preserve">
+    <value>System roles cannot be edited or deleted.</value>
+  </data>
+  <data name="Role_InUseHint" xml:space="preserve">
+    <value>Move its users to another role first.</value>
+  </data>
+  <data name="Role_ManagePermissions" xml:space="preserve">
+    <value>Manage permissions</value>
+  </data>
+  <data name="Role_PermissionsUpdated" xml:space="preserve">
+    <value>Permissions updated. Affected users must sign in again.</value>
+  </data>
+  <data name="Role_SelectedCount" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="Role_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="Role_ClearAll" xml:space="preserve">
+    <value>Clear all</value>
+  </data>
+  <data name="Role_ReadOnlyHint" xml:space="preserve">
+    <value>You may view these permissions but not change them.</value>
+  </data>
+  <data name="Role_CreateThenAssignHint" xml:space="preserve">
+    <value>Permissions are assigned after the role is created.</value>
+  </data>
 </root>

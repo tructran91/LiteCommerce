@@ -1,0 +1,27 @@
+@* Used instead of <AuthorizeView>, which only understands roles and cannot match the
+   wildcards the "perm" claim carries. Hiding a control is UX, not security: the API
+   rejects the call regardless. *@
+
+@if (_granted)
+{
+    @ChildContent
+}
+else
+{
+    @NotGranted
+}
+
+@code {
+    [Inject] private PermissionService Permissions { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Permission { get; set; } = default!;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Parameter] public RenderFragment? NotGranted { get; set; }
+
+    private bool _granted;
+
+    protected override async Task OnParametersSetAsync()
+        => _granted = await Permissions.HasAsync(Permission);
+}

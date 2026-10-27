@@ -1,7 +1,8 @@
-﻿using Catalog.Application.ProductTemplates.Commands;
+using Catalog.Application.ProductTemplates.Commands;
 using Catalog.Application.ProductTemplates.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<ProductTemplateResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.ProductTemplate.View)]
         public async Task<IActionResult> GetAllProductTemplates([FromQuery] GetAllProductTemplatesQuery query)
         {
             var result = await _mediator.Send(query);
@@ -32,6 +34,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.ProductTemplate.View)]
         public async Task<IActionResult> GetProductTemplateById(string id)
         {
             var query = new GetProductTemplateQuery(id);
@@ -43,6 +46,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductTemplate.Create)]
         public async Task<IActionResult> CreateProductTemplate([FromBody] CreateProductTemplateRequest request)
         {
             var command = new CreateProductTemplateCommand(request);
@@ -55,6 +59,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<ProductTemplateResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductTemplate.Update)]
         public async Task<IActionResult> UpdateProductTemplate(string id, [FromBody] UpdateProductTemplateRequest request)
         {
             var command = new UpdateProductTemplateCommand(id, request);
@@ -67,6 +72,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductTemplate.Delete)]
         public async Task<IActionResult> DeleteProductTemplate(string id)
         {
             var command = new DeleteProductTemplateCommand(id);

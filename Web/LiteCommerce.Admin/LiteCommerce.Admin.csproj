@@ -18,4 +18,19 @@
     <PackageReference Include="Refit.HttpClientFactory" Version="10.1.6" />
   </ItemGroup>
 
+  <!-- Shared as source, not via ProjectReference: the client keeps its own BaseResponse and
+       Pagination (see Web/CLAUDE.md), and only these dependency-free files are shared. A
+       hand-written copy is not an option here because a typo in a permission string fails
+       silently - the button just never appears. -->
+  <ItemGroup>
+    <Compile Include="..\..\Shared\LiteCommerce.Shared\Authorization\AppClaimTypes.cs"
+             Link="Authorization\AppClaimTypes.cs" />
+    <Compile Include="..\..\Shared\LiteCommerce.Shared\Authorization\AppPermissions.cs"
+             Link="Authorization\AppPermissions.cs" />
+    <Compile Include="..\..\Shared\LiteCommerce.Shared\Authorization\PermissionDescriptor.cs"
+             Link="Authorization\PermissionDescriptor.cs" />
+    <Compile Include="..\..\Shared\LiteCommerce.Shared\Authorization\PermissionMatcher.cs"
+             Link="Authorization\PermissionMatcher.cs" />
+  </ItemGroup>
+
 </Project>

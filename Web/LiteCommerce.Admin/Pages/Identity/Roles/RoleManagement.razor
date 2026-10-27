@@ -1,0 +1,123 @@
+@page "/roles"
+@using LiteCommerce.Admin.Models.Business.Role
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.Role.View" />
+
+<PageTitle>@L["Role_Title"]</PageTitle>
+
+<MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 pa-0" />
+
+<div class="d-flex align-center justify-space-between mb-5">
+    <div>
+        <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Role_Title"]</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">@L["Role_Subtitle"]</MudText>
+    </div>
+    <HasPermission Permission="@AppPermissions.Role.Create">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="@(() => OpenRoleDialog(false))"
+                   Disabled="_loading">
+            @L["Role_AddButton"]
+        </MudButton>
+    </HasPermission>
+</div>
+
+@if (_errorMessage != null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _errorMessage = null">
+        <strong>@L["Common_ErrorOccurred"]</strong> @_errorMessage
+        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                   OnClick="LoadData" Class="ml-2">
+            @L["Common_TryAgain"]
+        </MudButton>
+    </MudAlert>
+}
+
+<MudPaper Elevation="0" Class="rounded-lg overflow-hidden" Style="border:1px solid var(--mud-palette-divider)">
+    <MudTable Items="@_roles"
+              Hover="true"
+              Elevation="0"
+              Loading="@_loading"
+              LoadingProgressColor="Color.Primary"
+              SortLabel="@L["Common_SortBy"]">
+
+        <HeaderContent>
+            <MudTh>@L["Role_Name"]</MudTh>
+            <MudTh>@L["Role_Description"]</MudTh>
+            <MudTh Style="width:130px; text-align:center">@L["Role_UserCount"]</MudTh>
+            <MudTh Style="width:140px; text-align:center">@L["Role_PermissionCount"]</MudTh>
+            <MudTh Style="width:170px; text-align:center">@L["Common_Action"]</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="@L["Role_Name"]">
+                <div class="d-flex align-center gap-2">
+                    <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Name</MudText>
+                    @if (context.IsSystem)
+                    {
+                        <MudTooltip Text="@L["Role_SystemHint"]">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default"
+                                     Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Lock">
+                                @L["Role_System"]
+                            </MudChip>
+                        </MudTooltip>
+                    }
+                </div>
+            </MudTd>
+            <MudTd DataLabel="@L["Role_Description"]">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@context.Description</MudText>
+            </MudTd>
+            <MudTd Style="text-align:center">
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Text">@context.UserCount</MudChip>
+            </MudTd>
+            <MudTd Style="text-align:center">
+                <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text">
+                    @context.PermissionCodes.Count
+                </MudChip>
+            </MudTd>
+            <MudTd Style="text-align:center">
+                <HasPermission Permission="@AppPermissions.Role.ViewPermissions">
+                    <MudTooltip Text="@L["Role_ManagePermissions"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Key"
+                                       Size="Size.Small"
+                                       Color="Color.Info"
+                                       Disabled="@context.IsSystem"
+                                       OnClick="@(() => OpenPermissionDialog(context))" />
+                    </MudTooltip>
+                </HasPermission>
+                <HasPermission Permission="@AppPermissions.Role.Update">
+                    <MudTooltip Text="@L["Common_Edit"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       Disabled="@context.IsSystem"
+                                       OnClick="@(() => OpenRoleDialog(true, context))" />
+                    </MudTooltip>
+                </HasPermission>
+                <HasPermission Permission="@AppPermissions.Role.Delete">
+                    <MudTooltip Text="@(context.IsSystem ? L["Role_SystemHint"] : context.UserCount > 0 ? L["Role_InUseHint"] : L["Common_Delete"])">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       Disabled="@(context.IsSystem || context.UserCount > 0)"
+                                       OnClick="@(() => OpenDeleteConfirm(context))" />
+                    </MudTooltip>
+                </HasPermission>
+            </MudTd>
+        </RowTemplate>
+
+        <NoRecordsContent>
+            <div class="pa-8 text-center">
+                <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3" Style="opacity:0.3" />
+                <MudText Typo="Typo.body1" Class="mud-text-secondary">@L["Common_NoData"]</MudText>
+            </div>
+        </NoRecordsContent>
+
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudPaper>

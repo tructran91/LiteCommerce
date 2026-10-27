@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace Identity.API.Controllers
 {
     [Route("api/admin/users")]
-    [Authorize(Policy = AppPolicies.AdminOnly)]
+    [Authorize]
     public class AdminUserController : BaseApiController
     {
         private readonly IAdminUserService _users;
@@ -23,6 +23,7 @@ namespace Identity.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<AdminUserResponse>>), 200)]
         [ProducesResponseType(typeof(BaseResponse<object>), 400)]
+        [HasPermission(AppPermissions.User.View)]
         public async Task<IActionResult> GetUsers([FromQuery] GetUsersQuery query, CancellationToken cancellationToken)
             => ToActionResult(await _users.GetUsersAsync(query, cancellationToken));
 
@@ -30,6 +31,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 200)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
+        [HasPermission(AppPermissions.User.View)]
         public async Task<IActionResult> GetUser(string id, CancellationToken cancellationToken)
             => ToActionResult(await _users.GetUserAsync(id, cancellationToken));
 
@@ -38,6 +40,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 409)]
+        [HasPermission(AppPermissions.User.Create)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
             => ToActionResult(await _users.CreateUserAsync(request, cancellationToken));
 
@@ -46,6 +49,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 409)]
+        [HasPermission(AppPermissions.User.Update)]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
             => ToActionResult(await _users.UpdateUserAsync(id, request, cancellationToken));
 
@@ -54,6 +58,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
         [ProducesResponseType(typeof(BaseResponse<bool>), 404)]
         [ProducesResponseType(typeof(BaseResponse<bool>), 409)]
+        [HasPermission(AppPermissions.User.Delete)]
         public async Task<IActionResult> DeleteUser(string id, CancellationToken cancellationToken)
             => TryGetUserId(out var actorId)
                 ? ToActionResult(await _users.DeleteUserAsync(actorId, id, cancellationToken))
@@ -64,6 +69,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 409)]
+        [HasPermission(AppPermissions.User.UpdateStatus)]
         public async Task<IActionResult> UpdateStatus(string id, [FromBody] UpdateUserStatusRequest request, CancellationToken cancellationToken)
             => TryGetUserId(out var actorId)
                 ? ToActionResult(await _users.UpdateStatusAsync(actorId, id, request, cancellationToken))
@@ -74,6 +80,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 400)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 404)]
         [ProducesResponseType(typeof(BaseResponse<AdminUserResponse>), 409)]
+        [HasPermission(AppPermissions.User.UpdateRole)]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] UpdateUserRoleRequest request, CancellationToken cancellationToken)
             => TryGetUserId(out var actorId)
                 ? ToActionResult(await _users.UpdateRoleAsync(actorId, id, request, cancellationToken))
@@ -83,6 +90,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
         [ProducesResponseType(typeof(BaseResponse<bool>), 404)]
+        [HasPermission(AppPermissions.User.Unlock)]
         public async Task<IActionResult> Unlock(string id, CancellationToken cancellationToken)
             => ToActionResult(await _users.UnlockAsync(id, cancellationToken));
 
@@ -90,6 +98,7 @@ namespace Identity.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
         [ProducesResponseType(typeof(BaseResponse<bool>), 400)]
         [ProducesResponseType(typeof(BaseResponse<bool>), 404)]
+        [HasPermission(AppPermissions.User.RevokeSessions)]
         public async Task<IActionResult> RevokeSessions(string id, CancellationToken cancellationToken)
             => ToActionResult(await _users.RevokeSessionsAsync(id, cancellationToken));
 

@@ -6,7 +6,11 @@
 
         public string Name { get; set; }
 
+        public bool HasVariants { get; set; }
+
         public decimal Price { get; set; } = 0;
+
+        public decimal PriceMax { get; set; } = 0;
 
         public decimal? OldPrice { get; set; }
 

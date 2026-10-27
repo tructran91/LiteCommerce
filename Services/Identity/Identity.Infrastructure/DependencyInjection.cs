@@ -30,6 +30,7 @@ namespace Identity.Infrastructure
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAdminUserService, AdminUserService>();
+            services.AddScoped<IAdminRoleService, AdminRoleService>();
             services.AddScoped<IActivityLogger, ActivityLogger>();
             services.AddScoped<ILogQueryService, LogQueryService>();
             services.AddScoped<IPasswordResetNotifier, LoggingPasswordResetNotifier>();

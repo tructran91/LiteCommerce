@@ -53,6 +53,21 @@ namespace Catalog.Application.ProductPrices.Handlers
                     statusCode: HttpStatusCode.NotFound);
             }
 
+            // A write here would be silently undone by RecalculateAggregates on the next
+            // save, so reject the batch rather than let the user think it worked.
+            var variantProducts = existingProducts.Where(p => p.HasVariants).ToList();
+            if (variantProducts.Count > 0)
+            {
+                var errors = new Dictionary<string, List<string>>
+                {
+                    { "productsWithVariants", variantProducts.Select(p => p.Id.ToString()).ToList() }
+                };
+                return BaseResponse<List<ProductPricingResponse>>.Failure(
+                    $"The following products have variants, so their price must be edited on each variant: {string.Join(", ", variantProducts.Select(p => p.Name))}",
+                    errors: errors,
+                    statusCode: HttpStatusCode.Conflict);
+            }
+
             var productDict = existingProducts.ToDictionary(p => p.Id);
 
             foreach (var item in request.Payload.Items)

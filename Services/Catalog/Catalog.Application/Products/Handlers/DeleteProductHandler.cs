@@ -24,7 +24,9 @@ namespace Catalog.Application.Products.Handlers
             _logger.LogInformation("DeleteProductHandler: {Request}", JsonSerializer.Serialize(request));
 
             var productId = Guid.Parse(request.Id);
-            var existingProduct = await _productRepository.GetByIdAsync(productId);
+            // The full aggregate, not GetByIdAsync: the variants and their option values
+            // have to be tracked so the soft delete below reaches them too.
+            var existingProduct = await _productRepository.GetProductAsync(productId);
             if (existingProduct == null)
             {
                 return BaseResponse<bool>.Failure("Product does not exist.", statusCode: HttpStatusCode.NotFound);
@@ -40,12 +42,35 @@ namespace Catalog.Application.Products.Handlers
                 link.IsDeleted = true;
             }
 
+            // Without this the variants stay visible to queries that target them directly,
+            // and their unique indexes keep blocking a re-created combination.
+            foreach (var variant in existingProduct.Variants)
+            {
+                foreach (var optionValue in variant.OptionValues)
+                {
+                    optionValue.IsDeleted = true;
+                }
+                variant.IsDeleted = true;
+            }
+
+            foreach (var optionValue in existingProduct.OptionValues)
+            {
+                foreach (var item in optionValue.Items)
+                {
+                    item.IsDeleted = true;
+                }
+                optionValue.IsDeleted = true;
+            }
+
             existingProduct.IsDeleted = true;
 
-            // Links and product are tracked by the same context, so this is a single SaveChanges.
+            // Links, variants, options and product are tracked by the same context,
+            // so this is a single SaveChanges.
             await _productRepository.UpdateAsync(existingProduct);
 
-            _logger.LogInformation("DeleteProductHandler: {ProductId} deleted with {LinkCount} link(s)", productId, links.Count);
+            _logger.LogInformation(
+                "DeleteProductHandler: {ProductId} deleted with {LinkCount} link(s) and {VariantCount} variant(s)",
+                productId, links.Count, existingProduct.Variants.Count);
 
             return BaseResponse<bool>.Success(true);
         }

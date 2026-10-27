@@ -1,4 +1,5 @@
 using Identity.API.Services;
+using Identity.API.Extensions;
 using Identity.Application.Interfaces;
 using Identity.Application.Options;
 using LiteCommerce.Shared.Authorization;
@@ -120,14 +121,44 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
 
+        // Match Catalog: every body is a BaseResponse, including 401 and 403.
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+
+                if (context.Response.HasStarted)
+                    return;
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var message = string.IsNullOrEmpty(context.ErrorDescription)
+                    ? "Authentication is required to access this resource."
+                    : context.ErrorDescription;
+
+                await context.Response.WriteAsJsonAsync(
+                    BaseResponse<object>.Failure(message, statusCode: HttpStatusCode.Unauthorized));
+            },
+            OnForbidden = async context =>
+            {
+                if (context.Response.HasStarted)
+                    return;
+
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsJsonAsync(
+                    BaseResponse<object>.Failure(
+                        "You do not have permission to perform this action.",
+                        statusCode: HttpStatusCode.Forbidden));
+            }
+        };
     });
-// Same AdminOnly policy as Catalog; the log endpoints use it.
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(AppPolicies.AdminOnly, policy => policy
-        .RequireAuthenticatedUser()
-        .RequireRole(AppRoles.Admin));
-});
+builder.Services.AddPermissionAuthorization();
+
+builder.Services.AddAuthorization();
 
 // Per-IP throttle on the auth endpoints (the controller opts in with [EnableRateLimiting("auth")]).
 builder.Services.AddRateLimiter(options =>
@@ -172,6 +203,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.AssertAdminEndpointsHavePermissions();
+
+// Order matters: permissions must exist before they can be granted, and the Admin role must
+// hold its grants before the first admin signs in.
+await PermissionSyncer.SyncAsync(app.Services);
+await RolePermissionSeeder.SeedAsync(app.Services);
 await IdentityDbInitializer.SeedAdminAsync(app.Services, app.Configuration);
 
 app.Run();

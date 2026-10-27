@@ -1,8 +1,6 @@
 using Catalog.API.Extensions;
 using Catalog.API.Middlewares;
-using LiteCommerce.Shared.Logging;
 using Scalar.AspNetCore;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +9,6 @@ builder.Services.ConfigureOpenApi();
 builder.Services.ConfigureCorsAllowAny();
 builder.Services.ConfigureJwtAuthentication(builder.Configuration);
 builder.Services.ConfigureAuthorizationPolicies();
-builder.Host.UseSerilog(Logging.ConfigureLogger);
 
 builder.Services.AddControllers().ConfigureBaseResponseErrors();
 
@@ -36,6 +33,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.AssertAdminEndpointsHavePermissions();
 
 await app.Services.ApplySeedAsync(app.Configuration);
 

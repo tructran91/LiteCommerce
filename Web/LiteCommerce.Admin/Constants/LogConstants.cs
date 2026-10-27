@@ -20,7 +20,8 @@ namespace LiteCommerce.Admin.Constants
         [
             "Brand", "Category", "Media", "Product", "ProductAttribute", "ProductAttributeGroup",
             "ProductAttributeValue", "ProductCategory", "ProductLink", "ProductMedia", "ProductOption",
-            "ProductOptionValue", "ProductPriceHistory", "ProductTemplate", "ProductTemplateProductAttribute"
+            "ProductOptionValue", "ProductOptionValueItem", "ProductPriceHistory", "ProductTemplate",
+            "ProductTemplateProductAttribute", "ProductVariant", "ProductVariantOptionValue"
         ];
 
         public static readonly string[] ActivityActions = ["Create", "Update", "Delete", "Upload", "BulkUpdate"];

@@ -54,12 +54,33 @@ namespace Identity.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Permissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Service = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    GroupName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsObsolete = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Permissions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsSystem = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -67,6 +88,30 @@ namespace Identity.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RolePermissions",
+                columns: table => new
+                {
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -151,12 +196,12 @@ namespace Identity.Infrastructure.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "CreatedDate", "Description", "IsDeleted", "LastModifiedDate", "Name" },
+                columns: new[] { "Id", "CreatedDate", "Description", "IsDeleted", "IsSystem", "LastModifiedDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("73a1904a-814c-4dcf-abe9-44d3a54f97ae"), new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Manage catalog", false, null, "Staff" },
-                    { new Guid("a561952f-bedf-49a6-8de6-074f0cf80163"), new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Shop customer", false, null, "Customer" },
-                    { new Guid("c2c20181-4df9-4881-85b7-32459baa8a93"), new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Full access", false, null, "Admin" }
+                    { new Guid("73a1904a-814c-4dcf-abe9-44d3a54f97ae"), new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Manage catalog", false, false, null, "Staff" },
+                    { new Guid("a561952f-bedf-49a6-8de6-074f0cf80163"), new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Shop customer", false, true, null, "Customer" },
+                    { new Guid("c2c20181-4df9-4881-85b7-32459baa8a93"), new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Full access", false, true, null, "Admin" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -206,6 +251,13 @@ namespace Identity.Infrastructure.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Permissions_Code",
+                table: "Permissions",
+                column: "Code",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_Token",
                 table: "RefreshTokens",
                 column: "Token",
@@ -215,6 +267,11 @@ namespace Identity.Infrastructure.Data.Migrations
                 name: "IX_RefreshTokens_UserId",
                 table: "RefreshTokens",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_PermissionId",
+                table: "RolePermissions",
+                column: "PermissionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
@@ -252,7 +309,13 @@ namespace Identity.Infrastructure.Data.Migrations
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
+                name: "RolePermissions");
+
+            migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Permissions");
 
             migrationBuilder.DropTable(
                 name: "Roles");

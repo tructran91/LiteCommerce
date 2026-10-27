@@ -23,7 +23,15 @@ namespace LiteCommerce.Admin.Models.Business.Product
 
         public bool IsPublished { get; set; } = true;
 
+        // Server owned. While true the price and stock fields below are recalculated
+        // from the variants, and the Pricing tab is read only.
+        public bool HasVariants { get; set; }
+
         public decimal? Price { get; set; }
+
+        public decimal? PriceMax { get; set; }
+
+        public int StockQuantity { get; set; }
 
         public decimal? OldPrice { get; set; }
 
@@ -48,6 +56,10 @@ namespace LiteCommerce.Admin.Models.Business.Product
         public IList<string> CategoryIds { get; set; } = new List<string>();
 
         public IList<ProductAttributeFormItem> Attributes { get; set; } = new List<ProductAttributeFormItem>();
+
+        public IList<ProductOptionFormItem> Options { get; set; } = new List<ProductOptionFormItem>();
+
+        public IList<ProductVariantFormItem> Variants { get; set; } = new List<ProductVariantFormItem>();
 
         public IList<ProductMediaFormItem> ProductImages { get; set; } = new List<ProductMediaFormItem>();
 

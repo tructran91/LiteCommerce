@@ -33,7 +33,15 @@
 
         public static class AdminRole
         {
-            public const string GetAll = "/api/admin/roles";
+            private const string Base = "/api/admin/roles";
+
+            public const string GetAll = Base;
+            public const string GetById = $"{Base}/{{id}}";
+            public const string Create = Base;
+            public const string Update = $"{Base}/{{id}}";
+            public const string Delete = $"{Base}/{{id}}";
+            public const string GetPermissionCatalog = $"{Base}/permissions";
+            public const string UpdatePermissions = $"{Base}/{{id}}/permissions";
         }
 
         public static class Session

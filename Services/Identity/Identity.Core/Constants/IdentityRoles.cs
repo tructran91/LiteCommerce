@@ -1,7 +1,8 @@
 namespace Identity.Core.Constants
 {
-    // Keep in sync with LiteCommerce.Shared.Authorization.AppRoles.
-    // Identity.Core has no project references on purpose, hence the duplication.
+    // Names of the seeded roles. Authorization keys on permissions, not on these: they exist
+    // only so seeding and registration can find a specific row (RoleConfiguration.HasData,
+    // AuthService.RegisterAsync, IdentityDbInitializer).
     public static class IdentityRoles
     {
         public const string Admin = "Admin";

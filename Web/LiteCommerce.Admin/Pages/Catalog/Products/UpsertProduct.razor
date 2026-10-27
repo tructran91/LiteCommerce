@@ -274,12 +274,19 @@
     <!-- Pricing Tab -->
     <MudTabPanel Text="@L["Product_PricingTab"]" Icon="@Icons.Material.Filled.AttachMoney">
         <MudPaper Elevation="0" Class="pa-6 mt-4">
+            @if (HasVariants)
+            {
+                <MudAlert Severity="Severity.Info" Class="mb-4">
+                    @L["Product_PricingLockedByVariants"]
+                </MudAlert>
+            }
             <MudGrid>
                 <MudItem xs="12" md="6">
                     <MudNumericField T="decimal?"
                                      @bind-Value="_productForm.Price"
                                      Label="@L["Product_Price"]"
                                      Variant="Variant.Outlined"
+                                     Disabled="@HasVariants"
                                      Min="0m"
                                      Format="N0"
                                      Adornment="Adornment.Start"
@@ -290,6 +297,7 @@
                                      @bind-Value="_productForm.OldPrice"
                                      Label="@L["Product_OldPrice"]"
                                      Variant="Variant.Outlined"
+                                     Disabled="@HasVariants"
                                      Min="0m"
                                      Format="N0"
                                      Adornment="Adornment.Start"
@@ -317,7 +325,228 @@
                                    Variant="Variant.Outlined"
                                    Clearable="true" />
                 </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField T="int"
+                                     @bind-Value="_productForm.StockQuantity"
+                                     Label="@L["Product_StockQuantity"]"
+                                     Variant="Variant.Outlined"
+                                     Disabled="@HasVariants"
+                                     Min="0"
+                                     Adornment="Adornment.Start"
+                                     AdornmentIcon="@Icons.Material.Filled.Inventory" />
+                </MudItem>
             </MudGrid>
+        </MudPaper>
+    </MudTabPanel>
+
+    <!-- Product Options Tab: declares the variant axes -->
+    <MudTabPanel Text="@L["Product_OptionsTab"]" Icon="@Icons.Material.Filled.Tune">
+        <MudPaper Elevation="0" Class="pa-6 mt-4">
+            <MudGrid>
+                <MudItem xs="12" md="5">
+                    <MudSelect T="string"
+                               @bind-Value="_selectedAvailableOptionId"
+                               Label="@L["Product_Options"]"
+                               Variant="Variant.Outlined"
+                               Dense="true"
+                               Clearable="true">
+                        @foreach (var option in AvailableOptions)
+                        {
+                            <MudSelectItem Value="@option.Id">@option.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="3" Class="d-flex align-center">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Disabled="@(string.IsNullOrEmpty(_selectedAvailableOptionId) || _productForm.Options.Count >= MaxOptions)"
+                               OnClick="AddOption">
+                        @L["Common_Add"]
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="12" md="4" Class="d-flex align-center justify-end">
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                        @string.Format(L["Product_OptionsLimitHint"], _productForm.Options.Count, MaxOptions)
+                    </MudText>
+                </MudItem>
+
+                <MudItem xs="12">
+                    @if (!_productForm.Options.Any())
+                    {
+                        <MudAlert Severity="Severity.Normal">@L["Product_NoOptionsYet"]</MudAlert>
+                    }
+                    else
+                    {
+                        @foreach (var option in _productForm.Options)
+                        {
+                            <MudPaper Elevation="1" Class="pa-4 mb-4">
+                                <div class="d-flex align-center mb-3">
+                                    <MudText Typo="Typo.subtitle1" Class="flex-grow-1">@option.Name</MudText>
+                                    <MudSelect T="string"
+                                               @bind-Value="option.DisplayType"
+                                               Label="@L["Product_OptionDisplayType"]"
+                                               Variant="Variant.Outlined"
+                                               Dense="true"
+                                               Margin="Margin.Dense"
+                                               Style="max-width: 180px;">
+                                        <MudSelectItem Value="@("text")">Text</MudSelectItem>
+                                        <MudSelectItem Value="@("color")">Color</MudSelectItem>
+                                        <MudSelectItem Value="@("image")">Image</MudSelectItem>
+                                    </MudSelect>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                   Color="Color.Error"
+                                                   Size="Size.Small"
+                                                   Class="ml-2"
+                                                   OnClick="@(() => RemoveOption(option))" />
+                                </div>
+
+                                <MudSimpleTable Dense="true" Hover="true" Bordered="true" Striped="false">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 35%;">@L["Product_OptionValueKey"]</th>
+                                            <th style="width: 50%;">@L["Product_OptionValueDisplay"]</th>
+                                            <th style="width: 15%;" class="text-center">@L["Common_Actions"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var value in option.Values)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <MudTextField @bind-Value="value.Key"
+                                                                  Variant="Variant.Outlined"
+                                                                  Margin="Margin.Dense"
+                                                                  Immediate="false"
+                                                                  MaxLength="100" />
+                                                </td>
+                                                <td>
+                                                    <MudTextField @bind-Value="value.Display"
+                                                                  Variant="Variant.Outlined"
+                                                                  Margin="Margin.Dense"
+                                                                  Immediate="false"
+                                                                  MaxLength="255" />
+                                                </td>
+                                                <td class="text-center">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                                                   Color="Color.Error"
+                                                                   Size="Size.Small"
+                                                                   OnClick="@(() => RemoveOptionValue(option, value))" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </MudSimpleTable>
+
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Size="Size.Small"
+                                           Class="mt-2"
+                                           Disabled="@(option.Values.Count >= MaxValuesPerOption)"
+                                           OnClick="@(() => AddOptionValue(option))">
+                                    @L["Product_AddOptionValue"]
+                                </MudButton>
+                            </MudPaper>
+                        }
+                    }
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudTabPanel>
+
+    <!-- Variants Tab: the sellable combinations -->
+    <MudTabPanel Text="@L["Product_VariantsTab"]" Icon="@Icons.Material.Filled.Inventory2">
+        <MudPaper Elevation="0" Class="pa-6 mt-4">
+            @if (!_productForm.Options.Any())
+            {
+                <MudAlert Severity="Severity.Warning">@L["Product_VariantsNeedOptions"]</MudAlert>
+            }
+            else
+            {
+                <div class="d-flex align-center mb-4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.AutoAwesome"
+                               OnClick="GenerateVariants">
+                        @L["Product_GenerateVariants"]
+                    </MudButton>
+                    <MudText Typo="Typo.caption" Class="ml-4 mud-text-secondary">
+                        @string.Format(L["Product_VariantsCountHint"], _productForm.Variants.Count, MaxVariants)
+                    </MudText>
+                </div>
+
+                @if (!_productForm.Variants.Any())
+                {
+                    <MudAlert Severity="Severity.Normal">@L["Product_NoVariantsYet"]</MudAlert>
+                }
+                else
+                {
+                    <MudSimpleTable Dense="true" Hover="true" Bordered="true" Striped="true">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">@L["Product_VariantCombination"]</th>
+                                <th style="width: 18%;">@L["Product_Sku"]</th>
+                                <th style="width: 17%;">@L["Product_Price"]</th>
+                                <th style="width: 17%;">@L["Product_OldPrice"]</th>
+                                <th style="width: 14%;">@L["Product_StockQuantity"]</th>
+                                <th style="width: 7%;" class="text-center">@L["Product_VariantActive"]</th>
+                                <th style="width: 5%;" class="text-center">@L["Common_Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var variant in _productForm.Variants)
+                            {
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.body2">@variant.CombinationLabel</MudText>
+                                    </td>
+                                    <td>
+                                        <MudTextField @bind-Value="variant.Sku"
+                                                      Variant="Variant.Outlined"
+                                                      Margin="Margin.Dense"
+                                                      Immediate="false"
+                                                      MaxLength="100" />
+                                    </td>
+                                    <td>
+                                        <MudNumericField T="decimal"
+                                                         @bind-Value="variant.Price"
+                                                         Variant="Variant.Outlined"
+                                                         Margin="Margin.Dense"
+                                                         Min="0m"
+                                                         Format="N0" />
+                                    </td>
+                                    <td>
+                                        <MudNumericField T="decimal?"
+                                                         @bind-Value="variant.OldPrice"
+                                                         Variant="Variant.Outlined"
+                                                         Margin="Margin.Dense"
+                                                         Min="0m"
+                                                         Format="N0"
+                                                         Clearable="true" />
+                                    </td>
+                                    <td>
+                                        <MudNumericField T="int"
+                                                         @bind-Value="variant.StockQuantity"
+                                                         Variant="Variant.Outlined"
+                                                         Margin="Margin.Dense"
+                                                         Min="0" />
+                                    </td>
+                                    <td class="text-center">
+                                        <MudSwitch T="bool" @bind-Value="variant.IsActive" Color="Color.Primary" />
+                                    </td>
+                                    <td class="text-center">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                       Color="Color.Error"
+                                                       Size="Size.Small"
+                                                       OnClick="@(() => RemoveVariant(variant))" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+            }
         </MudPaper>
     </MudTabPanel>
 

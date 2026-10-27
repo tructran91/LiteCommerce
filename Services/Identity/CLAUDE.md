@@ -23,13 +23,17 @@ There are no tests. Startup **does not migrate**. `IdentityDbInitializer.SeedAdm
 ## Layout
 
 ```
-Identity.API            → Program.cs (JWT bearer validation, AdminOnly policy, Scalar/OpenAPI), AuthController,
-                          AdminAuditLogController / AdminActivityLogController, CurrentUserService
-Identity.Application    → DTOs (records), IAuthService / ITokenService / IActivityLogger / ILogQueryService /
-                          ICurrentUserService, JwtOptions, FluentValidation validators
-Identity.Core           → Entities (User, Role, RefreshToken, AuditLog, ActivityLog, BaseEntity), enums, constants
+Identity.API            → Program.cs (JWT bearer validation, permission policies, Scalar/OpenAPI), AuthController,
+                          AdminUserController / AdminRoleController,
+                          AdminAuditLogController / AdminActivityLogController, CurrentUserService,
+                          EndpointPermissionGuard
+Identity.Application    → DTOs (records), IAuthService / ITokenService / IAdminUserService / IAdminRoleService /
+                          IActivityLogger / ILogQueryService / ICurrentUserService, JwtOptions, validators
+Identity.Core           → Entities (User, Role, Permission, RolePermission, RefreshToken, PasswordResetToken,
+                          AuditLog, ActivityLog, BaseEntity), enums, constants
 Identity.Infrastructure → IdentityDbContext, EF configurations + migrations, AuditLogInterceptor, AuthService,
-                          ActivityLogger, LogQueryService, JwtTokenService, DI, admin seeder
+                          AdminUserService, AdminRoleService, ActivityLogger, LogQueryService, JwtTokenService,
+                          DI, admin seeder, PermissionSyncer, RolePermissionSeeder
 ```
 
 Dependency flow: `API → Application → Core ← Infrastructure`. `API` also references `Infrastructure` directly to call `AddInfrastructureServices`.
@@ -37,7 +41,7 @@ Dependency flow: `API → Application → Core ← Infrastructure`. `API` also r
 - **No MediatR.** The controller calls `IAuthService` directly, and `AuthService` (in **Infrastructure**, not Application) holds all the business logic. It uses `IdentityDbContext` directly. There is no repository layer.
 - **Validation is manual.** Services run the FluentValidation validators themselves (`ValidationErrors.From`, used by `AuthService` and `LogQueryService`) and builds the same `Dictionary<string, List<string>>` error shape as Catalog (camelCase keys). There is no `ValidationBehavior` and no exception middleware, so any unexpected exception is an unhandled 500.
 - **Responses** are `BaseResponse<T>` from `LiteCommerce.Shared`. `BaseApiController.ToActionResult` sets the HTTP status from `BaseResponse.StatusCode`, so the service picks the status (`Created`, `Conflict`, `Unauthorized`, `NotFound`; the default `Failure` is 400).
-- **All DI is in `Identity.Infrastructure/DependencyInjection.cs`** (`AddInfrastructureServices`): DbContext with `AuditLogInterceptor`, `JwtOptions`, `IPasswordHasher<User>`, `ITokenService`, `IAuthService`, `IActivityLogger`, `ILogQueryService`, validators. `Program.cs` additionally registers JWT bearer auth, the `AdminOnly` policy, `IHttpContextAccessor` and `ICurrentUserService` (the interceptor needs it, so it must be registered by the host).
+- **All DI is in `Identity.Infrastructure/DependencyInjection.cs`** (`AddInfrastructureServices`): DbContext with `AuditLogInterceptor`, `JwtOptions`, `IPasswordHasher<User>`, `ITokenService`, `IAuthService`, `IActivityLogger`, `ILogQueryService`, validators. `Program.cs` additionally registers JWT bearer auth, `AddPermissionAuthorization()`, `IHttpContextAccessor` and `ICurrentUserService` (the interceptor needs it, so it must be registered by the host).
 
 ## Endpoints (`api/auth`)
 
@@ -49,7 +53,17 @@ Dependency flow: `API → Application → Core ← Infrastructure`. `API` also r
 | `POST revoke` | public | Logout. Idempotent, and unknown tokens still return success. |
 | `GET me` | `[Authorize]` | Reads `sub` (or `NameIdentifier`) from the JWT, then loads the user. |
 
-Log endpoints (`AdminOnly`, not rate-limited): `GET api/admin/audit-log`, `GET api/admin/activity-log`, each with `/{id}`. Paged and filtered in SQL. Same routes and response shape as Catalog's, so the Admin UI only switches the base URL.
+Admin endpoints (not rate-limited), each gated by its own `[HasPermission(...)]`:
+
+| Route | Permission |
+|---|---|
+| `api/admin/users` (CRUD, `{id}/status`, `{id}/role`, `{id}/unlock`, `{id}/revoke-sessions`) | `identity.user.*` |
+| `api/admin/roles` (CRUD) | `identity.role.view` / `create` / `update` / `delete` |
+| `api/admin/roles/permissions` | `identity.role.view-permissions` |
+| `api/admin/roles/{id}/permissions` (PUT) | `identity.role.update-permissions` |
+| `api/admin/audit-log`, `api/admin/activity-log` (+ `/{id}`) | `identity.log.view-audit` / `view-activity` |
+
+The log routes and response shape match Catalog's, so the Admin UI only switches the base URL.
 
 ## Audit and activity log
 
@@ -68,12 +82,27 @@ Identity is stricter than Catalog because its tables hold credentials.
 ## Auth design
 
 - **RS256 with PEM key files.** `JwtTokenService` (signer) loads `Jwt:PrivateKeyPath`. `Program.cs` (verifier) loads only `Jwt:PublicKeyPath`. Other services verify through `/.well-known/openid-configuration` and `/.well-known/jwks.json` (`DiscoveryController`) with the same `Issuer` / `Audience`. All three load keys through `Infrastructure/Security/RsaKeyLoader`, which sets `kid` to the RFC 7638 thumbprint of the public key. There is no `Jwt:KeyId` setting: a new key always gets a new `kid`, so verifiers refetch the JWKS (JwtBearer allows at most one refetch per 5 min) instead of failing the signature check until restart. Dev keys are in `Identity.API/Keys/` and are copied to the output directory. Prod must override the paths.
-- Access token: 15 min (`AccessTokenMinutes`; `appsettings.Development.json` uses 1440), `ClockSkew = 0`. Claims: `sub`, `email`, `role` (written via `ClaimTypes.Role`), `jti`. Refresh token: 64 random bytes in base64, 7 days (`RefreshTokenDays`), stored in `RefreshTokens.Token` (unique index).
+- Access token: `AccessTokenMinutes` (both appsettings currently use 1440), `ClockSkew = 0`. Claims: `sub`, `email`, `role`, `jti`, and `perm` when the user's role has any grant. Refresh token: 64 random bytes in base64, 7 days (`RefreshTokenDays`), stored in `RefreshTokens.Token` (unique index).
+- `perm` is a comma-separated, wildcard-compressed list (`PermissionMatcher.Compress`): a role holding everything gets `*`, a fully granted group collapses to `catalog.brand.*`. `AuthService.IssueTokensAsync` reads the grants on every issue, so a refresh always carries the role's current permissions.
 - Rotation: the old token gets `Revoked` and `ReplacedByToken`. Reuse detection keys on `Revoked != null && ReplacedByToken != null`. A token revoked by logout has no `ReplacedByToken`, so it is rejected without nuking the other sessions.
 - Roles are seeded through `HasData` in `RoleConfiguration` (fixed GUIDs for `Admin`, `Staff`, `Customer`), not by the initializer. The first admin comes from `SeedAdmin:*` config and is created only if that email does not exist.
+- **Authorization is permission-based, not role-based.** `Admin`/`Staff`/`Customer` are only seeded rows; nothing authorizes on their names. `IdentityRoles` exists so seeding and `RegisterAsync` can find a specific row. See the "Permissions" section below.
 - Passwords use `PasswordHasher<User>` from `Microsoft.Extensions.Identity.Core`. This is not the full ASP.NET Identity stack.
 - **Login protection.** 5 consecutive wrong passwords lock the account for 15 min (`User.FailedLoginCount` / `LockoutEnd`, constants in `AuthService`). A locked account gets 429. An unknown email still runs a dummy hash verify so timing does not reveal it. `AuthController` is also behind a per-IP fixed-window rate limiter (policy `auth`, 20 req/min, configured in `Program.cs`). `app.UseForwardedHeaders()` runs first in the pipeline (`X-Forwarded-For` / `X-Forwarded-Proto`), so the limiter sees the real client IP and the discovery document advertises the real scheme. Only loopback proxies are trusted by default. Add others under `ForwardedHeaders:KnownProxies` (an array of IPs), or the headers are ignored.
 - **Concurrency.** `RefreshToken.RowVersion` is a concurrency token, so only one of two parallel refreshes wins (the loser gets 401). `Register` turns a unique-index race into 409. `JwtTokenService` is a singleton (loads the PEM once).
+
+## Permissions
+
+Which permissions exist is **code**; which role holds them is **data**.
+
+- **Catalog**: `LiteCommerce.Shared/Authorization/AppPermissions.cs` declares every code (`{service}.{resource}.{action}`) plus its display metadata in `All`. This is the single source of truth, shared with Catalog.API and linked as source into the Blazor client.
+- **Storage**: `Permissions` (one row per code) and `RolePermissions` (composite key, no `BaseEntity` — a grant is either there or it is not). `Role.IsSystem` marks seeded roles that cannot be renamed, deleted, or have their grants changed.
+- **Sync**: `PermissionSyncer` upserts `AppPermissions.All` into the table on startup, so adding a permission needs no migration. A code removed from `AppPermissions` is flagged `IsObsolete`, never deleted, so audit history still resolves. `RolePermissionSeeder` then runs: it reconciles **Admin on every start** (a permission added in a later release must reach Admin, or the new feature is unreachable by anyone) and seeds Staff only once. Order in `Program.cs` is fixed: `PermissionSyncer` → `RolePermissionSeeder` → `SeedAdminAsync`.
+- **Enforcement**: `[HasPermission(AppPermissions.X.Y)]` on the action. `PermissionPolicyProvider` builds the policy from the `perm:` prefix on demand, so nothing is registered per permission. `EndpointPermissionGuard` runs after `MapControllers()` and **throws on startup** if any `api/admin/*` action has neither `[HasPermission]` nor `[AllowAnonymous]` — there are no tests here, so that check is what stops a forgotten attribute becoming an open endpoint.
+- **Never rename a permission code.** Grants key on the string, so a rename silently revokes it for every role.
+- **Lockout guards** in `AdminRoleService.UpdateRolePermissionsAsync`: a caller cannot strip `identity.role.update-permissions` from their own role, and cannot strip it if no other active user would still hold it. `AdminUserService.IsLastActiveAdminAsync` defines "administrator" as holding that same permission, not as being in a role named `Admin`.
+- **Changing a role's grants revokes every refresh token of its users.** Permissions live in the access token, so holders keep the old set until reissue; revoking forces that on the next refresh.
+- `AuditLogInterceptor` audits `RolePermission` as well as `User` and `Role`: who granted what is the most security-relevant change in this database. `RolePermission` has no `IsDeleted`, so `ResolveAction` checks for the property before reading it.
 
 ## Conventions and gotchas
 
@@ -83,7 +112,7 @@ Identity is stricter than Catalog because its tables hold credentials.
 - `ExecuteUpdateAsync` (used by `RevokeAllUserTokensAsync`) bypasses the change tracker, so it does not touch `LastModifiedDate`.
 - Scalar and OpenAPI are mapped in **all** environments **on purpose** (the `IsDevelopment` guard in `Program.cs` is commented out deliberately). Do not "fix" this.
 - The connection string, `SeedAdmin` password and dev keys are in `appsettings.json` / the repo. Treat them as dev-only and never reuse them elsewhere.
-- Catalog.API does not validate these tokens yet, so nothing is protected by Identity so far.
+- Unlike Catalog, Identity has **no** `FallbackPolicy`, so a controller without `[Authorize]` is public. `AuthController`'s `register` / `login` / `refresh` / `revoke` rely on that. Any new controller must state its own `[Authorize]` or `[HasPermission]`; `EndpointPermissionGuard` only covers `api/admin/*`.
 
 ## Known issues (from the review on 2026-10-05)
 
@@ -93,4 +122,4 @@ See the review summary in the conversation or PR. In priority order:
 2. Refresh tokens are stored in plaintext, so a DB leak yields live sessions. Store a SHA-256 hash instead.
 3. No cleanup of expired or revoked `RefreshTokens`, so the table grows forever.
 4. Seed admin has a weak default password committed in config and is created in every environment.
-5. Revocation, deactivation or a role change does not affect issued access tokens for up to 15 min.
+5. Revocation, deactivation, a role change or a permission change does not affect an already-issued access token until it expires. `AccessTokenMinutes` is **1440** in both appsettings, so that window is a day. Sessions are revoked at the source in each of those cases, so the next refresh fails, but the current access token keeps working. Lower `AccessTokenMinutes` before this goes anywhere real.

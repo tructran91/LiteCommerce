@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Catalog.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -104,7 +104,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -180,17 +180,19 @@ namespace Catalog.Infrastructure.Data.Migrations
                     ShortDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    OldPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    SpecialPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    HasVariants = table.Column<bool>(type: "bit", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PriceMax = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    OldPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    SpecialPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     SpecialPriceStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SpecialPriceEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsFeatured = table.Column<bool>(type: "bit", nullable: false),
                     IsCallForPricing = table.Column<bool>(type: "bit", nullable: false),
                     IsAllowToOrder = table.Column<bool>(type: "bit", nullable: false),
                     StockQuantity = table.Column<int>(type: "int", nullable: false),
-                    Sku = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Gtin = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Sku = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Gtin = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     DisplayOrder = table.Column<int>(type: "int", nullable: false),
                     MetaTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MetaKeywords = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -339,8 +341,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DisplayType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DisplayType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     SortIndex = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -354,7 +355,7 @@ namespace Catalog.Infrastructure.Data.Migrations
                         column: x => x.OptionId,
                         principalTable: "ProductOptions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ProductOptionValues_Products_ProductId",
                         column: x => x.ProductId,
@@ -369,9 +370,9 @@ namespace Catalog.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    OldPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    SpecialPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    OldPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    SpecialPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     SpecialPriceStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SpecialPriceEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -383,6 +384,46 @@ namespace Catalog.Infrastructure.Data.Migrations
                     table.PrimaryKey("PK_ProductPriceHistories", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ProductPriceHistories_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductVariants",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NormalizedName = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    Sku = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Gtin = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    OldPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    SpecialPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    SpecialPriceStart = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SpecialPriceEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StockQuantity = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false),
+                    ThumbnailImageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductVariants", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductVariants_Medias_ThumbnailImageId",
+                        column: x => x.ThumbnailImageId,
+                        principalTable: "Medias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProductVariants_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -439,6 +480,66 @@ namespace Catalog.Infrastructure.Data.Migrations
                         name: "FK_ProductTemplateProductAttributes_ProductTemplates_ProductTemplateId",
                         column: x => x.ProductTemplateId,
                         principalTable: "ProductTemplates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductOptionValueItems",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductOptionValueId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Display = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    SortIndex = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductOptionValueItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductOptionValueItems_ProductOptionValues_ProductOptionValueId",
+                        column: x => x.ProductOptionValueId,
+                        principalTable: "ProductOptionValues",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductVariantOptionValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductOptionValueItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SortIndex = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductVariantOptionValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductVariantOptionValues_ProductOptionValueItems_ProductOptionValueItemId",
+                        column: x => x.ProductOptionValueItemId,
+                        principalTable: "ProductOptionValueItems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProductVariantOptionValues_ProductOptions_OptionId",
+                        column: x => x.OptionId,
+                        principalTable: "ProductOptions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProductVariantOptionValues_ProductVariants_VariantId",
+                        column: x => x.VariantId,
+                        principalTable: "ProductVariants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -545,14 +646,30 @@ namespace Catalog.Infrastructure.Data.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductOptions_Name",
+                table: "ProductOptions",
+                column: "Name",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductOptionValueItems_ProductOptionValueId_Key",
+                table: "ProductOptionValueItems",
+                columns: new[] { "ProductOptionValueId", "Key" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductOptionValues_OptionId",
                 table: "ProductOptionValues",
                 column: "OptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductOptionValues_ProductId",
+                name: "IX_ProductOptionValues_ProductId_OptionId",
                 table: "ProductOptionValues",
-                column: "ProductId");
+                columns: new[] { "ProductId", "OptionId" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductPriceHistories_ProductId",
@@ -580,6 +697,42 @@ namespace Catalog.Infrastructure.Data.Migrations
                 name: "IX_ProductTemplateProductAttributes_ProductAttributeId",
                 table: "ProductTemplateProductAttributes",
                 column: "ProductAttributeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariantOptionValues_OptionId",
+                table: "ProductVariantOptionValues",
+                column: "OptionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariantOptionValues_ProductOptionValueItemId",
+                table: "ProductVariantOptionValues",
+                column: "ProductOptionValueItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariantOptionValues_VariantId_OptionId",
+                table: "ProductVariantOptionValues",
+                columns: new[] { "VariantId", "OptionId" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariants_ProductId_NormalizedName",
+                table: "ProductVariants",
+                columns: new[] { "ProductId", "NormalizedName" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariants_ProductId_Sku",
+                table: "ProductVariants",
+                columns: new[] { "ProductId", "Sku" },
+                unique: true,
+                filter: "[IsDeleted] = 0 AND [Sku] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariants_ThumbnailImageId",
+                table: "ProductVariants",
+                column: "ThumbnailImageId");
         }
 
         /// <inheritdoc />
@@ -604,22 +757,16 @@ namespace Catalog.Infrastructure.Data.Migrations
                 name: "ProductMedias");
 
             migrationBuilder.DropTable(
-                name: "ProductOptionValues");
-
-            migrationBuilder.DropTable(
                 name: "ProductPriceHistories");
 
             migrationBuilder.DropTable(
                 name: "ProductTemplateProductAttributes");
 
             migrationBuilder.DropTable(
+                name: "ProductVariantOptionValues");
+
+            migrationBuilder.DropTable(
                 name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "ProductOptions");
-
-            migrationBuilder.DropTable(
-                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "ProductAttributes");
@@ -628,13 +775,28 @@ namespace Catalog.Infrastructure.Data.Migrations
                 name: "ProductTemplates");
 
             migrationBuilder.DropTable(
+                name: "ProductOptionValueItems");
+
+            migrationBuilder.DropTable(
+                name: "ProductVariants");
+
+            migrationBuilder.DropTable(
+                name: "ProductAttributeGroups");
+
+            migrationBuilder.DropTable(
+                name: "ProductOptionValues");
+
+            migrationBuilder.DropTable(
+                name: "ProductOptions");
+
+            migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
                 name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "Medias");
-
-            migrationBuilder.DropTable(
-                name: "ProductAttributeGroups");
         }
     }
 }

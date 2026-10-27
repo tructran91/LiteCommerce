@@ -33,13 +33,27 @@
 @code {
     [Parameter] public bool DrawerOpen { get; set; } = true;
 
+    [Inject] private PermissionService Permissions { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
     private List<MenuItem> menuItems = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        menuItems = MenuService.GetMenuHorizontalItems();
         NavigationManager.LocationChanged += OnLocationChanged;
+        AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+        await LoadMenuAsync();
     }
+
+    // A refresh can bring different grants, so the menu is rebuilt rather than left stale.
+    private async void OnAuthStateChanged(Task<AuthenticationState> _)
+    {
+        await LoadMenuAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadMenuAsync()
+        => menuItems = await MenuService.GetVisibleMenuHorizontalItemsAsync(Permissions);
 
     private bool IsGroupActive(MenuItem item)
     {
@@ -70,5 +84,6 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+        AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
     }
 }

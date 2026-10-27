@@ -19,10 +19,13 @@ namespace Identity.Infrastructure.Data.Configurations
 
             builder.HasIndex(x => x.Name).IsUnique().HasFilter("[IsDeleted] = 0");
 
+            // Admin and Customer are IsSystem: AuthService.RegisterAsync looks Customer up by
+            // name, and Admin must stay fully privileged so nobody can lock everyone out.
+            // Staff is an ordinary role and may be edited or deleted.
             builder.HasData(
-                new Role { Id = AdminId, Name = IdentityRoles.Admin, Description = "Full access", CreatedDate = CreatedTime },
+                new Role { Id = AdminId, Name = IdentityRoles.Admin, Description = "Full access", IsSystem = true, CreatedDate = CreatedTime },
                 new Role { Id = StaffId, Name = IdentityRoles.Staff, Description = "Manage catalog", CreatedDate = CreatedTime },
-                new Role { Id = CustomerId, Name = IdentityRoles.Customer, Description = "Shop customer", CreatedDate = CreatedTime });
+                new Role { Id = CustomerId, Name = IdentityRoles.Customer, Description = "Shop customer", IsSystem = true, CreatedDate = CreatedTime });
         }
     }
 }

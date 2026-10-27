@@ -1,4 +1,5 @@
 using Catalog.Application.Services;
+using Catalog.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Data.Seeding
@@ -41,6 +42,7 @@ namespace Catalog.Infrastructure.Data.Seeding
 
                 await ClearAsync(cancellationToken);
                 await target.SeedAsync(_context, cancellationToken);
+                NormalizeDerivedProductFields();
 
                 // Seed rows are not user actions; keep them out of the audit log.
                 _context.IsAuditEnabled = false;
@@ -63,6 +65,20 @@ namespace Catalog.Infrastructure.Data.Seeding
                 await _context.Products.CountAsync(cancellationToken));
         }
 
+        // Profiles write plain Product rows and ignore the derived fields, which would
+        // leave every seeded product with a 0 upper bound on the list screens.
+        private void NormalizeDerivedProductFields()
+        {
+            foreach (var entry in _context.ChangeTracker.Entries<Product>())
+            {
+                var product = entry.Entity;
+                if (!product.HasVariants)
+                {
+                    product.PriceMax = product.Price;
+                }
+            }
+        }
+
         private async Task ClearAsync(CancellationToken cancellationToken)
         {
             // Children before parents; ExecuteDelete bypasses the change tracker
@@ -73,6 +89,10 @@ namespace Catalog.Infrastructure.Data.Seeding
             await _context.ProductMedias.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
             await _context.ProductLinks.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
             await _context.ProductPriceHistories.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
+            // Variants reference option value items, so the variant side goes first.
+            await _context.ProductVariantOptionValues.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
+            await _context.ProductVariants.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
+            await _context.ProductOptionValueItems.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
             await _context.ProductOptionValues.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
             await _context.Products.IgnoreQueryFilters().ExecuteDeleteAsync(cancellationToken);
             // Self-referencing Categories: leaves first, then roots.

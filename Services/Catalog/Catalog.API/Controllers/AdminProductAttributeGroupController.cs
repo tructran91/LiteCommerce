@@ -1,7 +1,8 @@
-﻿using Catalog.Application.ProductAttributeGroups.Commands;
+using Catalog.Application.ProductAttributeGroups.Commands;
 using Catalog.Application.ProductAttributeGroups.Queries;
 using Catalog.Application.Requests;
 using Catalog.Application.Responses;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(BaseResponse<List<ProductAttributeGroupResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
+        [HasPermission(AppPermissions.ProductAttributeGroup.View)]
         public async Task<IActionResult> GetAllProductAttributeGroups([FromQuery] GetAllProductAttributeGroupsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -32,6 +34,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), StatusCodes.Status404NotFound)]
+        [HasPermission(AppPermissions.ProductAttributeGroup.View)]
         public async Task<IActionResult> GetProductAttributeGroupById(string id)
         {
             var query = new GetProductAttributeGroupQuery(id);
@@ -43,6 +46,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductAttributeGroup.Create)]
         public async Task<IActionResult> CreateProductAttributeGroup([FromBody] CreateProductAttributeGroupRequest request)
         {
             var command = new CreateProductAttributeGroupCommand(request);
@@ -55,6 +59,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<ProductAttributeGroupResponse>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductAttributeGroup.Update)]
         public async Task<IActionResult> UpdateProductAttributeGroup(string id, [FromBody] UpdateProductAttributeGroupRequest request)
         {
             var command = new UpdateProductAttributeGroupCommand(id, request);
@@ -67,6 +72,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseResponse<bool>), StatusCodes.Status409Conflict)]
+        [HasPermission(AppPermissions.ProductAttributeGroup.Delete)]
         public async Task<IActionResult> DeleteProductAttributeGroup(string id)
         {
             var command = new DeleteProductAttributeGroupCommand(id);

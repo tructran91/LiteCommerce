@@ -28,5 +28,14 @@ namespace Identity.Core.Enums
         AdminUnlockUser,
 
         AdminRevokeSessions,
+
+        AdminCreateRole,
+
+        AdminUpdateRole,
+
+        AdminDeleteRole,
+
+        // Grants replaced for a role. Every session holding that role is revoked.
+        AdminUpdateRolePermissions,
     }
 }

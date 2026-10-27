@@ -14,6 +14,13 @@ namespace Catalog.Application.Services
 
         void AddOrDeleteOptions(ProductViewModel productSource, Product productTarget);
 
+        // After AddOrDeleteOptions: variants resolve against the items that call creates.
+        void AddOrDeleteVariants(ProductViewModel productSource, Product productTarget);
+
+        // After AddOrDeleteVariants. Rewrites HasVariants, Price, PriceMax, OldPrice
+        // and StockQuantity on the product.
+        void RecalculateAggregates(Product product);
+
         void AddOrDeleteAttributes(ProductViewModel productSource, Product productTarget);
 
         void AddOrDeleteCategories(ProductViewModel productSource, Product productTarget);

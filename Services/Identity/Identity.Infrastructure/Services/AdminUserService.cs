@@ -1,10 +1,10 @@
 using FluentValidation;
 using Identity.Application.DTOs;
 using Identity.Application.Interfaces;
-using Identity.Core.Constants;
 using Identity.Core.Entities;
 using Identity.Core.Enums;
 using Identity.Infrastructure.Data;
+using LiteCommerce.Shared.Authorization;
 using LiteCommerce.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -218,9 +218,10 @@ namespace Identity.Infrastructure.Services
             var role = await _db.Roles.FirstOrDefaultAsync(x => x.Id == request.RoleId, cancellationToken);
             if (role is null)
                 return BaseResponse<AdminUserResponse>.Failure("Role not found.", statusCode: HttpStatusCode.NotFound);
-            if (userId == actorUserId && role.Name != IdentityRoles.Admin)
+            var targetRoleIsAdmin = await RoleCanManagePermissionsAsync(role.Id, cancellationToken);
+            if (userId == actorUserId && !targetRoleIsAdmin)
                 return BaseResponse<AdminUserResponse>.Failure("You cannot remove your own administrator role.", statusCode: HttpStatusCode.Conflict);
-            if (role.Name != IdentityRoles.Admin && await IsLastActiveAdminAsync(user, cancellationToken))
+            if (!targetRoleIsAdmin && await IsLastActiveAdminAsync(user, cancellationToken))
                 return BaseResponse<AdminUserResponse>.Failure("The last active administrator cannot change role.", statusCode: HttpStatusCode.Conflict);
 
             var now = DateTime.UtcNow;
@@ -264,24 +265,30 @@ namespace Identity.Infrastructure.Services
             return BaseResponse<bool>.Success(true, "All user sessions revoked successfully");
         }
 
-        public async Task<BaseResponse<List<RoleResponse>>> GetRolesAsync(CancellationToken cancellationToken = default)
-        {
-            var roles = await _db.Roles.AsNoTracking().OrderBy(x => x.Name)
-                .Select(x => new RoleResponse { Id = x.Id, Name = x.Name, Description = x.Description })
-                .ToListAsync(cancellationToken);
-            return BaseResponse<List<RoleResponse>>.Success(roles);
-        }
-
         private Task<int> RevokeAllSessionsAsync(Guid userId, DateTime now, CancellationToken cancellationToken)
             => _db.RefreshTokens.Where(x => x.UserId == userId && x.Revoked == null)
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.Revoked, now), cancellationToken);
 
+        // "Administrator" means holding the permission that can hand out permissions, not
+        // being in a role called Admin: roles are user-defined now.
         private async Task<bool> IsLastActiveAdminAsync(User user, CancellationToken cancellationToken)
         {
-            if (!user.IsActive || user.Role.Name != IdentityRoles.Admin)
+            if (!user.IsActive || !await RoleCanManagePermissionsAsync(user.RoleId, cancellationToken))
                 return false;
-            return await _db.Users.CountAsync(x => x.IsActive && x.Role.Name == IdentityRoles.Admin, cancellationToken) <= 1;
+
+            return await CountActiveAdminsAsync(cancellationToken) <= 1;
         }
+
+        private Task<bool> RoleCanManagePermissionsAsync(Guid roleId, CancellationToken cancellationToken)
+            => _db.RolePermissions.AnyAsync(
+                x => x.RoleId == roleId && x.Permission.Code == AppPermissions.Role.UpdatePermissions,
+                cancellationToken);
+
+        private Task<int> CountActiveAdminsAsync(CancellationToken cancellationToken)
+            => _db.Users.CountAsync(
+                x => x.IsActive
+                     && x.Role.RolePermissions.Any(rp => rp.Permission.Code == AppPermissions.Role.UpdatePermissions),
+                cancellationToken);
 
         private static AdminUserResponse ToResponse(User user, DateTime now) => new()
         {

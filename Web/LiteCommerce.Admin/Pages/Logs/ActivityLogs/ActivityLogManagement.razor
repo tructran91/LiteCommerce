@@ -2,6 +2,9 @@
 @using LiteCommerce.Admin.Constants
 @using LiteCommerce.Admin.Enums
 @using LiteCommerce.Admin.Models.Business.ActivityLog
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.CatalogLog.ViewActivity" />
 
 <PageTitle>@L["Logs_ActivityTitle"]</PageTitle>
 

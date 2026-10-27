@@ -1,5 +1,8 @@
 @page "/brands"
 @using LiteCommerce.Admin.Models.Business.Brand
+@using LiteCommerce.Shared.Authorization
+
+<PermissionGuard Permission="@AppPermissions.Brand.View" />
 
 <PageTitle>@L["Brand_Title"]</PageTitle>
 
@@ -10,13 +13,15 @@
     <div>
         <MudText Typo="Typo.h5" Class="font-weight-bold mb-1">@L["Brand_Title"]</MudText>
     </div>
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Primary"
-               StartIcon="@Icons.Material.Filled.Add"
-               OnClick="@(() => OpenBrandDialog(false))"
-               Disabled="_loading">
-        @L["Brand_AddButton"]
-    </MudButton>
+    <HasPermission Permission="@AppPermissions.Brand.Create">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="@(() => OpenBrandDialog(false))"
+                   Disabled="_loading">
+            @L["Brand_AddButton"]
+        </MudButton>
+    </HasPermission>
 </div>
 
 <!-- Error Banner -->
@@ -71,18 +76,22 @@
                            Disabled />
             </MudTd>
             <MudTd Style="text-align:center">
-                <MudTooltip Text="@L["Common_Edit"]">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                   Size="Size.Small"
-                                   Color="Color.Primary"
-                                   OnClick="@(() => OpenBrandDialog(true, context))" />
-                </MudTooltip>
-                <MudTooltip Text="@L["Common_Delete"]">
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   Size="Size.Small"
-                                   Color="Color.Error"
-                                   OnClick="() => OpenDeleteConfirm(context)" />
-                </MudTooltip>
+                <HasPermission Permission="@AppPermissions.Brand.Update">
+                    <MudTooltip Text="@L["Common_Edit"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => OpenBrandDialog(true, context))" />
+                    </MudTooltip>
+                </HasPermission>
+                <HasPermission Permission="@AppPermissions.Brand.Delete">
+                    <MudTooltip Text="@L["Common_Delete"]">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="() => OpenDeleteConfirm(context)" />
+                    </MudTooltip>
+                </HasPermission>
             </MudTd>
         </RowTemplate>
 

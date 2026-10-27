@@ -6,7 +6,13 @@ namespace Catalog.Core.DTOs
 
         public string Name { get; set; }
 
+        // Lets the pricing grid disable the row: prices of a product with variants are
+        // derived and must be edited on each variant instead.
+        public bool HasVariants { get; set; }
+
         public decimal Price { get; set; } = 0;
+
+        public decimal PriceMax { get; set; } = 0;
 
         public decimal? OldPrice { get; set; }
 

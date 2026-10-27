@@ -3,6 +3,7 @@ using Identity.Application.Options;
 using Identity.Core.Constants;
 using Identity.Core.Entities;
 using Identity.Infrastructure.Security;
+using LiteCommerce.Shared.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -27,17 +28,21 @@ namespace Identity.Infrastructure.Services
             _signingKey = RsaKeyLoader.Load(_options.PrivateKeyPath, "Private");
         }
 
-        public (string AccessToken, DateTime Expires) CreateAccessToken(User user)
+        public (string AccessToken, DateTime Expires) CreateAccessToken(User user, IReadOnlyCollection<string> permissions)
         {
             var expires = DateTime.UtcNow.AddMinutes(_options.AccessTokenMinutes);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(RoleClaimType, user.Role?.Name ?? IdentityRoles.Customer),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new(JwtRegisteredClaimNames.Email, user.Email),
+                new(RoleClaimType, user.Role?.Name ?? IdentityRoles.Customer),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            // Omitted entirely when empty, so a storefront token carries no permission claim.
+            if (permissions.Count > 0)
+                claims.Add(new Claim(AppClaimTypes.Permission, PermissionMatcher.Join(permissions)));
 
             var handler = new JwtSecurityTokenHandler();
             // Keep sub/email/role as-is instead of expanding them into the long URIs.

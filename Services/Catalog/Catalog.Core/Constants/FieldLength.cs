@@ -11,6 +11,16 @@ namespace Catalog.Core.Constants
 
         public const int ProductName = 450;
         public const int ProductSlug = 450;
+        public const int ProductSku = 100;
+        public const int ProductGtin = 100;
+
+        public const int ProductOptionName = 255;
+        public const int ProductOptionDisplayType = 50;
+        public const int ProductOptionValueItemKey = 100;
+        public const int ProductOptionValueItemDisplay = 255;
+
+        public const int ProductVariantName = 450;
+        public const int ProductVariantNormalizedName = 450;
 
         public const int LogAction = 20;
         public const int LogEntityName = 100;
